@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="/style.css" >
+
+
+
+
+<script src='/mousetrap.min.js'></script> <!-- include mousetrap for keycommands -->
+<script src='/mouse.js'></script>
+<script src='/CTC.js'></script>
+
+</head>
+<body>
+
+<div id='fullpage'>
+	<div id='header'>
+		<div class='headerTitle'>reel logger</div>
+		<div class='headerOption' onclick="CTC.page.reelLogger.kitJob(0)">kit job</div>
+	</div>
+	<div id='content'>
+		<div class=chunky_but onclick="CTC.modal.show()"></div>
+	</div>
+</div>
+<div id='myModal' class='modal'>
+	<div id='myModalContent'class='modal-content'>
+		<input type='text' name='modalInput'>
+</div>
+</div>
+
+</body>
+</html>

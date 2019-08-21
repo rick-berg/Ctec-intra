@@ -1,0 +1,51 @@
+var CTC ={};
+/* 
+************************************************************************
+DATA 
+************************************************************************
+*/
+CTC.data = {};
+CTC.data.packet = {};
+CTC.data.packet.var1 = 'variable 1';
+CTC.data.packet.var2 = 'variable 2';
+CTC.data.send = function (request)
+{
+
+	
+	//var req = encodeURIComponent(JSON.stringify(CTC.data));
+	var req = JSON.stringify(CTC.data.packet);
+	//var req = CTC.data;
+	var xmlhttp = null;
+	
+	if (window.XMLHttpRequest)
+		{// code for IE7+, Firefox, Chrome, Opera, Safari
+			xmlhttp=new XMLHttpRequest();
+		}
+	else
+		{// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+	xmlhttp.onreadystatechange=function()
+		{
+			if (xmlhttp.readyState==4 && xmlhttp.status==200)
+				{
+					//document.getElementById("content").innerHTML=xmlhttp.responseText;
+					CTC.data.receive(xmlhttp.responseText);
+				}
+		}
+		
+	//xmlhttp.open("GET","/ajax?q="+req,true);
+	var str = "/ajax?q="+req;
+	//alert(str);
+	xmlhttp.open("GET",str,true);
+	xmlhttp.send();	
+}
+CTC.data.receive = function(r){
+	try{
+		eval("var tempobj = "+r);
+	}
+	catch(err){
+		alert(err);
+	}
+       //alert(tempobj.var1);
+}

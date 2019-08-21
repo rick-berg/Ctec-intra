@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<link rel="stylesheet" type="text/css" href="/style.css" >
+<script src='/mousetrap.min.js'></script> <!-- include mousetrap for keycommands -->
+<script src='/mouse.js'></script>
+<script src='/CTC.js'></script>
+
+</head>
+<body>
+
+<div id='fullpage'>
+<div id='header'></div>
+<div id='content'>
+<div class=chunky_but onclick="UNI.pp()">click this</div>
+<div class=chunky_but onclick="CTC.data.send()"> ajax send </div>
+<div class=chunky_but onclick="CTC.page.faultLog.load()"> Load fault logger </div>
+</div>
+
+</div>
+
+</body>
+</html>
