@@ -49,6 +49,141 @@ CTC.data.receive = function(r){
 }
 
 
+CTC.locationdata = {};
+CTC.locationdata.send = function (request)
+{
+	var req = JSON.stringify(CTC.locationdata.data);
+	var xhr = null;
+	
+var xhr = new XMLHttpRequest();
+	
+	
+	xhr.onreadystatechange=function()
+		{
+			if (xhr.readyState==4 && xhr.status==200)
+				{
+					//document.getElementById("content").innerHTML=xmlhttp.responseText;
+					CTC.locationdata.receive(xhr.responseText);
+				}
+		}
+		
+	//alert(str);
+xhr.open("POST", "/location", true);
+xhr.setRequestHeader('Content-Type', 'application/json');
+			//console.log(CTC.locationdata.data);
+			var xhrdata = JSON.stringify(CTC.locationdata.data)
+			console.log(xhrdata);
+xhr.send(xhrdata);
+}
+
+
+
+
+CTC.locationdata.receive = function(r){
+	try{
+		eval("var tempobj = "+r);
+	}
+	catch(err){
+		alert(err);
+	}
+       alert(tempobj.var1);
+}
+
+
+
+
+
+/* 
+************************************************************************
+DATE RANGE EXPORT
+************************************************************************
+*/
+
+CTC.datesearch = {};
+CTC.datesearch.packet = {};
+CTC.datesearch.send = function (request)
+{
+	//format the date strings ready for sql query  YYYY-MM-DD
+	//Sun Jan 06 2019    basic string
+	//012345678901234    count
+	
+	CTC.datesearch.packet.startDate = getDateString('start');
+	CTC.datesearch.packet.endDate = getDateString('end');
+	/*
+	startDate = document.getElementById("start").value;
+	
+	startDateY = startDate.substr(11, 4);
+	startDateM = startDate.substr(4, 3);
+	// convert month fro xxx letters to xx number format
+	//startDateM = Date.parse(startDateM);
+	startDateM = changeMonth(startDateM);
+	// this only returns single figure for first 9 months we want 01.. 02 03 etc
+	
+	startDateD = startDate.substr(8, 2);
+	SDV.data.packet.startDate = startDateY+'-'+startDateM+'-'+startDateD;
+	
+	endDate = document.getElementById("end").value;
+	endDateY = startDate.substr(11, 4);
+	endDateM = startDate.substr(4, 3);
+	endDateD = startDate.substr(8, 2);
+	*/
+	
+	/*
+	SELECT * 
+  FROM yourtable
+ WHERE yourtimetimefield>='2010-10-01'
+   AND yourtimetimefield< '2010-11-01'
+	*/
+	
+	if (CTC.datesearch.packet.startDate == '' || CTC.datesearch.packet.endDate == '')
+	{
+		alert('please select dates')	
+	}else{
+		
+		//var req = encodeURIComponent(JSON.stringify(SDV.data));
+		var req = JSON.stringify(CTC.datesearch.packet);
+		//var req = SDV.data;
+		var xmlhttp = null;
+	
+		if (window.XMLHttpRequest)
+			{// code for IE7+, Firefox, Chrome, Opera, Safari
+				xmlhttp=new XMLHttpRequest();
+			}
+		else
+			{// code for IE6, IE5
+				xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+		xmlhttp.onreadystatechange=function()
+			{
+				if (xmlhttp.readyState==4 && xmlhttp.status==200)
+					{
+						//document.getElementById("content").innerHTML=xmlhttp.responseText;
+						CTC.datesearch.receive(xmlhttp.responseText);
+					}
+			}
+		
+		//xmlhttp.open("GET","/ajax?q="+req,true);
+		var str = "/mysqlReadBetweenDates?q="+req;
+//		alert(str);
+		xmlhttp.open("GET",str,true);
+		xmlhttp.send();	
+	}
+	
+}
+
+CTC.datesearch.receive = function(r){
+	try{
+		eval("var tempobj = "+r);
+	}
+	catch(err){
+//		alert(err);
+	}
+//	alert();
+	document.getElementById("dataBox").innerHTML= r;
+}
+
+
+
 /* 
 ************************************************************************
 DATE PICKER (pikaday)  things for date range lookup imported and not checked yet
@@ -175,6 +310,123 @@ function changeMonth(mon){
    return -1;
  }
 
+/* 
+************************************************************************
+DATA VIEWER SEARCHES
+************************************************************************
+*/
+CTC.query={}
+CTC.query.packet={}
+CTC.query.stage1 = function() {
+	CTC.query.packet.table = "reellog"
+	CTC.query.packet.field = document.getElementById("mySelect").value;	
+}
+CTC.query.stage2 = function() {
+	CTC.query.packet.table = "reellog"
+	CTC.query.packet.field = document.getElementById("mySelect").value;
+	CTC.query.packet.value = document.getElementById("subSelect").value;
+	CTC.query.send2();
+}
+CTC.query.send2 = function(){
+	if (SDV.data.packet.field == '' || SDV.data.packet.value == '')
+	{
+		alert(' some info is missing ')	
+	}else{
+		var req = JSON.stringify(CTC.query.packet);
+		var xmlhttp = null;
+		if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+			xmlhttp=new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function(){
+			if (xmlhttp.readyState==4 && xmlhttp.status==200){
+				CTC.query.receive2(xmlhttp.responseText);
+			}
+		}	
+		//xmlhttp.open("GET","/ajax?q="+req,true);
+		var str = "/mysqlQuery2?q="+req;
+		//alert(str);
+		xmlhttp.open("GET",str,true);
+		xmlhttp.send();	
+	}
+}
+
+CTC.query.receive2 = function(r){
+	document.getElementById("dataBox").innerHTML= r;
+}	
+
+
+
+
+CTC.query.send = function (request)
+{
+	CTC.query.packet.table = "reellog"
+	CTC.query.packet.field = document.getElementById("mySelect").value;
+	if (SDV.data.packet.table == '' || SDV.data.packet.field == '')
+	{
+		alert(' some info is missing ')	
+	}else{
+		//var req = encodeURIComponent(JSON.stringify(SDV.data));
+		var req = JSON.stringify(CTC.query.packet);
+		//var req = SDV.data;
+		var xmlhttp = null;
+		if (window.XMLHttpRequest)
+		{// code for IE7+, Firefox, Chrome, Opera, Safari
+			xmlhttp=new XMLHttpRequest();
+		} else {// code for IE6, IE5
+			xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+		}
+		xmlhttp.onreadystatechange=function()
+		{
+			if (xmlhttp.readyState==4 && xmlhttp.status==200)
+			{
+				//document.getElementById("content").innerHTML=xmlhttp.responseText;
+				CTC.query.receive(xmlhttp.responseText);
+			}
+		}	
+		//xmlhttp.open("GET","/ajax?q="+req,true);
+		var str = "/mysqlQuery?q="+req;
+		alert(str);
+		xmlhttp.open("GET",str,true);
+		xmlhttp.send();	
+	}
+
+}
+
+CTC.query.receive = function(r){
+	try{
+		eval("var tempobj = "+r);
+	}
+	catch(err){
+		alert(err);
+	}
+	var result = JSON.parse(r);
+	var txt = '';
+	txt = txt + '<select id="subSelect"onchange="CTC.query.stage2()" >';
+	txt = txt + '<option value=""></option>';
+	for (i in result){
+		//txt = txt + '<option value="'+result[i].workorder+'">'+result[i].workorder+'</option>';
+		txt = txt + '<option value="'+Object.values(result[i])+'">'+Object.values(result[i])+'</option>';
+	}
+	txt = txt + '</select>';
+	document.getElementById("searchsub").innerHTML= txt;
+}	
+
+
+
+/*
+read specific (field,value, table)
+    select
+    *
+    from
+    table
+    where
+    field
+    =
+    value
+*/
+
 
 
 /* 
@@ -271,18 +523,32 @@ function readLocations(that){
 		reader.onload = function (e) {  
 			var output=e.target.result;
 			output=output.split("\n");
-			console.log(output);
+			var result = [];
+			var headers=output[0].split(",");
+// console.log('headers');
+	console.log(headers);
+  for(var i=1;i<output.length;i++){
+
+      var obj = {};
+      var currentline=output[i].split(",");
+//console.log('current line');
+	console.log(currentline);
+      for(var j=0;j<headers.length;j++){
+          obj[headers[j]] = currentline[j];
+      }
+						result.push(obj);
+		}
+			console.log(result);
+
+			CTC.locationdata.data = result;
 			
 			var txt = '<div style="height:220px;width:620px;border:1px solid #ccc;font:16px/26px Georgia, Garamond, Serif;overflow:auto;">';
 			for(i in output){
-				if(i==0){
-					
-				} else {
 				txt = txt + '';
 				txt = txt + '<div>'+output[i]+'</div>';
-				}
 			}
 			txt = txt +'</div>';
+			txt = txt +'<button type="button" onclick=CTC.locationdata.send() >Click Me!</button>';
 			document.getElementById('content').innerHTML= txt;
 		}
 		reader.readAsText(that.files[0]);
@@ -355,22 +621,39 @@ CTC.page.Dataviewer = {}
 CTC.page.Dataviewer.load = function(){
 	
 	var txt = '';
-	txt = txt + '<h1>SMT Reel Data Viewer</h1>';
+	txt = txt + '';
 	txt = txt + '<p class="large">select a date range to view</p>';
+	txt = txt + '';
 	txt = txt + '<div style="display: inline-block">';
 	txt = txt + '<label for="start">Start:</label>';
 	txt = txt + '<br>';
 	txt = txt + '<input type="text" id="start">';
 	txt = txt + '</div>';
+	txt = txt + '';
 	txt = txt + ' <div style="display: inline-block">';
 	txt = txt + '<label for="end">End:</label>';
 	txt = txt + '<br>';
 	txt = txt + '<input type="text" id="end">';
 	txt = txt + '</div>';
-	txt = txt + '<input type="button" value="Click me" onclick="SDV.data.send()">';
-	txt = txt + '<div id=dataBox></div>';
 	txt = txt + '';
-
+	txt = txt + '<input type="button" value="Click me" onclick="CTC.datesearch.send()">';
+	txt = txt + '<br>';
+	txt = txt + '';
+	txt = txt + '<div>';
+	txt = txt + '<p class="large">search by</p>';
+	txt = txt + '<select id="mySelect" onchange="CTC.query.send()">';
+	txt = txt + '<option value=""></option>';
+	txt = txt + '<option value="workorder">Work Order</option>';
+	txt = txt + '<option value="bcpartnumber">Part number</option>';
+	txt = txt + '</select>';
+	txt = txt + '</div>';
+	txt = txt + '';
+	txt = txt + '<div style="float: left" id="searchsub">';
+	txt = txt + '</div>';
+	txt = txt + '<br>';
+	txt = txt + '<br>';
+	txt = txt + '<div class="scrollybox" id=dataBox></div>';
+	txt = txt + '';
 	document.getElementById("content").innerHTML=txt
 	SDV.initpika();
 
