@@ -89,5 +89,21 @@ li {
   }
 }
 
+.scrollybox{
+ height:220px;
+ width:620px;
+ border:1px solid #ccc;
+ font:16px/26px Georgia, Garamond, Serif;
+ overflow:auto;
+}
+
+.large{
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 0em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-size: 1.4em;
+}
 
 
