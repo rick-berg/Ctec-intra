@@ -8,6 +8,7 @@
 }
 body {
  margin: 0;
+ background-color: #999999;
  
 }
 .top{
@@ -16,7 +17,6 @@ body {
 }
 /* Add a black background color to the top navigation */
 .topnav {
-  background-color: #999999;
   overflow: hidden;
 }
 
@@ -43,14 +43,12 @@ body {
 }
 
 #content {
-  background-color: #999999;
   overflow: hidden;
   padding: 14px 16px;
   text-decoration: none;
   height: calc(100vh - 199px);
 }
 .bottom {
-  background-color: #999999;
   overflow: hidden;
   font-size: 1.7em;
 }
@@ -91,9 +89,9 @@ li {
 
 .scrollybox{
  height:220px;
- width:620px;
+ width:90%;
  border:1px solid #ccc;
- font:16px/26px Georgia, Garamond, Serif;
+ font:10px/16px Georgia, Garamond, Serif;
  overflow:auto;
 }
 
@@ -104,6 +102,41 @@ li {
     margin-inline-start: 0px;
     margin-inline-end: 0px;
     font-size: 1.4em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+#myInput {
+  background-image: url('/css/searchicon.png');
+  background-position: 10px 10px;
+  background-repeat: no-repeat;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 20px 12px 40px;
+  border: 1px solid #ddd;
+  margin-bottom: 12px;
+}
+
+#myTable {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ddd;
+  font-size: 18px;
+}
+
+#myTable th, #myTable td {
+  text-align: left;
+  padding: 12px;
+}
+
+#myTable tr {
+  border-bottom: 1px solid #ddd;
+}
+
+#myTable tr.header, #myTable tr:hover {
+  background-color: #f1f1f1;
 }
 
 
