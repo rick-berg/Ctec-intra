@@ -1,12 +1,11 @@
 {
   "name": "ctecprodsup",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "c-tec production support",
   "dependencies": {
     "body-parser": "^1.19.0",
     "express": "^4.16.3",
     "http": "latest",
-    "lodash": "^4.17.15",
     "mysql": "^2.16.0"
   },
   "author": "Rick Berg",
