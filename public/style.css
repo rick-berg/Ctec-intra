@@ -88,8 +88,9 @@ li {
 }
 
 .scrollybox{
- height:220px;
- width:90%;
+ /* height:calc(100vh - 250px); */
+ height:250px;
+ width:80%;
  border:1px solid #ccc;
  font:10px/16px Georgia, Garamond, Serif;
  overflow:auto;
@@ -108,34 +109,31 @@ li {
   box-sizing: border-box;
 }
 
-#myInput {
-  background-image: url('/css/searchicon.png');
-  background-position: 10px 10px;
-  background-repeat: no-repeat;
-  width: 100%;
+#partLocatorInput {
+  width: 40%;
   font-size: 16px;
-  padding: 12px 20px 12px 40px;
+  padding: 6px 10px 6px 40px;
   border: 1px solid #ddd;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
-#myTable {
+#locationsTable {
   border-collapse: collapse;
-  width: 100%;
+  width: 90%;
   border: 1px solid #ddd;
-  font-size: 18px;
+  font-size: 14px;
 }
 
-#myTable th, #myTable td {
+#locationsTable th, #myTable td {
   text-align: left;
-  padding: 12px;
+  padding: 8px;
 }
 
-#myTable tr {
+#locationsTable tr {
   border-bottom: 1px solid #ddd;
 }
 
-#myTable tr.header, #myTable tr:hover {
+#locationsTable tr.header, #myTable tr:hover {
   background-color: #f1f1f1;
 }
 

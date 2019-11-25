@@ -38,8 +38,8 @@ router.get("/",function(req,res){
 	res.sendFile(path+"index.html");
 });
 
-router.get("/reelLogger",function(req,res){
-	res.sendFile(path+"reelLogger.html");
+router.get("/fault",function(req,res){
+	res.sendFile(path+"fault.html");
 });
 
 router.route('/location').post(function (req, res) {
@@ -55,6 +55,175 @@ router.route('/location').post(function (req, res) {
 	res.send(thingy);	
 });
 
+router.route('/enterFault').post(function (req, res) {
+	var thingy = req.body;
+	console.log(thingy);
+	sqlstring = 'INSERT INTO '
+	+thingy.table+
+	' (timestamp, operator_initials, work_order, work_order_quantity, finished_part_number, pcb_part_number, reported_fault, investigation_findings, additional_comments, repaired_scrapped, fail_catagory, faulty_part_number, faulty_location_reference, completed)'+
+	' VALUES (CURRENT_TIMESTAMP(), "'+thingy.operatorName+'", "'+thingy.workOrder+'",'+thingy.quantity+',"'+thingy.finishedPartNumber+'","'+thingy.pcbNumber+'","'+thingy.faultDesc+'","'+thingy.investigation_findings+'","'+thingy.additional_comments+'","'+thingy.repaired_scrapped+'","'+thingy.fail_catagory+'","'+thingy.faulty_part_number+'","'+thingy.faulty_location_reference+'",CURRENT_TIMESTAMP())';
+	
+
+	faultPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			//res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+			//	res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(thingy.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.set('Content-Type', 'application/JSON')
+					//res.send(JSON.stringify({ worked: true }))
+					res.status(200);
+					res.send(json);
+					//res.send('it worked');
+					break;
+				case 'CSV':
+				//	res.status(200).send(returnAsCsv(json));
+					break;
+			}
+			
+		});
+		console.log('done');
+	});
+	
+	
+	
+	for (i in thingy){
+		console.log(thingy[i]);
+	}
+	
+	
+//	res.setHeader('Content-Type','application/json');
+//	res.send(thingy);	
+});
+
+
+
+router.route('/completeExistingFault').post(function (req, res) {
+	var thingy = req.body;
+	console.log(thingy);
+	sqlstring = 'UPDATE '
+	+thingy.table+
+	' SET '+
+	'investigation_findings = "'+thingy.investigation_findings+
+	'", additional_comments = "'+thingy.additional_comments+
+	'", repaired_scrapped = "'+thingy.repaired_scrapped+
+	'", fail_catagory = "'+thingy.fail_catagory+
+	'", faulty_part_number = "'+thingy.faulty_part_number+
+	'", faulty_location_reference = "'+thingy.faulty_location_reference+
+//	'", completed = "completed"'+
+	'", completed = CURRENT_TIMESTAMP()'+
+	' WHERE'+
+	' idfault = '+thingy.idfault+';'
+	
+
+	faultPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			//res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+			//	res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(thingy.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.set('Content-Type', 'application/JSON')
+					//res.send(JSON.stringify({ worked: true }))
+					res.status(200);
+					res.send(json);
+					//res.send('it worked');
+					break;
+				case 'CSV':
+				//	res.status(200).send(returnAsCsv(json));
+					break;
+			}
+			
+		});
+		console.log('done');
+	});
+	
+	
+	
+	for (i in thingy){
+		console.log(thingy[i]);
+	}
+	
+	
+//	res.setHeader('Content-Type','application/json');
+//	res.send(thingy);	
+});
+
+
+router.route('/enterFaultIncomplete').post(function (req, res) {
+	var thingy = req.body;
+//	var myObject = JSON.parse(req.query.q)
+	console.log(thingy);
+//	sqlstring = sqlStringBuilder(thingy);
+	sqlstring = 'INSERT INTO '+thingy.table+' (timestamp, operator_initials, work_order, work_order_quantity, finished_part_number, pcb_part_number, reported_fault) VALUES (CURRENT_TIMESTAMP(), "'+thingy.operatorName+'", "'+thingy.workOrder+'",'+thingy.quantity+',"'+thingy.finishedPartNumber+'","'+thingy.pcbNumber+'","'+thingy.faultDesc+'")'
+	
+
+	faultPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			//res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+			//	res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(thingy.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.set('Content-Type', 'application/JSON')
+					//res.send(JSON.stringify({ worked: true }))
+					res.status(200);
+					res.send(json);
+					//res.send('it worked');
+					break;
+				case 'CSV':
+				//	res.status(200).send(returnAsCsv(json));
+					break;
+			}
+			
+		});
+		console.log('done');
+	});
+	
+	
+	
+	for (i in thingy){
+		console.log(thingy[i]);
+	}
+	
+	
+//	res.setHeader('Content-Type','application/json');
+//	res.send(thingy);	
+});
 
 /*
 var con = mysql.createConnection({
@@ -73,6 +242,54 @@ var pool        = mysql.createPool({
     password        : 'ctec69sql',
     database        : 'smtreelprocess'
 });
+
+var faultPool        = mysql.createPool({
+    connectionLimit : 10, // default = 10
+    host            : 'localhost',
+    user            : 'smtuser',  // use root on live
+    password        : 'ctec69sql',
+    database        : 'simplefaultdb'
+});
+
+app.get('/faultQuery', function(req, res){
+	
+	var myObject = JSON.parse(req.query.q)
+	//myTable = myObject.table;
+	//myField = myObject.field;
+	//console.log('sqlFunction = '+myObject.sqlFunction+'');
+	var sqlstring = '';
+	sqlstring = sqlStringBuilder(myObject);
+	faultPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+				res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(myObject.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.status(200).send(json);
+					break;
+				case 'CSV':
+					res.status(200).send(returnAsCsv(json));
+					break;
+			}
+			
+		});
+		console.log('done');
+	});
+});
+
+
 
 
 app.get('/dbRead', function(req, res){
@@ -187,39 +404,6 @@ app.get('/mysqlQuery', function(req, res){
 	});
 });
 
-
-app.get('/mysqlQuery2', function(req, res){
-	
-	var myObject = JSON.parse(req.query.q)
-	myTable = myObject.table;
-	myField = myObject.field;
-	myValue = myObject.value;
-	console.log('query the database table: '+myTable+' where field: '+myField+' is equal to '+myValue+'');
-
-	pool.getConnection(function (err, connection) {
-	//pg.connect(pg_connectionString,function(err,client,done) {
-		if (err){
-			console.log('server connect fail : '+err);
-			res.status(400).send(err);
-		}
-		//con.query("SELECT * FROM reellog WHERE processtimestamp >= TO_TIMESTAMP(myObject.startDate, 'yyyy-mm-dd' ) AND < TO_TIMESTAMP(myObject.endDate, 'yyyy-mm-dd')",(err, result, fields) =>{
-		//con.query('SELECT * FROM reellog WHERE processtimestamp >= TIMESTAMP  ( "'+myStartDate+'" , "'+myFormat+'") AND processtimestamp <= TIMESTAMP( "'+myEndDate+'" , "'+myFormat+'") ', (err, result, fields) =>{
-		connection.query('SELECT * FROM '+myTable+' WHERE '+myField+' = "'+myValue+'"', (err, result, fields) =>{
-//		pool.query('SELECT NOW()', (err, result) =>{
-			//done();
-			console.log('sql command done');
-			connection.release();
-			if(err){
-				console.log('sql command error');
-				console.log(err);
-				res.status(400).send(err);
-			}
-			res.status(200).send(returnAsCsv(result));
-		});
-		console.log('done');
-	});
-});
-
 sqlStringBuilder = function(data){
 	var sqlString = ''
 	switch(data.sqlFunction) {
@@ -240,6 +424,16 @@ sqlStringBuilder = function(data){
 			break;
 		case 'getAll':
 			sqlString = 'SELECT * FROM '+data.table+'';
+			console.log('sql string is '+sqlString)
+			return sqlString;
+			break;
+		case 'getField':
+			sqlString = 'SELECT '+data.field+' FROM '+data.table+'';
+			console.log('sql string is '+sqlString)
+			return sqlString;
+			break;
+		case 'getNotNull':
+			sqlString = 'SELECT '+data.field+' FROM '+data.table+' WHERE '+data.value+' IS NULL'
 			console.log('sql string is '+sqlString)
 			return sqlString;
 			break;
@@ -266,7 +460,7 @@ returnAsCsv = function(data){
 app.get('/test', function(req, res){
 	console.log('Really Simple GET Request Handler that returns a JSON object');
     res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify({ 'variable': 'value' }));
+    res.send(JSON.stringify({ 'key': 'value' }));
 });
 app.get('/hey', function (req, res){    //http://localhost:8080/hey?var1=1
 	var param = req.query.var1;  

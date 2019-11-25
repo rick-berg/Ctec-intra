@@ -17,7 +17,7 @@ CTC.data.builder = function (swFunc){
 			CTC.data.packet.sqlFunction = "betweenTimes";
 			CTC.data.packet.startDate = getDateString('start');
 			CTC.data.packet.endDate = getDateString('end');
-			CTC.data.packet.reciever = 'console';
+			CTC.data.packet.reciever = 'dataBox';
 			CTC.data.packet.responseAs = 'JSON';
 			break;
 		case 'searchByPoW':
@@ -35,7 +35,7 @@ CTC.data.builder = function (swFunc){
 			CTC.data.packet.value = document.getElementById("subSelect").value;
 			CTC.data.packet.sqlFunction = "genSelTFV";
 			CTC.data.packet.reciever = 'dataBox';
-			CTC.data.packet.responseAs = 'CSV';
+			CTC.data.packet.responseAs = 'JSON';
 			break;
 		case 'partLocations':
 			CTC.data.packet.table = "reellocation";
@@ -96,7 +96,34 @@ CTC.data.receive = function(r,swFunc){
 			document.getElementById("searchsub").innerHTML= txt;
 			break;
 		case 'dataBox':
-			document.getElementById("dataBox").innerHTML= r;
+			var result = JSON.parse(r);
+			var fields = Object.keys(result[0]);
+			var txt = '';
+			txt = txt + '<table id="locationsTable">';
+			txt = txt + '<tr class="header">';
+			for (var i in fields) {
+				txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
+			}	
+			txt = txt + '</tr>';
+			for (var key in result) {
+				txt = txt + '<tr>';
+				if (result.hasOwnProperty(key)) {
+//					for (var i in fields) {
+//						txt = txt + '<td>'+ result[key].fields[i] + '</td>';
+//					}	
+					txt = txt + '<td>'+ result[key].workorder + '</td>';
+					txt = txt + '<td>'+ result[key].assemblynumber + '</td>';
+					txt = txt + '<td>'+ result[key].processtimestamp + '</td>';
+					txt = txt + '<td>'+ result[key].users + '</td>';
+					txt = txt + '<td>'+ result[key].bcpartnumber + '</td>';
+					txt = txt + '<td>'+ result[key].bclotcode + '</td>';
+					txt = txt + '<td>'+ result[key].bcid + '</td>';
+					txt = txt + '<td>'+ result[key].details + '</td>';
+				}
+				txt = txt + '</tr>';
+			}	
+			txt = txt + '</table>';
+			document.getElementById("dataBox").innerHTML= txt;
 			break;
 		case 'partLocations':
 			locationtablebuilder(r);
@@ -135,7 +162,31 @@ CTC.locationdata.receive = function(r){
 	console.log(tempobj);
 }
 
+function copyToClipboard(containerid) {
+if (document.selection) { 
+    var range = document.body.createTextRange();
+    range.moveToElementText(document.getElementById(containerid));
+    range.select().createTextRange();
+    document.execCommand("copy"); 
 
+} else if (window.getSelection) {
+    var range = document.createRange();
+     //range.selectNode(document.getElementById(containerid));
+		 range.selectNode(containerid);
+		 window.getSelection().removeAllRanges(); 
+     window.getSelection().addRange(range);
+     document.execCommand("copy");
+		 window.getSelection().removeAllRanges();
+     alert("text copied") 
+}}
+
+
+copyDataBox = function(){
+	var copyText = document.getElementById("dataBox");
+  copyText.select();
+  document.execCommand("copy");
+  alert("Copied the text: " + copyText.value);
+}
 
 
 /* 
@@ -149,6 +200,7 @@ function locationtablebuilder(data){
 	console.log(result);
 	var txt = '';
 	txt = txt + '<input type="text" id="partLocatorInput" onkeyup="locationSearch()" placeholder="Search for parts.." title="Type in a part number">';
+	txt = txt + '<div class=scrollybox>';
 	txt = txt + '<table id="locationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
@@ -165,6 +217,7 @@ function locationtablebuilder(data){
 		txt = txt + '</tr>';
 	}	
 	txt = txt + '</table>';
+	txt = txt + '</div>';
 
 	document.getElementById("content").innerHTML= txt;
 	
@@ -388,7 +441,7 @@ function readLocations(that){			//read locations file and convert to json object
 				txt = txt + '<div>'+output[i]+'</div>';
 			}
 			txt = txt +'</div>';
-			txt = txt +'<button type="button" onclick=CTC.locationdata.send() >Click Me!</button>';
+			txt = txt +'<button type="button" onclick=CTC.locationdata.send() >Submit</button>';
 			document.getElementById('content').innerHTML= txt;
 		}
 		reader.readAsText(that.files[0]);
@@ -431,11 +484,20 @@ CTC.page.Home.load = function(){
 	document.getElementById("content").innerHTML=txt
 }
 
-CTC.page.Kitjob = {}
-CTC.page.Kitjob.load = function(){
+CTC.page.CreateWo = {}
+CTC.page.CreateWo.load = function(){
 	var txt = '';
 	txt = txt + '';
-	txt = txt + 'Kitjob not implemented';
+	txt = txt + 'Create Work order not implemented';
+	document.getElementById("content").innerHTML=txt
+}
+CTC.page.KitWo = {}
+CTC.page.KitWo.load = function(){
+	var txt = '';
+	txt = txt + '';
+	txt = txt + 'Kit Work order not implemented';
+	txt = txt + '';
+	txt = txt + '';
 	document.getElementById("content").innerHTML=txt
 }
 
@@ -517,8 +579,10 @@ CTC.page.Dataviewer.load = function(){
 	txt = txt + '</div>';
 	txt = txt + '<br>';
 	txt = txt + '<br>';
+//	txt = txt + '<textarea id="dataBox" cols="100" rows="20"></textarea>';
 	txt = txt + '<div class="scrollybox" id=dataBox></div>';
-	txt = txt + '';
+	txt = txt + '<button onclick="copyToClipboard(dataBox)">Copy text</button>';
+	
 	document.getElementById("content").innerHTML=txt
 	CTC.initpika();
 
