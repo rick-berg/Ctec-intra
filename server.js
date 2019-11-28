@@ -437,6 +437,17 @@ sqlStringBuilder = function(data){
 			console.log('sql string is '+sqlString)
 			return sqlString;
 			break;
+		case 'faultsByWeek':
+			sqlString = 'select WEEK(timestamp,1) as week_number, '+
+			'sum(case when fail_catagory = \'SMT\' then 1 else 0 end) as SMT_faults, '+
+			'sum(case when fail_catagory = \'CONV\' then 1 else 0 end) as conventional_faults, '+
+			'sum(case when fail_catagory = \'PROG/TEST\' then 1 else 0 end) as program_test_faults, '+
+			'sum(case when fail_catagory = \'undefined\' then 1 else 0 end) as undefined_faults '+
+			'from fault '+
+			'group by WEEK(timestamp,1)';
+			console.log('sql string is '+sqlString)
+			return sqlString;
+			break;
 		
 	}
 }
