@@ -5,8 +5,10 @@ finishedPartNumbers = {};
 PCBPartNumbers = {};
 componentPartNumbers = {};
 incomingData = {};
+barChartData = {};
 
-componentPartNumbers = getData('componentpartnumbers','getAll','*','', 'component');
+//componentPartNumbers = 
+getData('componentpartnumbers','getAll','*','', 'component');
 
 
 faultData = {};
@@ -50,6 +52,9 @@ function getData(table, sqlFunction, field, value, swFunc){
 					break;
 				case 'incomplete':
 					recieveIncomplete(response);
+					break;
+				case 'chartData':
+					barChartData = response;
 					break;
 			}
 			
@@ -941,11 +946,11 @@ submitCompletedFault = function (){
 }
 
 
-/*******************************************************
+/**********************************************************************************************
  *
  *  Charts 
  *
- *******************************************************
+ **********************************************************************************************
  */
 loadChartsPage = function(){
 	
@@ -959,16 +964,21 @@ loadChartsPage = function(){
 	//txt = txt + '<canvas id="myChart" width="80" height="30"></canvas>';
 	txt = txt + '</div>'
 	document.getElementById("content").innerHTML=txt;
-	//loadBarChart();
+		
+	loadBarChartData();
+
 }
+loadBarChartData =function() {
+	getData('fault','faultsByWeek','','', 'chartData');
 	
+}
 loadBarChart = function(){
 	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
 	var ctx = document.getElementById('myChart').getContext('2d');
 var myChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Week1', 'Week2', 'Week3', 'Week4', 'Week5', 'Week6'],
+        labels: ['Week'+'1', 'Week2', 'Week3', 'Week4', 'Week5', 'Week6'],
         datasets: [{
             label: 'Solder bridge',
             data: [12, 19, 3, 5, 2, 3],
@@ -1010,12 +1020,57 @@ var myChart = new Chart(ctx, {
 }
 
 loadLineChart = function(){
+	var faultcats = ['SMT faults','CONV faults','PROG/TEST faults','Undefined faults']
+	var faultcolours = ['rgba(255, 99, 132, 0.5)','rgba(54, 162, 235, 0.5)','rgba(255, 206, 86, 0.5)','rgba(75, 192, 192, 0.5)']
+	var fields = Object.keys(barChartData[0]);
+	var setConfig = {};
+	setConfig.type = 'line';
+	setConfig.data = {};
+	setConfig.data.labels = [];
+	setConfig.data.datasets = [];
+	setConfig.options = {
+					responsive: true,
+					hoverMode: 'index',
+					stacked: false,
+					title: {
+						display: true,
+						text: 'Fault catagories per week'
+					},
+					scales: {
+						yAxes: {
+							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+							display: true,
+						},
+					}
+				}
+	for (var j in faultcats){
+				 setConfig.data.datasets.push ({
+					
+					label: faultcats[j],
+					borderColor: faultcolours[j],
+					backgroundColor: faultcolours[j],				
+					fill: false,
+					data: [],
+				 	});
+	}
+	for (var i in barChartData){
+			 setConfig.data.labels.push ('Week'+ barChartData[i].week_number);
+				setConfig.data.datasets[0].data.push (barChartData[i].SMT_faults)
+				setConfig.data.datasets[1].data.push (barChartData[i].conventional_faults)
+			setConfig.data.datasets[2].data.push (barChartData[i].program_test_faults)
+			setConfig.data.datasets[3].data.push (barChartData[i].undefined_faults)
+	}
+	
+	
 	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
 	var ctx = document.getElementById('myChart').getContext('2d');
-	var myLineChart = new Chart(ctx, {
+		var myLineChart = new Chart(ctx, setConfig);
+
+	/*
+	var myLineChart = new Chart(ctx,{
     type: 'line',
     data: {
-			labels: ['Week1', 'Week2', 'Week3', 'Week4', 'Week5', 'Week6', 'Week7'],
+			labels: ['Week'+barChartData[0].week_number, 'Week'+barChartData[1].week_number, 'Week3', 'Week4', 'Week5', 'Week6', 'Week7'],
 			datasets: [{
 				label: 'SMT faults',
 				borderColor: 'rgba(255, 99, 132, 1)',
@@ -1075,6 +1130,7 @@ loadLineChart = function(){
 					}
 				}
 	});
+	*/
 }
 
 

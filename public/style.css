@@ -12,7 +12,13 @@ body {
  
 }
 .top{
- height: 155px;
+ height: 125px;
+ 
+}
+.title{
+  padding-top: 16px;
+  padding-left: 10%;
+  font-size: 1.1em;
  
 }
 /* Add a black background color to the top navigation */
@@ -44,7 +50,8 @@ body {
 
 #content {
   overflow: hidden;
-  padding: 14px 16px;
+  /*padding: 14px 16px;*/
+  padding-left: 14px;
   text-decoration: none;
   height: calc(100vh - 199px);
 }

@@ -148,7 +148,7 @@ CTC.locationdata.send = function (request){
 	xhr.setRequestHeader('Content-Type', 'application/json');
 	//console.log(CTC.locationdata.data);
 	var xhrdata = JSON.stringify(CTC.locationdata.data)
-	//console.log(xhrdata);
+	console.log(xhrdata);
 	xhr.send(xhrdata);
 }
 
@@ -179,14 +179,6 @@ if (document.selection) {
 		 window.getSelection().removeAllRanges();
      alert("text copied") 
 }}
-
-
-copyDataBox = function(){
-	var copyText = document.getElementById("dataBox");
-  copyText.select();
-  document.execCommand("copy");
-  alert("Copied the text: " + copyText.value);
-}
 
 
 /* 
@@ -220,7 +212,8 @@ function locationtablebuilder(data){
 	txt = txt + '</div>';
 
 	document.getElementById("content").innerHTML= txt;
-	
+	input = document.getElementById("partLocatorInput");
+	input.focus();
 }
 
 function locationSearch() {
