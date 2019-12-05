@@ -5,7 +5,10 @@ finishedPartNumbers = {};
 PCBPartNumbers = {};
 componentPartNumbers = {};
 incomingData = {};
-barChartData = {};
+weeklyChartData = {};
+smtChartData = {};
+convChartData = {};
+progTestChartData = {};
 
 //componentPartNumbers = 
 getData('componentpartnumbers','getAll','*','', 'component');
@@ -53,8 +56,17 @@ function getData(table, sqlFunction, field, value, swFunc){
 				case 'incomplete':
 					recieveIncomplete(response);
 					break;
-				case 'chartData':
-					barChartData = response;
+				case 'weeklyChartData':
+					weeklyChartData = response;
+					break;
+				case 'smtChartData':
+					smtChartData = response;
+					break;
+				case 'convChartData':
+					convChartData = response;
+					break;
+				case 'progTestChartData':
+					progTestChartData = response;
 					break;
 			}
 			
@@ -952,27 +964,117 @@ submitCompletedFault = function (){
  *
  **********************************************************************************************
  */
+	var faultBgColours = [
+		'rgba(255, 99, 132, 0.5)',
+		'rgba(54, 162, 235, 0.5)',
+		'rgba(255, 206, 86, 0.5)',
+		'rgba(75, 192, 192, 0.5)',
+		'rgba(230, 122, 0, 0.5)',
+		'rgba(127, 230, 0, 0.5)',
+		'rgba(108, 27, 179, 0.5)',		//purple
+		'rgba(212, 19, 202, 0.5)',		//hotpink
+		'rgba(255, 0, 0, 0.5)',				//redasfork
+		'rgba(0, 0, 255, 0.5)',				//soblue
+		'rgba(115, 86, 32, 0.5)',			//brahn
+		'rgba(67, 97, 24, 0.5)',			//darkgreen
+		'rgba(207, 205, 87, 0.5)'			//yellow
+		];
+	var faultBorderColours = [
+		'rgba(255, 99, 132, 1)',
+		'rgba(54, 162, 235, 1)',
+		'rgba(255, 206, 86, 1)',
+		'rgba(75, 192, 192, 1)',
+		'rgba(230, 122, 0, 1)',
+		'rgba(127, 230, 0, 1)',
+		'rgba(108, 27, 179, 1)',		//purple
+		'rgba(212, 19, 202, 1)',		//hotpink
+		'rgba(255, 0, 0, 1)',				//redasfook
+		'rgba(0, 0, 255, 1)',				//soblue
+		'rgba(115, 86, 32, 1)',			//brahn
+		'rgba(67, 97, 24, 1)',			//darkgreen
+		'rgba(207, 205, 87, 1)'			//yellow
+
+		];
 loadChartsPage = function(){
 	
 	var	txt = '';
 	txt = txt + '<div id="sidenav" class="topnav">'
-	txt = txt + '<div onclick="loadBarChart()">barchart</div>'
-	txt = txt + '<div onclick="loadLineChart()">linechart</div>'
+	txt = txt + '<div onclick="loadLineChart()">All Faults</div>'
+	txt = txt + '<div onclick="loadBarChart(\'smt\')">SMT Faults</div>'
+	txt = txt + '<div onclick="loadBarChart(\'conv\')">CONV Faults</div>'
+	txt = txt + '<div onclick="loadBarChart(\'progTest\')">Prog/Test Faults</div>'
+
 	//txt = txt + '<div onclick="loadChartsPage()">Charts</div>'
 	txt = txt + '</div>'
+	txt = txt + '<div id="chartOptions"></div>'
 	txt = txt + '<div id="chartcanvas">'
 	//txt = txt + '<canvas id="myChart" width="80" height="30"></canvas>';
 	txt = txt + '</div>'
 	document.getElementById("content").innerHTML=txt;
 		
-	loadBarChartData();
+	loadChartData();
 
 }
-loadBarChartData =function() {
-	getData('fault','faultsByWeek','','', 'chartData');
+loadChartData =function() {
+	getData('fault','faultsByWeek','','all', 'weeklyChartData');
+	getData('fault','faultsByWeek','','conv', 'convChartData');
+	getData('fault','faultsByWeek','','smt', 'smtChartData');
+	getData('fault','faultsByWeek','','progTest', 'progTestChartData');
+//	getData('fault','faultsByWeek','','undefined', 'console');
 	
 }
-loadBarChart = function(){
+loadBarChart = function(catagory){
+	if (catagory == 'smt')
+		var thisChartData = smtChartData;
+	if (catagory == 'conv')
+		var thisChartData = convChartData;
+	if (catagory == 'progTest')
+		var thisChartData = progTestChartData;
+		
+	var fields = Object.keys(thisChartData[0]);
+	fields.shift(); // shifts week_number field from front of array
+	console.log (fields);
+	var setConfig = {};
+	setConfig.type = 'bar';
+	setConfig.data = {};
+	setConfig.data.labels = [];
+	setConfig.data.datasets = [];
+	setConfig.options = {
+		scales: {
+			xAxes: [{
+				stacked: true
+			}],
+      yAxes: [{
+				stacked: true,
+        ticks: {
+					beginAtZero: true
+        }
+      }]
+    }
+  };
+	for (var f in fields){
+	 setConfig.data.datasets.push ({
+			label: fields[f],
+			borderColor: faultBorderColours[f],
+			backgroundColor: faultBgColours[f],				
+			fill: false,
+			data: [],
+		});
+	}
+	for (var i in thisChartData){
+		setConfig.data.labels.push ('Week'+ thisChartData[i].week_number);
+		for (var j in fields){
+			setConfig.data.datasets[j].data.push (thisChartData[i][fields[j]])
+		}
+		
+	}
+	//for (i = 0; i < tr.length; i++) {}
+	
+	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
+	var ctx = document.getElementById('myChart').getContext('2d');
+	var myLineChart = new Chart(ctx, setConfig);
+	
+	/*
 	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
 	var ctx = document.getElementById('myChart').getContext('2d');
 var myChart = new Chart(ctx, {
@@ -1016,13 +1118,14 @@ var myChart = new Chart(ctx, {
         }
     }
 });
+	*/
 	
 }
 
 loadLineChart = function(){
 	var faultcats = ['SMT faults','CONV faults','PROG/TEST faults','Undefined faults']
-	var faultcolours = ['rgba(255, 99, 132, 0.5)','rgba(54, 162, 235, 0.5)','rgba(255, 206, 86, 0.5)','rgba(75, 192, 192, 0.5)']
-	var fields = Object.keys(barChartData[0]);
+
+	var fields = Object.keys(weeklyChartData[0]);
 	var setConfig = {};
 	setConfig.type = 'line';
 	setConfig.data = {};
@@ -1044,33 +1147,58 @@ loadLineChart = function(){
 					}
 				}
 	for (var j in faultcats){
-				 setConfig.data.datasets.push ({
-					
-					label: faultcats[j],
-					borderColor: faultcolours[j],
-					backgroundColor: faultcolours[j],				
-					fill: false,
-					data: [],
-				 	});
+		 setConfig.data.datasets.push ({
+				label: faultcats[j],
+				borderColor: faultBorderColours[j],
+				backgroundColor: faultBgColours[j],				
+				fill: false,
+				data: [],
+			});
 	}
-	for (var i in barChartData){
-			 setConfig.data.labels.push ('Week'+ barChartData[i].week_number);
-				setConfig.data.datasets[0].data.push (barChartData[i].SMT_faults)
-				setConfig.data.datasets[1].data.push (barChartData[i].conventional_faults)
-			setConfig.data.datasets[2].data.push (barChartData[i].program_test_faults)
-			setConfig.data.datasets[3].data.push (barChartData[i].undefined_faults)
+	for (var i in weeklyChartData){
+		setConfig.data.labels.push ('Week'+ weeklyChartData[i].week_number);
+		setConfig.data.datasets[0].data.push (weeklyChartData[i].SMT_faults)
+		setConfig.data.datasets[1].data.push (weeklyChartData[i].conventional_faults)
+		setConfig.data.datasets[2].data.push (weeklyChartData[i].program_test_faults)
+		setConfig.data.datasets[3].data.push (weeklyChartData[i].undefined_faults)
 	}
 	
 	
 	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
-	var ctx = document.getElementById('myChart').getContext('2d');
-		var myLineChart = new Chart(ctx, setConfig);
+	//var ctx = document.getElementById('myChart').getContext('2d');
+	var ctx = document.getElementById('myChart');
+	var myLineChart = new Chart(ctx, setConfig);
+		
+	ctx.onclick = function (evt) {
+		
+
+		var activePoints = myLineChart.getElementsAtEvent(evt);
+
+    if (activePoints !== undefined) {
+			for (i in activePoints)
+			alert(myLineChart.data.datasets[i].data[activePoints[i]._datasetIndex]);
+			
+			/*
+        var dataset = myLineChart.data.datasets[activePoint._datasetIndex];
+        var title = myLineChart.data.labels[activePoint._index];
+        var oldValue = dataset.data[activePoint._index];
+        var newValue = oldValue + 10;
+        dataset.data[activePoint._index] = newValue;
+        */
+    }
+
+    // Calling update now animates element from oldValue to newValue.
+    //myLineChart.update();
+
+    //console.log("Dataset: '"+ dataset.label + "' Element '" + title + "' Value updated from: " + oldValue + " to: " + newValue);
+
+  };
 
 	/*
 	var myLineChart = new Chart(ctx,{
     type: 'line',
     data: {
-			labels: ['Week'+barChartData[0].week_number, 'Week'+barChartData[1].week_number, 'Week3', 'Week4', 'Week5', 'Week6', 'Week7'],
+			labels: ['Week'+weeklyChartData[0].week_number, 'Week'+weeklyChartData[1].week_number, 'Week3', 'Week4', 'Week5', 'Week6', 'Week7'],
 			datasets: [{
 				label: 'SMT faults',
 				borderColor: 'rgba(255, 99, 132, 1)',
