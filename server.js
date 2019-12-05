@@ -411,45 +411,157 @@ sqlStringBuilder = function(data){
 			sqlString ='SELECT DISTINCT '+data.field+' FROM '+data.table
 			console.log('sql string is '+sqlString)
 			return sqlString;
-			break;
+		break;
 		case 'genSelTFV':
 			sqlString = 'SELECT * FROM '+data.table+' WHERE '+data.field+' = "'+data.value+'"'
 			console.log('sql string is '+sqlString)
 			return sqlString;
-			break;
+		break;
 		case 'betweenTimes':
 			sqlString = 'SELECT * FROM '+data.table+' WHERE '+data.field+' BETWEEN "'+data.startDate+'" AND "'+data.endDate+'"';
 			console.log('sql string is '+sqlString)
 			return sqlString;
-			break;
+		break;
 		case 'getAll':
 			sqlString = 'SELECT * FROM '+data.table+'';
 			console.log('sql string is '+sqlString)
 			return sqlString;
-			break;
+		break;
 		case 'getField':
 			sqlString = 'SELECT '+data.field+' FROM '+data.table+'';
 			console.log('sql string is '+sqlString)
 			return sqlString;
-			break;
+		break;
 		case 'getNotNull':
 			sqlString = 'SELECT '+data.field+' FROM '+data.table+' WHERE '+data.value+' IS NULL'
 			console.log('sql string is '+sqlString)
 			return sqlString;
-			break;
+		break;
 		case 'faultsByWeek':
-			sqlString = 'select WEEK(timestamp,1) as week_number, '+
-			'sum(case when fail_catagory = \'SMT\' then 1 else 0 end) as SMT_faults, '+
-			'sum(case when fail_catagory = \'CONV\' then 1 else 0 end) as conventional_faults, '+
-			'sum(case when fail_catagory = \'PROG/TEST\' then 1 else 0 end) as program_test_faults, '+
-			'sum(case when fail_catagory = \'undefined\' then 1 else 0 end) as undefined_faults '+
-			'from fault '+
-			'group by WEEK(timestamp,1)';
-			console.log('sql string is '+sqlString)
-			return sqlString;
-			break;
-		
-	}
+			switch(data.value) {
+				case 'all':
+					sqlString = 'select WEEK(timestamp,1) as week_number, '+
+					'sum(case when fail_catagory = \'SMT\' then 1 else 0 end) as SMT_faults, '+
+					'sum(case when fail_catagory = \'CONV\' then 1 else 0 end) as conventional_faults, '+
+					'sum(case when fail_catagory = \'PROG/TEST\' then 1 else 0 end) as program_test_faults, '+
+					'sum(case when fail_catagory = \'undefined\' then 1 else 0 end) as undefined_faults '+
+					'from fault '+
+					'group by WEEK(timestamp,1)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break;
+				case 'conv':
+					sqlString =
+					'select '+
+					'WEEK(timestamp,1) as week_number, '+
+					'sum(case when investigation_findings = \'Flux Issue\' then 1 else 0 end) as flux_issue, '+
+					'sum(case when investigation_findings = \'PCB Damage\' then 1 else 0 end) as pcb_damage, '+
+					'sum(case when investigation_findings = \'Track damage\' then 1 else 0 end) as track_damage, '+
+					'sum(case when investigation_findings = \'Pad damage\' then 1 else 0 end) as pad_damage, '+
+					'sum(case when investigation_findings = \'Dry joint\' then 1 else 0 end) as dry_joint, '+
+					'sum(case when investigation_findings = \'Incorrect component placed/soldered\' then 1 else 0 end) as component_placement_solder, '+
+					'sum(case when investigation_findings = \'Component knocked out of position\' then 1 else 0 end) as component_knocked_from_position,'+
+					'sum(case when investigation_findings = \'Component failure\' then 1 else 0 end) as component_failure, '+
+					'sum(case when investigation_findings = \'Component missing\' then 1 else 0 end) as component_missing, '+
+					'sum(case when investigation_findings = \'Component misplaced\' then 1 else 0 end) as component_misplaced, '+
+					'sum(case when investigation_findings = \'Component not soldered\' then 1 else 0 end) as component_not_soldered, '+
+					'sum(case when investigation_findings = \'Solder bridge\' then 1 else 0 end) as solder_bridge '+
+					'from fault '+
+					'where fail_catagory = \'CONV\' '+
+					'group by  '+
+					'WEEK(timestamp,1)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break;
+				case 'smt':
+					sqlString =
+					'select '+
+					'WEEK(timestamp,1) as week_number, '+
+					'sum(case when investigation_findings = \'PCB Damage\' then 1 else 0 end) as pcb_damage, '+
+					'sum(case when investigation_findings = \'Track damage\' then 1 else 0 end) as track_damage, '+
+					'sum(case when investigation_findings = \'Pad damage\' then 1 else 0 end) as pad_damage, '+
+					'sum(case when investigation_findings = \'Dry joint\' then 1 else 0 end) as dry_joint, '+
+					'sum(case when investigation_findings = \'Incorrect component placed/soldered\' then 1 else 0 end) as component_placement_solder, '+
+					'sum(case when investigation_findings = \'Component knocked out of position\' then 1 else 0 end) as component_knocked_from_position,'+
+					'sum(case when investigation_findings = \'Component failure\' then 1 else 0 end) as component_failure, '+
+					'sum(case when investigation_findings = \'Component missing\' then 1 else 0 end) as component_missing, '+
+					'sum(case when investigation_findings = \'Component misplaced\' then 1 else 0 end) as component_misplaced, '+
+					'sum(case when investigation_findings = \'Component not soldered\' then 1 else 0 end) as component_not_soldered, '+
+					'sum(case when investigation_findings = \'Solder bridge\' then 1 else 0 end) as solder_bridge '+
+					'from fault '+
+					'where fail_catagory = \'SMT\' '+
+					'group by  '+
+					'WEEK(timestamp,1)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break;
+				case 'progTest':
+					sqlString =
+					'select '+
+					'WEEK(timestamp,1) as week_number, '+
+					'sum(case when investigation_findings = \'Tested in full and functions correctly\' then 1 else 0 end) as retest_good, '+
+					'sum(case when investigation_findings = \'Re-programmed and passed test\' then 1 else 0 end) as reprogram_good, '+
+					'sum(case when investigation_findings = \'Problem with tester\' then 1 else 0 end) as tester_issue, '+
+					'sum(case when investigation_findings = \'No Program present\' then 1 else 0 end) as not_programmed '+
+					'from fault '+
+					'where fail_catagory = \'PROG/TEST\' '+
+					'group by  '+
+					'WEEK(timestamp,1)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break;
+				case 'undefined':
+					sqlString =
+					'select '+
+					'WEEK(timestamp,1) as week_number, '+
+					'sum(case when investigation_findings = \'After visual inspection & Test, fault cannot be determined\' then 1 else 0 end) as undetermined, '+
+					'sum(case when investigation_findings = \'Glued product. Cannot Investigate.\' then 1 else 0 end) as sealed_cannot_investigate '+
+					'from fault '+
+					'where fail_catagory = \'Undefined\' '+
+					'group by  '+
+					'WEEK(timestamp,1)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break;
+/*
+
+
+
+  sum(case when investigation_findings = 'After visual inspection & Test, fault cannot be determined' then 1 else 0 end) as undetermined,
+  sum(case when investigation_findings = 'Tested in full and functions correctly' then 1 else 0 end) as retest_good,
+  sum(case when investigation_findings = 'Re-programmed and passed test' then 1 else 0 end) as reprogram_good,
+  sum(case when investigation_findings = 'Flux Issue' then 1 else 0 end) as flux_issue, 
+  sum(case when investigation_findings = 'Problem with tester' then 1 else 0 end) as tester_issue,
+  sum(case when investigation_findings = 'Problem with plastics' then 1 else 0 end) as plastics_issue,
+  sum(case when investigation_findings = 'Glued product. Cannot Investigate.' then 1 else 0 end) as sealed_cannot_investigate,
+  sum(case when investigation_findings = 'PCB Damage' then 1 else 0 end) as pcb_damage,
+  sum(case when investigation_findings = 'Track damage' then 1 else 0 end) as track_damage,
+  sum(case when investigation_findings = 'Pad damage' then 1 else 0 end) as pad_damage,
+  sum(case when investigation_findings = 'Dry joint' then 1 else 0 end) as dry_joint,
+  sum(case when investigation_findings = 'Incorrect component placed/soldered' then 1 else 0 end) as component_placement_solder,
+  sum(case when investigation_findings = 'Component knocked out of position' then 1 else 0 end) as component_knocked_from_position,
+  sum(case when investigation_findings = 'Component failure' then 1 else 0 end) as component_failure,
+  sum(case when investigation_findings = 'Component missing' then 1 else 0 end) as component_missing,
+  sum(case when investigation_findings = 'Component misplaced' then 1 else 0 end) as component_misplaced,
+  sum(case when investigation_findings = 'Component not soldered' then 1 else 0 end) as component_not_soldered,
+  sum(case when investigation_findings = 'Solder bridge' then 1 else 0 end) as solder_bridge,
+  sum(case when investigation_findings = 'No Program present' then 1 else 0 end) as not_programmed,
+  sum(case when investigation_findings = 'N/A' then 1 else 0 end) as N_A
+from fault
+where fail_catagory = 'CONV'
+group by 
+WEEK(timestamp,1);
+
+*/					
+					
+					
+					
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break;
+			}
+		break;
+		}
 }
 
 
