@@ -23,6 +23,15 @@ initFaultFields = function(){
 	getDataInvestigationFindings();
 	getDataFaultCats();
 };
+
+
+/******************************************************************************************************************************
+ *
+ *  Data exchange
+ *
+ ******************************************************************************************************************************
+ */
+
 function getData(table, sqlFunction, field, value, swFunc){
 	faultData = {};
 	faultData.table = table;
@@ -336,6 +345,13 @@ recieveDataFaultCats = function(r){
 
 
 
+/******************************************************************************************************************************
+ *
+ *  Data collection
+ *
+ ******************************************************************************************************************************
+ */
+
 
 
 furtherReport = function(){
@@ -600,7 +616,7 @@ submitToFA = function(){
 			//document.getElementById("content").innerHTML=xmlhttp.responseText;
 			//CTC.locationdata.receive(xhr.responseText);
 			jResponse = JSON.parse(xhr.responseText);
-			alert(xhr.responseText);
+			//alert(xhr.responseText);
 			submittedtoFA(jResponse.insertId);
 		}
 	}
@@ -614,9 +630,10 @@ submitToFA = function(){
 }
 
 submittedtoFA = function(faultId){
+	hexVal = faultId.toString(16)
 	var txt = '';
-	txt = txt + 'your fault id is :';
-	txt = txt + faultId;
+	txt = txt + 'your fault id is : ';
+	txt = txt + hexVal;
 	txt = txt + '<br>';
 	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
 	txt = txt + '<input type="button" value="No more faults" onclick="enterFaultDetails()">';
@@ -676,7 +693,7 @@ addNewFault = function(){
 	faultDesc.addEventListener("keyup", function(event){
 		if (event.key === "Enter") {
         //pcbNumber.focus();
-				alert(faultDesc.value);
+			//	alert(faultDesc.value);
     }
 	});
 }
@@ -751,7 +768,7 @@ enterFaultDetails = function(){
 }
 
 loadIncomplete = function (){
-	getData('fault', 'getNotNull', 'idfault', 'completed','incomplete')
+	getData('fault', 'getNotNull', 'idfault, finished_part_number', 'completed','incomplete')
 }
 recieveIncomplete = function (r){
 	var fields = Object.keys(r[0]);
@@ -760,15 +777,16 @@ recieveIncomplete = function (r){
 	txt = txt + '<table id="incompleteFaultTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		if (i == 0){}else{ 
+		//if (i == 0){'<th></th>'}else{ 
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
-		}
+		//}
 	}
 	txt = txt + '</tr>';
 	for (var key in r) {
 		txt = txt + '<tr>';
 		if (r.hasOwnProperty(key)) {
-			txt = txt + '<td>'+ r[key].idfault + '</td>';
+			txt = txt + '<td>'+ r[key].idfault.toString(16) + '</td>';
+			txt = txt + '<td>'+ r[key].finished_part_number + '</td>';
 		}
 		txt = txt + '</tr>';
 	}	
@@ -785,9 +803,9 @@ recieveIncomplete = function (r){
             {
                 return function() { 
                                         var cell = row.getElementsByTagName("td")[0];
-                                        var id = cell.innerHTML;
+                                        var id =  parseInt(cell.innerHTML, 16);
 																				//document.getElementById("finishedPartLocatorInput").value= id;
-                                        alert("id:" + id);
+                                        idSearch(id);
                                  };
             };
 
@@ -811,8 +829,8 @@ loadIdSearch = function (){
 }
 
 
-idSearch = function (){
-	id = document.getElementById('faultId').value;
+idSearch = function (id){
+	//id = document.getElementById('faultId').value;
 	getData('fault', 'genSelTFV', 'idfault', id,'idsearch');
 }
 
@@ -844,7 +862,7 @@ idSearchRec = function (data){
 	txt = txt + ''+faultData.reported_fault+'';
 	txt = txt + '</div>';
 	txt = txt + '<div  id="sub_content">';
-	txt = txt + '<input type="button" value="Cancel" onclick="loadIdSearch()">';
+	txt = txt + '<input type="button" value="Cancel" onclick="loadIncomplete()">';
 	txt = txt + '<input type="button" value="Complete this fault record" onclick="completeFault()">';
 	txt = txt + '</div>';	
 	document.getElementById("content").innerHTML=txt;
@@ -958,11 +976,11 @@ submitCompletedFault = function (){
 }
 
 
-/**********************************************************************************************
+/******************************************************************************************************************************
  *
  *  Charts 
  *
- **********************************************************************************************
+ ******************************************************************************************************************************
  */
 	var faultBgColours = [
 		'rgba(255, 99, 132, 0.5)',
@@ -1176,7 +1194,7 @@ loadLineChart = function(){
 
     if (activePoints !== undefined) {
 			for (i in activePoints)
-			alert(myLineChart.data.datasets[i].data[activePoints[i]._datasetIndex]);
+		//	alert(myLineChart.data.datasets[i].data[activePoints[i]._datasetIndex]);
 			
 			/*
         var dataset = myLineChart.data.datasets[activePoint._datasetIndex];
