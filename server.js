@@ -145,7 +145,8 @@ router.route('/completeExistingFault').post(function (req, res) {
 			var json = result;
 			switch(thingy.responseAs) {
 				case 'JSON':
-					console.log('returning JSON');
+					console.log('returning JSON: ');
+					console.log(json);
 					res.set('Content-Type', 'application/JSON')
 					//res.send(JSON.stringify({ worked: true }))
 					res.status(200);
@@ -178,7 +179,21 @@ router.route('/enterFaultIncomplete').post(function (req, res) {
 //	var myObject = JSON.parse(req.query.q)
 	console.log(thingy);
 //	sqlstring = sqlStringBuilder(thingy);
-	sqlstring = 'INSERT INTO '+thingy.table+' (timestamp, operator_initials, work_order, work_order_quantity, finished_part_number, pcb_part_number, reported_fault) VALUES (CURRENT_TIMESTAMP(), "'+thingy.operatorName+'", "'+thingy.workOrder+'",'+thingy.quantity+',"'+thingy.finishedPartNumber+'","'+thingy.pcbNumber+'","'+thingy.faultDesc+'")'
+	sqlstring = 'INSERT INTO '+thingy.table+
+	' (timestamp, '+
+	'operator_initials, '+
+	'work_order, '+
+	'work_order_quantity, '+
+	'finished_part_number, '+
+	'pcb_part_number, '+
+	'reported_fault) '+
+	'VALUES (CURRENT_TIMESTAMP(), "'
+	+thingy.operatorName+'", "'+
+	thingy.workOrder+'",'+
+	thingy.quantity+',"'+
+	thingy.finishedPartNumber+'","'+
+	thingy.pcbNumber+'","'+
+	thingy.faultDesc+'")'
 	
 
 	faultPool.getConnection(function (err, connection) {
@@ -437,6 +452,12 @@ sqlStringBuilder = function(data){
 			console.log('sql string is '+sqlString)
 			return sqlString;
 		break;
+		case 'weekList':
+			sqlString = 'SELECT DISTINCT week(timestamp, 1) as weeks FROM fault WHERE year(timestamp) = '+data.value
+			console.log('sql string is '+sqlString)
+			return sqlString;
+		break;
+		
 		case 'faultsByWeek':
 			switch(data.value) {
 				case 'all':
@@ -446,6 +467,10 @@ sqlStringBuilder = function(data){
 					'sum(case when fail_catagory = \'PROG/TEST\' then 1 else 0 end) as program_test_faults, '+
 					'sum(case when fail_catagory = \'undefined\' then 1 else 0 end) as undefined_faults '+
 					'from fault '+
+					'where '+
+					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
+					'and '+
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+	
 					'group by WEEK(timestamp,1)';
 					console.log('sql string is '+sqlString)
 					return sqlString;
@@ -467,7 +492,12 @@ sqlStringBuilder = function(data){
 					'sum(case when investigation_findings = \'Component not soldered\' then 1 else 0 end) as component_not_soldered, '+
 					'sum(case when investigation_findings = \'Solder bridge\' then 1 else 0 end) as solder_bridge '+
 					'from fault '+
-					'where fail_catagory = \'CONV\' '+
+					'where '+
+					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
+					'and '+
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+
+					'and '+
+					'fail_catagory = \'CONV\' '+
 					'group by  '+
 					'WEEK(timestamp,1)';
 					console.log('sql string is '+sqlString)
@@ -489,7 +519,12 @@ sqlStringBuilder = function(data){
 					'sum(case when investigation_findings = \'Component not soldered\' then 1 else 0 end) as component_not_soldered, '+
 					'sum(case when investigation_findings = \'Solder bridge\' then 1 else 0 end) as solder_bridge '+
 					'from fault '+
-					'where fail_catagory = \'SMT\' '+
+					'where '+
+					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
+					'and '+
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+
+					'and '+
+					'fail_catagory = \'SMT\' '+
 					'group by  '+
 					'WEEK(timestamp,1)';
 					console.log('sql string is '+sqlString)
@@ -504,7 +539,12 @@ sqlStringBuilder = function(data){
 					'sum(case when investigation_findings = \'Problem with tester\' then 1 else 0 end) as tester_issue, '+
 					'sum(case when investigation_findings = \'No Program present\' then 1 else 0 end) as not_programmed '+
 					'from fault '+
-					'where fail_catagory = \'PROG/TEST\' '+
+					'where '+
+					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
+					'and '+
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+
+					'and '+
+					'fail_catagory = \'PROG/TEST\' '+
 					'group by  '+
 					'WEEK(timestamp,1)';
 					console.log('sql string is '+sqlString)
@@ -517,12 +557,54 @@ sqlStringBuilder = function(data){
 					'sum(case when investigation_findings = \'After visual inspection & Test, fault cannot be determined\' then 1 else 0 end) as undetermined, '+
 					'sum(case when investigation_findings = \'Glued product. Cannot Investigate.\' then 1 else 0 end) as sealed_cannot_investigate '+
 					'from fault '+
-					'where fail_catagory = \'Undefined\' '+
+					'where '+
+					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
+					'and '+
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+
+					'and '+
+					'fail_catagory = \'Undefined\' '+
 					'group by  '+
 					'WEEK(timestamp,1)';
 					console.log('sql string is '+sqlString)
 					return sqlString;
+				break
+				case 'gen':
+					sqlString =
+					'select '+
+					'WEEK(timestamp,1) as week_number, '+
+					'sum(case when investigation_findings = \'After visual inspection & Test, fault cannot be determined\' then 1 else 0 end) as undetermined, '+
+					'sum(case when investigation_findings = \'Glued product. Cannot Investigate.\' then 1 else 0 end) as sealed_cannot_investigate '+
+					'from fault '+
+					'where '+
+					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
+					'and '+
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+					
+					'group by  '+
+					'WEEK(timestamp,1)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break
+			/*   
+			 *	needs database rework does not take into account no fails and there seems to be split works orders for testing
+			 *   
+				case 'FTP':
+					sqlString =
+					'SELECT'+
+					'WEEK(timestamp,1) as week_number, '+
+					'work_order, '+
+					'work_order_quantity, '+
+					'count(work_order) AS count, '+
+					"concat(round((count(work_order)/work_order_quantity * 100),2),'%') AS fail_percentage, "+
+					"concat(round(100-(count(work_order)/work_order_quantity * 100),2),'%') AS FTP_percentage "+
+					'FROM fault '+
+					'WHERE work_order_quantity IS NOT NULL '+
+					'GROUP by work_order'
+					console.log('sql string is '+sqlString)
+					return sqlString;
 				break;
+				*/
+					
+					
 /*
 
 
