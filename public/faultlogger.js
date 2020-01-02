@@ -9,20 +9,31 @@ weeklyChartData = {};
 smtChartData = {};
 convChartData = {};
 progTestChartData = {};
+FTPData = {};
+yearWeekData = {};
 
 //componentPartNumbers = 
 getData('componentpartnumbers','getAll','*','', 'component');
-
+//getData('fault','getUniqueList','year(timestamp) as years , week(timestamp, 1) as weeks','','console')
+//getData('fault','getUniqueList','year(timestamp) as years','','yearData')
 
 faultData = {};
 
-initFaultFields = function(){
+
+
+ initFaultFields = function(){
 	
-	getDataPCBPartNumbers();
-	getDataFinishedPartNumbers();
-	getDataInvestigationFindings();
-	getDataFaultCats();
+	//getDataPCBPartNumbers();
+	getData('pcbpartnumbers','getAll','*','', 'PCBPartNumbers');
+	//getDataFinishedPartNumbers();
+	getData('finishedpartnumbers','getAll','*','', 'finishedPartNumbers');
+	//getDataInvestigationFindings();
+	getData('findings','getAll','*','', 'investigationFindings');
+	//getDataFaultCats();
+	getData('failcatagory','getAll','*','', 'faultCatagories');
 };
+
+
 
 
 /******************************************************************************************************************************
@@ -53,6 +64,18 @@ function getData(table, sqlFunction, field, value, swFunc){
 			response = JSON.parse(xmlhttp.responseText);
 			//console.log(response);
 			switch(swFunc) {
+				case 'faultCatagories':
+					faultCatagories = response;
+					break;
+				case 'investigationFindings':
+					investigationFindings = response;
+					break
+				case 'finishedPartNumbers':
+					finishedPartNumbers = response;
+					break;
+				case 'PCBPartNumbers':
+					PCBPartNumbers = response;
+					break;
 				case 'component':
 					componentPartNumbers = response;
 					break;
@@ -65,6 +88,12 @@ function getData(table, sqlFunction, field, value, swFunc){
 				case 'incomplete':
 					recieveIncomplete(response);
 					break;
+				case 'chartDataBar':
+					loadBarChart(response)
+					break;
+				case 'chartDataLine':
+					loadLineChart(response)
+					break;
 				case 'weeklyChartData':
 					weeklyChartData = response;
 					break;
@@ -76,6 +105,41 @@ function getData(table, sqlFunction, field, value, swFunc){
 					break;
 				case 'progTestChartData':
 					progTestChartData = response;
+					break;
+				case 'FTPChartData':
+					FTPData = response;
+					break;
+				case 'yearData':
+					var txt = '';
+					txt = txt + '<select id="years" onchange="getData(\'\',\'weekList\',\'\',getElementById(\'years\').value,\'weekData\')">'; 
+					txt = txt + '<option disabled selected value> -- Select a Year -- </option>';
+					for (i in response){
+						txt = txt + '<option value="'+response[i].years+'">'+response[i].years+'</option>';
+					}
+					txt = txt + '</select>';
+					txt = txt + '<div id = "chartOptionsWeek" style="float: left;"></div>'
+					document.getElementById('chartOptionsYear').innerHTML = txt;
+	//				yearWeekData = response;
+					break;
+				
+				case 'weekData':
+					var txt = '';
+					
+					txt = txt + '<select id="weekStart" >'; 
+					txt = txt + '<option disabled selected value> -- Select a Week -- </option>';
+					for (i in response){
+						txt = txt + '<option value="'+response[i].weeks+'">'+response[i].weeks+'</option>';
+					}
+					txt = txt + '</select>';
+					
+					txt = txt + '<select id="weekEnd" >'; 
+					txt = txt + '<option disabled selected value> -- Select a Week -- </option>';
+					for (i in response){
+						txt = txt + '<option value="'+response[i].weeks+'">'+response[i].weeks+'</option>';
+					}
+					txt = txt + '</select>';
+					document.getElementById('chartOptionsWeek').innerHTML = txt;
+	//				yearWeekData = response;
 					break;
 			}
 			
@@ -158,6 +222,50 @@ recieveDataPCBPartNumbers = function(r){
   }
 };
 
+tablePCBPartNumbers = function(){
+	
+	var fields = Object.keys(PCBPartNumbers[0]);
+	var txt = '';
+	txt = txt + '';
+	txt = txt + 'PCB part number:';
+	txt = txt + '<input type="text" id="PCBPartLocatorInput" onkeyup="PCBPartlocationSearch()" placeholder="enter PCB part" title="Type in a part number">';
+	txt = txt + '<div class=scrollybox>';
+	txt = txt + '<table id="PCBPartLocationsTable">';
+	txt = txt + '<tr class="header">';
+	for (var i in fields) {
+		if (i == 0){}else{ 
+		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
+		}
+	}
+	txt = txt + '</tr>';
+	for (var key in PCBPartNumbers) {
+		txt = txt + '<tr>';
+		if (PCBPartNumbers.hasOwnProperty(key)) {
+			txt = txt + '<td>'+ PCBPartNumbers[key].part_number + '</td>';
+			txt = txt + '<td>'+ PCBPartNumbers[key].part_description + '</td>';
+		}
+		txt = txt + '</tr>';
+	}	
+	txt = txt + '</table>';
+	txt = txt + '</div>';
+
+	document.getElementById("PCBNumberDiv").innerHTML= txt;
+	
+	var table = document.getElementById("PCBPartLocationsTable");
+  var rows = table.getElementsByTagName("tr");
+  for (i = 0; i < rows.length; i++) {
+		var currentRow = table.rows[i];
+		var createClickHandler = function(row){
+			return function() { 
+				var cell = row.getElementsByTagName("td")[0];
+        var id = cell.innerHTML;
+				document.getElementById("PCBPartLocatorInput").value= id;
+        //alert("id:" + id);
+      };
+    };
+		currentRow.onclick = createClickHandler(currentRow);
+  }
+};
 
 
 
@@ -261,6 +369,61 @@ recieveDatafinishedPartNumbers = function(r){
 	
 	
 };
+
+
+tablefinishedPartNumbers = function(){
+	var fields = Object.keys(finishedPartNumbers[0]);
+	var txt = '';
+	txt = txt + '';
+	txt = txt + 'Finished part number:';
+	txt = txt + '<input type="text" id="finishedPartLocatorInput" onkeyup="finishedPartlocationSearch()" placeholder="enter finished part" title="Type in a part number">';
+	txt = txt + '<div class=scrollybox>';
+	txt = txt + '<table id="finishedPartLocationsTable">';
+	txt = txt + '<tr class="header">';
+	for (var i in fields) {
+		if (i == 0){}else{ 
+		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
+		}
+	}
+	txt = txt + '</tr>';
+	for (var key in finishedPartNumbers) {
+		txt = txt + '<tr>';
+		if (finishedPartNumbers.hasOwnProperty(key)) {
+			txt = txt + '<td>'+ finishedPartNumbers[key].part_number + '</td>';
+			txt = txt + '<td>'+ finishedPartNumbers[key].part_description + '</td>';
+		}
+		txt = txt + '</tr>';
+	}	
+	txt = txt + '</table>';
+	txt = txt + '</div>';
+
+	document.getElementById("finishedPartNumberDiv").innerHTML= txt;
+	
+	
+	var table = document.getElementById("finishedPartLocationsTable");
+    var rows = table.getElementsByTagName("tr");
+    for (i = 0; i < rows.length; i++) {
+        var currentRow = table.rows[i];
+        var createClickHandler = 
+            function(row) 
+            {
+                return function() { 
+                                        var cell = row.getElementsByTagName("td")[0];
+                                        var id = cell.innerHTML;
+																				document.getElementById("finishedPartLocatorInput").value= id;
+                                        //alert("id:" + id);
+                                 };
+            };
+
+        currentRow.onclick = createClickHandler(currentRow);
+    }
+	
+	
+};
+
+
+
+
 function finishedPartlocationSearch() {
   var input, filter, table, tr, td, i, txtValue;
   input = document.getElementById("finishedPartLocatorInput");
@@ -541,11 +704,34 @@ submittedFault = function(faultId){
 	txt = txt + faultId;
 	txt = txt + '<br>';
 	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
+	txt = txt + '<input type="button" value="Repeat same fault" onclick="addRepeatFault()">';
 	txt = txt + '<input type="button" value="No more faults" onclick="enterFaultDetails()">';
 	
 	document.getElementById("sub_content").innerHTML= txt;
 }
 
+addRepeatFault = function(){
+	var req = JSON.stringify(faultData);
+	var xhr = null;
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange=function(){
+		//alert('state change');
+		if (xhr.readyState==4 && xhr.status==200){
+			//document.getElementById("content").innerHTML=xmlhttp.responseText;
+			//CTC.locationdata.receive(xhr.responseText);
+			jResponse = JSON.parse(xhr.responseText);
+			//alert(xhr.responseText);
+			submittedFault(jResponse.insertId);
+		}
+	}
+	//alert(str);
+	xhr.open("POST", "/enterFault", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	//console.log(CTC.locationdata.data);
+	//var xhrdata = JSON.stringify(faultData)
+	//console.log(xhrdata);
+	xhr.send(req);
+}
 /*
 
 
@@ -664,11 +850,11 @@ addNewFault = function(){
 	txt = txt + '<th>Finished part number</th>';
 	txt = txt + '</tr>';
 	txt = txt + '<tr>';
-	txt = txt + '<td><div>'+faultData.operatorName+'</div></td>';
-	txt = txt + '<td><div>'+faultData.workOrder+'</div></td>';
-	txt = txt + '<td><div>'+faultData.quantity+'</div></td>';
-	txt = txt + '<td><div>'+faultData.finishedPartNumber+'</div></td>';
-	txt = txt + '<td><div>'+faultData.pcbNumber+'</div></td>';
+	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.operatorName+'</div></td>';
+	txt = txt + '<td><div id = "workorder"  onclick="reenterData(\'workorder\')" >'+faultData.workOrder+'</div></td>';
+	txt = txt + '<td><div id = "quantity" onclick="reenterData(\'quantity\')">'+faultData.quantity+'</div></td>';
+	txt = txt + '<td><div id = "finishedPartNumber" onclick="reenterData(\'finishedPartNumber\')">'+faultData.finishedPartNumber+'</div></td>';
+	txt = txt + '<td><div id = "pcbNumber" onclick="reenterData(\'pcbNumber\')">'+faultData.pcbNumber+'</div></td>';
 	txt = txt + '</tr>';
 	txt = txt + '</table>';
 	txt = txt + '</div>';
@@ -699,7 +885,7 @@ addNewFault = function(){
 }
 
 enterFaultDetails = function(){
-	initFaultFields();
+	
 	var txt = '';
 	txt = txt + '<h2>Enter details to log fault</h2>';
 	txt = txt + '<br>';
@@ -730,6 +916,13 @@ enterFaultDetails = function(){
 	txt = txt + '<br>';
 	txt = txt + '';
 	document.getElementById("content").innerHTML=txt;
+	/*
+	 *
+	 *			put fin and pcb part recievers here
+	 *
+	 */
+	tablefinishedPartNumbers();
+	tablePCBPartNumbers();
 	
 	operatorName = document.getElementById("operatorName");
 	workOrder = document.getElementById("workOrder");
@@ -848,15 +1041,22 @@ idSearchRec = function (data){
 	txt = txt + '<th>Finished part number</th>';
 	txt = txt + '</tr>';
 	txt = txt + '<tr>';
-	txt = txt + '<td><div>'+faultData.operator_initials+'</div></td>';
-	txt = txt + '<td><div>'+faultData.work_order+'</div></td>';
-	txt = txt + '<td><div>'+faultData.work_order_quantity+'</div></td>';
-	txt = txt + '<td><div>'+faultData.finished_part_number+'</div></td>';
-	txt = txt + '<td><div>'+faultData.pcb_part_number+'</div></td>';
+	/*
+	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.operatorName+'</div></td>';
+	txt = txt + '<td><div id = "workorder"  onclick="reenterData(\'workorder\')" >'+faultData.workOrder+'</div></td>';
+	txt = txt + '<td><div id = "quantity" onclick="reenterData(\'quantity\')">'+faultData.quantity+'</div></td>';
+	txt = txt + '<td><div id = "finishedPartNumber" onclick="reenterData(\'finishedPartNumber\')">'+faultData.finishedPartNumber+'</div></td>';
+	txt = txt + '<td><div id = "pcbNumber" onclick="reenterData(\'pcbNumber\')">'+faultData.pcbNumber+'</div></td>';
+	*/
+	txt = txt + '<td><div id = "operator_initials" onclick="reenterData(\'operator_initials\')">'+faultData.operator_initials+'</div></td>';
+	txt = txt + '<td><div id = "work_order" onclick="reenterData(\'work_order\')">'+faultData.work_order+'</div></td>';
+	txt = txt + '<td><div id = "work_order_quantity" onclick="reenterData(\'work_order_quantity\')">'+faultData.work_order_quantity+'</div></td>';
+	txt = txt + '<td><div id = "finished_part_number" onclick="reenterData(\'finished_part_number\')">'+faultData.finished_part_number+'</div></td>';
+	txt = txt + '<td><div id = "pcb_part_number" onclick="reenterData(\'pcb_part_number\')">'+faultData.pcb_part_number+'</div></td>';
 	txt = txt + '</tr>';
 	txt = txt + '</table>';
 	txt = txt + '</div>';
-	txt = txt + '<div id="fault_description">';
+	txt = txt + '<div id="reported_fault" onclick="reenterData(\'reported_fault\')">';
 	txt = txt + 'details of fault';
 	txt = txt + '<br>';
 	txt = txt + ''+faultData.reported_fault+'';
@@ -937,11 +1137,28 @@ completeFault = function (){
 	txt = txt + '';
 	txt = txt + '';
 	document.getElementById("sub_content").innerHTML=txt;
+	
+	var table = document.getElementById("componentPartLocationsTable");
+  var rows = table.getElementsByTagName("tr");
+  for (i = 0; i < rows.length; i++) {
+		var currentRow = table.rows[i];
+		var createClickHandler = 
+		function(row) {
+			return function() { 
+				var cell = row.getElementsByTagName("td")[0];
+        var id = cell.innerHTML;
+				document.getElementById("componentPartLocatorInput").value= id;
+        //alert("id:" + id);
+			};
+		};
+		currentRow.onclick = createClickHandler(currentRow);
+  }
 }
 
 
 submitCompletedFault = function (){
 	faultData.table = "fault";
+	faultData.responseAs = 'JSON';
 	faultData.investigation_findings = document.getElementById('investigation_findings').value;
 	faultData.additional_comments = document.getElementById('additional_comments').value;
 	faultData.fail_catagory = document.getElementById('fault_catagory').value;
@@ -963,7 +1180,8 @@ submitCompletedFault = function (){
 			//CTC.locationdata.receive(xhr.responseText);
 			jResponse = JSON.parse(xhr.responseText);
 			//alert(xhr.responseText);
-			submittedFault(jResponse.insertId);
+			//submittedFault(jResponse.insertId);
+			loadIncomplete();
 		}
 	}
 	//alert(str);
@@ -975,6 +1193,13 @@ submitCompletedFault = function (){
 	xhr.send(req);
 }
 
+reenterData = function(source)
+{
+	newData = prompt("Please re-enter " + source +" information")
+	// if length is not 8 .. ok to scan again 
+	document.getElementById(source).innerHTML=''+newData;
+	//document.getElementById("tempStorage").innerHTML= VER.newSerialNo + ' ' + source ;
+	}
 
 /******************************************************************************************************************************
  *
@@ -983,12 +1208,12 @@ submitCompletedFault = function (){
  ******************************************************************************************************************************
  */
 	var faultBgColours = [
-		'rgba(255, 99, 132, 0.5)',
-		'rgba(54, 162, 235, 0.5)',
-		'rgba(255, 206, 86, 0.5)',
-		'rgba(75, 192, 192, 0.5)',
-		'rgba(230, 122, 0, 0.5)',
-		'rgba(127, 230, 0, 0.5)',
+		'rgba(255, 99, 132, 0.5)',		//red
+		'rgba(54, 162, 235, 0.5)',		//blue
+		'rgba(255, 206, 86, 0.5)',		//yellow
+		'rgba(75, 192, 192, 0.5)',		//lightblue
+		'rgba(230, 122, 0, 0.5)',			//orange
+		'rgba(127, 230, 0, 0.5)',			//brightgreen
 		'rgba(108, 27, 179, 0.5)',		//purple
 		'rgba(212, 19, 202, 0.5)',		//hotpink
 		'rgba(255, 0, 0, 0.5)',				//redasfork
@@ -998,12 +1223,12 @@ submitCompletedFault = function (){
 		'rgba(207, 205, 87, 0.5)'			//yellow
 		];
 	var faultBorderColours = [
-		'rgba(255, 99, 132, 1)',
-		'rgba(54, 162, 235, 1)',
-		'rgba(255, 206, 86, 1)',
-		'rgba(75, 192, 192, 1)',
-		'rgba(230, 122, 0, 1)',
-		'rgba(127, 230, 0, 1)',
+		'rgba(255, 99, 132, 1)',		//red
+		'rgba(54, 162, 235, 1)',		//blue
+		'rgba(255, 206, 86, 1)',		//yellow
+		'rgba(75, 192, 192, 1)',		//lightblue
+		'rgba(230, 122, 0, 1)',			//orange
+		'rgba(127, 230, 0, 1)',			//brightgreen
 		'rgba(108, 27, 179, 1)',		//purple
 		'rgba(212, 19, 202, 1)',		//hotpink
 		'rgba(255, 0, 0, 1)',				//redasfook
@@ -1016,6 +1241,8 @@ submitCompletedFault = function (){
 loadChartsPage = function(){
 	
 	var	txt = '';
+	
+	/*
 	txt = txt + '<div id="sidenav" class="topnav">'
 	txt = txt + '<div onclick="loadLineChart()">All Faults</div>'
 	txt = txt + '<div onclick="loadBarChart(\'smt\')">SMT Faults</div>'
@@ -1024,23 +1251,62 @@ loadChartsPage = function(){
 
 	//txt = txt + '<div onclick="loadChartsPage()">Charts</div>'
 	txt = txt + '</div>'
-	txt = txt + '<div id="chartOptions"></div>'
+	*/
+	
+	
+	txt = txt + '<div id="chartOptions" >'
+	txt = txt + '<div id="chartOptionsType"style="float: left">'
+	txt = txt + '<select id="chartType" >'; 
+	txt = txt + '<option disabled selected value> -- Select a chart type -- </option>';
+	txt = txt + '<option value="all">All Faults</option>';
+	txt = txt + '<option value="smt">SMT</option>';
+	txt = txt + '<option value="conv">CONV</option>';
+	txt = txt + '<option value="progTest">prog\/test</option>';
+	txt = txt + '</select>';
+	txt = txt + '</div>'
+	txt = txt + '<div id="chartOptionsYear"style="float: left">'
+	txt = txt + '</div>'
+	txt = txt + '<button onclick="loadChart()">load data</button>'
+	txt = txt + '</div>'
 	txt = txt + '<div id="chartcanvas">'
 	//txt = txt + '<canvas id="myChart" width="80" height="30"></canvas>';
 	txt = txt + '</div>'
 	document.getElementById("content").innerHTML=txt;
-		
-	loadChartData();
-
+	
+	getData('fault','getUniqueList','year(timestamp) as years','','yearData')
+	//loadChartData();
 }
+
+loadChart = function(){
+	
+	chartType = document.getElementById("chartType").value
+	chartLoad = {}
+	chartLoad.year = document.getElementById("years").value
+	chartLoad.weekStart = document.getElementById("weekStart").value
+	chartLoad.weekEnd = document.getElementById("weekEnd").value
+	
+	if (chartType == 'all'){
+		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataLine');
+	}else{
+		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataBar');
+	}
+	
+	} 
+ 
+ 
+
 loadChartData =function() {
 	getData('fault','faultsByWeek','','all', 'weeklyChartData');
 	getData('fault','faultsByWeek','','conv', 'convChartData');
 	getData('fault','faultsByWeek','','smt', 'smtChartData');
 	getData('fault','faultsByWeek','','progTest', 'progTestChartData');
 //	getData('fault','faultsByWeek','','undefined', 'console');
-	
+	//getData('fault','faultsByWeek','','FTP', 'FTPChartData');
+
 }
+
+
+/*
 loadBarChart = function(catagory){
 	if (catagory == 'smt')
 		var thisChartData = smtChartData;
@@ -1048,6 +1314,9 @@ loadBarChart = function(catagory){
 		var thisChartData = convChartData;
 	if (catagory == 'progTest')
 		var thisChartData = progTestChartData;
+		*/
+loadBarChart = function(thisChartData){
+
 		
 	var fields = Object.keys(thisChartData[0]);
 	fields.shift(); // shifts week_number field from front of array
@@ -1140,10 +1409,10 @@ var myChart = new Chart(ctx, {
 	
 }
 
-loadLineChart = function(){
+loadLineChart = function(thisChartData){
 	var faultcats = ['SMT faults','CONV faults','PROG/TEST faults','Undefined faults']
 
-	var fields = Object.keys(weeklyChartData[0]);
+	var fields = Object.keys(thisChartData[0]);
 	var setConfig = {};
 	setConfig.type = 'line';
 	setConfig.data = {};
@@ -1173,12 +1442,12 @@ loadLineChart = function(){
 				data: [],
 			});
 	}
-	for (var i in weeklyChartData){
-		setConfig.data.labels.push ('Week'+ weeklyChartData[i].week_number);
-		setConfig.data.datasets[0].data.push (weeklyChartData[i].SMT_faults)
-		setConfig.data.datasets[1].data.push (weeklyChartData[i].conventional_faults)
-		setConfig.data.datasets[2].data.push (weeklyChartData[i].program_test_faults)
-		setConfig.data.datasets[3].data.push (weeklyChartData[i].undefined_faults)
+	for (var i in thisChartData){
+		setConfig.data.labels.push ('Week'+ thisChartData[i].week_number);
+		setConfig.data.datasets[0].data.push (thisChartData[i].SMT_faults)
+		setConfig.data.datasets[1].data.push (thisChartData[i].conventional_faults)
+		setConfig.data.datasets[2].data.push (thisChartData[i].program_test_faults)
+		setConfig.data.datasets[3].data.push (thisChartData[i].undefined_faults)
 	}
 	
 	
@@ -1193,7 +1462,7 @@ loadLineChart = function(){
 		var activePoints = myLineChart.getElementsAtEvent(evt);
 
     if (activePoints !== undefined) {
-			for (i in activePoints)
+		//	for (i in activePoints)
 		//	alert(myLineChart.data.datasets[i].data[activePoints[i]._datasetIndex]);
 			
 			/*
@@ -1299,3 +1568,8 @@ node.addEventListener("keyup", function(event) {
     }
 });
 */
+
+
+
+
+initFaultFields();
