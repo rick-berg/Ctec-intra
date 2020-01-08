@@ -12,7 +12,7 @@ progTestChartData = {};
 FTPData = {};
 yearWeekData = {};
 
-//componentPartNumbers = 
+//componentPartNumbers =
 getData('componentpartnumbers','getAll','*','', 'component');
 //getData('fault','getUniqueList','year(timestamp) as years , week(timestamp, 1) as weeks','','console')
 //getData('fault','getUniqueList','year(timestamp) as years','','yearData')
@@ -22,7 +22,7 @@ faultData = {};
 
 
  initFaultFields = function(){
-	
+
 	//getDataPCBPartNumbers();
 	getData('pcbpartnumbers','getAll','*','', 'PCBPartNumbers');
 	//getDataFinishedPartNumbers();
@@ -52,7 +52,7 @@ function getData(table, sqlFunction, field, value, swFunc){
 	faultData.responseAs = 'JSON';
 	var req = JSON.stringify(faultData);
 	var xmlhttp = null;
-	
+
 	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
 		xmlhttp=new XMLHttpRequest();
 	} else {// code for IE6, IE5
@@ -111,7 +111,7 @@ function getData(table, sqlFunction, field, value, swFunc){
 					break;
 				case 'yearData':
 					var txt = '';
-					txt = txt + '<select id="years" onchange="getData(\'\',\'weekList\',\'\',getElementById(\'years\').value,\'weekData\')">'; 
+					txt = txt + '<select id="years" onchange="getData(\'\',\'weekList\',\'\',getElementById(\'years\').value,\'weekData\')">';
 					txt = txt + '<option disabled selected value> -- Select a Year -- </option>';
 					for (i in response){
 						txt = txt + '<option value="'+response[i].years+'">'+response[i].years+'</option>';
@@ -121,18 +121,18 @@ function getData(table, sqlFunction, field, value, swFunc){
 					document.getElementById('chartOptionsYear').innerHTML = txt;
 	//				yearWeekData = response;
 					break;
-				
+
 				case 'weekData':
 					var txt = '';
-					
-					txt = txt + '<select id="weekStart" >'; 
+
+					txt = txt + '<select id="weekStart" >';
 					txt = txt + '<option disabled selected value> -- Select a Week -- </option>';
 					for (i in response){
 						txt = txt + '<option value="'+response[i].weeks+'">'+response[i].weeks+'</option>';
 					}
 					txt = txt + '</select>';
-					
-					txt = txt + '<select id="weekEnd" >'; 
+
+					txt = txt + '<select id="weekEnd" >';
 					txt = txt + '<option disabled selected value> -- Select a Week -- </option>';
 					for (i in response){
 						txt = txt + '<option value="'+response[i].weeks+'">'+response[i].weeks+'</option>';
@@ -142,12 +142,12 @@ function getData(table, sqlFunction, field, value, swFunc){
 	//				yearWeekData = response;
 					break;
 			}
-			
+
 		}
 	};
 	var str = "/faultQuery?q="+req;
 	xmlhttp.open("GET",str,true);
-	xmlhttp.send();	
+	xmlhttp.send();
 };
 
 function getDataPCBPartNumbers(){
@@ -159,7 +159,7 @@ function getDataPCBPartNumbers(){
 	//var recieveFunc = faultData.reciever;
 	var req = JSON.stringify(faultData);
 	var xmlhttp = null;
-	
+
 	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
 		xmlhttp=new XMLHttpRequest();
 	} else {// code for IE6, IE5
@@ -172,7 +172,7 @@ function getDataPCBPartNumbers(){
 	};
 	var str = "/faultQuery?q="+req;
 	xmlhttp.open("GET",str,true);
-	xmlhttp.send();	
+	xmlhttp.send();
 };
 
 
@@ -188,7 +188,7 @@ recieveDataPCBPartNumbers = function(r){
 	txt = txt + '<table id="PCBPartLocationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		if (i == 0){}else{ 
+		if (i == 0){}else{
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
 		}
 	}
@@ -200,18 +200,18 @@ recieveDataPCBPartNumbers = function(r){
 			txt = txt + '<td>'+ result[key].part_description + '</td>';
 		}
 		txt = txt + '</tr>';
-	}	
+	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
 
 	document.getElementById("PCBNumberDiv").innerHTML= txt;
-	
+
 	var table = document.getElementById("PCBPartLocationsTable");
   var rows = table.getElementsByTagName("tr");
   for (i = 0; i < rows.length; i++) {
 		var currentRow = table.rows[i];
 		var createClickHandler = function(row){
-			return function() { 
+			return function() {
 				var cell = row.getElementsByTagName("td")[0];
         var id = cell.innerHTML;
 				document.getElementById("PCBPartLocatorInput").value= id;
@@ -223,7 +223,7 @@ recieveDataPCBPartNumbers = function(r){
 };
 
 tablePCBPartNumbers = function(){
-	
+
 	var fields = Object.keys(PCBPartNumbers[0]);
 	var txt = '';
 	txt = txt + '';
@@ -233,7 +233,7 @@ tablePCBPartNumbers = function(){
 	txt = txt + '<table id="PCBPartLocationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		if (i == 0){}else{ 
+		if (i == 0){}else{
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
 		}
 	}
@@ -245,18 +245,18 @@ tablePCBPartNumbers = function(){
 			txt = txt + '<td>'+ PCBPartNumbers[key].part_description + '</td>';
 		}
 		txt = txt + '</tr>';
-	}	
+	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
 
 	document.getElementById("PCBNumberDiv").innerHTML= txt;
-	
+
 	var table = document.getElementById("PCBPartLocationsTable");
   var rows = table.getElementsByTagName("tr");
   for (i = 0; i < rows.length; i++) {
 		var currentRow = table.rows[i];
 		var createClickHandler = function(row){
-			return function() { 
+			return function() {
 				var cell = row.getElementsByTagName("td")[0];
         var id = cell.innerHTML;
 				document.getElementById("PCBPartLocatorInput").value= id;
@@ -287,7 +287,7 @@ function PCBPartlocationSearch() {
       } else {
         tr[i].style.display = "none";
       }
-    }       
+    }
   }
 }
 
@@ -303,7 +303,7 @@ function getDataFinishedPartNumbers(){
 	//var recieveFunc = faultData.reciever;
 	var req = JSON.stringify(faultData);
 	var xmlhttp = null;
-	
+
 	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
 		xmlhttp=new XMLHttpRequest();
 	} else {// code for IE6, IE5
@@ -316,7 +316,7 @@ function getDataFinishedPartNumbers(){
 	};
 	var str = "/faultQuery?q="+req;
 	xmlhttp.open("GET",str,true);
-	xmlhttp.send();	
+	xmlhttp.send();
 };
 recieveDatafinishedPartNumbers = function(r){
 	var result = JSON.parse(r);
@@ -330,7 +330,7 @@ recieveDatafinishedPartNumbers = function(r){
 	txt = txt + '<table id="finishedPartLocationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		if (i == 0){}else{ 
+		if (i == 0){}else{
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
 		}
 	}
@@ -342,21 +342,21 @@ recieveDatafinishedPartNumbers = function(r){
 			txt = txt + '<td>'+ result[key].part_description + '</td>';
 		}
 		txt = txt + '</tr>';
-	}	
+	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
 
 	document.getElementById("finishedPartNumberDiv").innerHTML= txt;
-	
-	
+
+
 	var table = document.getElementById("finishedPartLocationsTable");
     var rows = table.getElementsByTagName("tr");
     for (i = 0; i < rows.length; i++) {
         var currentRow = table.rows[i];
-        var createClickHandler = 
-            function(row) 
+        var createClickHandler =
+            function(row)
             {
-                return function() { 
+                return function() {
                                         var cell = row.getElementsByTagName("td")[0];
                                         var id = cell.innerHTML;
 																				document.getElementById("finishedPartLocatorInput").value= id;
@@ -366,8 +366,8 @@ recieveDatafinishedPartNumbers = function(r){
 
         currentRow.onclick = createClickHandler(currentRow);
     }
-	
-	
+
+
 };
 
 
@@ -381,7 +381,7 @@ tablefinishedPartNumbers = function(){
 	txt = txt + '<table id="finishedPartLocationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		if (i == 0){}else{ 
+		if (i == 0){}else{
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
 		}
 	}
@@ -393,21 +393,21 @@ tablefinishedPartNumbers = function(){
 			txt = txt + '<td>'+ finishedPartNumbers[key].part_description + '</td>';
 		}
 		txt = txt + '</tr>';
-	}	
+	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
 
 	document.getElementById("finishedPartNumberDiv").innerHTML= txt;
-	
-	
+
+
 	var table = document.getElementById("finishedPartLocationsTable");
     var rows = table.getElementsByTagName("tr");
     for (i = 0; i < rows.length; i++) {
         var currentRow = table.rows[i];
-        var createClickHandler = 
-            function(row) 
+        var createClickHandler =
+            function(row)
             {
-                return function() { 
+                return function() {
                                         var cell = row.getElementsByTagName("td")[0];
                                         var id = cell.innerHTML;
 																				document.getElementById("finishedPartLocatorInput").value= id;
@@ -417,8 +417,8 @@ tablefinishedPartNumbers = function(){
 
         currentRow.onclick = createClickHandler(currentRow);
     }
-	
-	
+
+
 };
 
 
@@ -439,7 +439,7 @@ function finishedPartlocationSearch() {
       } else {
         tr[i].style.display = "none";
       }
-    }       
+    }
   }
 }
 
@@ -454,7 +454,7 @@ getDataInvestigationFindings = function(){
 	//var recieveFunc = faultData.reciever;
 	var req = JSON.stringify(faultData);
 	var xmlhttp = null;
-	
+
 	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
 		xmlhttp=new XMLHttpRequest();
 	} else {// code for IE6, IE5
@@ -467,12 +467,12 @@ getDataInvestigationFindings = function(){
 	};
 	var str = "/faultQuery?q="+req;
 	xmlhttp.open("GET",str,true);
-	xmlhttp.send();	
+	xmlhttp.send();
 };
 recieveDataInvestigationFindings = function(r){
 	investigationFindings = JSON.parse(r);
 	//console.log(investigationFindings[1].investigation_findings);
-	
+
 };
 
 
@@ -485,7 +485,7 @@ getDataFaultCats = function(){
 	//var recieveFunc = faultData.reciever;
 	var req = JSON.stringify(faultData);
 	var xmlhttp = null;
-	
+
 	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
 		xmlhttp=new XMLHttpRequest();
 	} else {// code for IE6, IE5
@@ -498,12 +498,12 @@ getDataFaultCats = function(){
 	};
 	var str = "/faultQuery?q="+req;
 	xmlhttp.open("GET",str,true);
-	xmlhttp.send();	
+	xmlhttp.send();
 };
 recieveDataFaultCats = function(r){
 	faultCatagories = JSON.parse(r);
 	console.log(faultCatagories);
-	
+
 };
 
 
@@ -518,7 +518,7 @@ recieveDataFaultCats = function(r){
 
 
 furtherReport = function(){
-	
+
 	faultData.faultDesc = document.getElementById("faultDesc").value;
 	var txt = 'Fault Description: '+faultData.faultDesc+'';
 	document.getElementById("fault_description").innerHTML=txt;
@@ -535,7 +535,7 @@ furtherReport = function(){
 	txt = txt + '';
 	txt = txt + '<b>investigation findings:</b>';
 	//txt = txt + '<br>';
-	txt = txt + '<select id="investigation_findings" >'; 
+	txt = txt + '<select id="investigation_findings" >';
 	txt = txt + '<option disabled selected value> -- select investigation findings -- </option>';
 	for (i in investigationFindings){
 		txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
@@ -548,7 +548,7 @@ furtherReport = function(){
 	txt = txt + '<br>';
 	txt = txt + '<b>Fault Catagory: </b>';
 	//txt = txt + '<br>';
-	txt = txt + '<select id="fault_catagory" >'; 
+	txt = txt + '<select id="fault_catagory" >';
 	txt = txt + '<option disabled selected value> -- select a fault catagory -- </option>';
 	for (i in faultCatagories){
 		txt = txt + '<option value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'</option>';
@@ -559,7 +559,7 @@ furtherReport = function(){
 		txt = txt + '<input type="radio" name="failType" value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'<br>';
 	}
 	*/
-	txt = txt + '<br>';	
+	txt = txt + '<br>';
 	var fields = Object.keys(componentPartNumbers[0]);
 	console.log(componentPartNumbers);
 	txt = txt + '<b>Faulty component:</b>';
@@ -571,7 +571,7 @@ furtherReport = function(){
 	txt = txt + '<table id="componentPartLocationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		if (i == 0){}else{ 
+		if (i == 0){}else{
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
 		}
 	}
@@ -583,10 +583,10 @@ furtherReport = function(){
 			txt = txt + '<td>'+ componentPartNumbers[key].part_description + '</td>';
 		}
 		txt = txt + '</tr>';
-	}	
+	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
-	
+
 	txt = txt + '';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by cell">repaired by cell';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
@@ -595,19 +595,19 @@ furtherReport = function(){
 	txt = txt + '<input type="button" value="Submit" onclick="submitFault()">';
 
 	txt = txt + '';
-	
+
 	txt = txt + '';
 	txt = txt + '';
 	document.getElementById("sub_content").innerHTML=txt;
-	
+
 	var table = document.getElementById("componentPartLocationsTable");
     var rows = table.getElementsByTagName("tr");
     for (i = 0; i < rows.length; i++) {
         var currentRow = table.rows[i];
-        var createClickHandler = 
-            function(row) 
+        var createClickHandler =
+            function(row)
             {
-                return function() { 
+                return function() {
                                         var cell = row.getElementsByTagName("td")[0];
                                         var id = cell.innerHTML;
 																				document.getElementById("componentPartLocatorInput").value= id;
@@ -635,7 +635,7 @@ function componentPartlocationSearch() {
       } else {
         tr[i].style.display = "none";
       }
-    }       
+    }
   }
 }
 
@@ -644,15 +644,15 @@ function componentPartlocationSearch() {
 
 
 /*
- function displayRadioValue() { 
-            var ele = document.getElementsByName('repscrap'); 
-              
-            for(i = 0; i < ele.length; i++) { 
-                if(ele[i].checked) 
+ function displayRadioValue() {
+            var ele = document.getElementsByName('repscrap');
+
+            for(i = 0; i < ele.length; i++) {
+                if(ele[i].checked)
                 document.getElementById("result").innerHTML
-                        = "Gender: "+ele[i].value; 
-            } 
-        } 
+                        = "Gender: "+ele[i].value;
+            }
+        }
 
 
 
@@ -670,11 +670,11 @@ submitFault = function(){
 	faultData.fail_catagory = document.getElementById('fault_catagory').value;
 	faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
 	faultData.faulty_location_reference = document.getElementById('locationRef').value;
-	var ele = document.getElementsByName('repscrap'); 
+	var ele = document.getElementsByName('repscrap');
      for(i = 0; i < ele.length; i++) {
 			if(ele[i].checked)
-			faultData.repaired_scrapped = ele[i].value; 
-            } 
+			faultData.repaired_scrapped = ele[i].value;
+            }
 	//alert('workorder: '+ workOrder + ' pbc: '+pcbNumber+' finshed: '+finishedPartNumber+' fault description: '+faultDesc);
 	var req = JSON.stringify(faultData);
 	var xhr = null;
@@ -706,7 +706,7 @@ submittedFault = function(faultId){
 	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
 	txt = txt + '<input type="button" value="Repeat same fault" onclick="addRepeatFault()">';
 	txt = txt + '<input type="button" value="No more faults" onclick="enterFaultDetails()">';
-	
+
 	document.getElementById("sub_content").innerHTML= txt;
 }
 
@@ -823,7 +823,7 @@ submittedtoFA = function(faultId){
 	txt = txt + '<br>';
 	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
 	txt = txt + '<input type="button" value="No more faults" onclick="enterFaultDetails()">';
-	
+
 	document.getElementById("sub_content").innerHTML= txt;
 }
 
@@ -864,7 +864,7 @@ addNewFault = function(){
 	txt = txt + '<textarea id="faultDesc" cols="40" rows="2"></textarea>';
 	txt = txt + '</div>';
 	txt = txt + '<div  id="sub_content">';
-	
+
 	txt = txt + '<div id="buttons_tofa_fr">';
 	txt = txt + '<input type="button" value="Submit to Fail Analysis" onclick="submitToFA()">';
 	txt = txt + '<input type="button" value="Continue fault report" onclick="furtherReport()">';
@@ -872,10 +872,10 @@ addNewFault = function(){
 	txt = txt + '</div>';
 	txt = txt + '<br>';
 	document.getElementById("content").innerHTML=txt;
-	
+
 	faultDesc = document.getElementById("faultDesc");
 	faultDesc.focus();
-	
+
 	faultDesc.addEventListener("keyup", function(event){
 		if (event.key === "Enter") {
         //pcbNumber.focus();
@@ -885,11 +885,11 @@ addNewFault = function(){
 }
 
 enterFaultDetails = function(){
-	
+
 	var txt = '';
 	txt = txt + '<h2>Enter details to log fault</h2>';
 	txt = txt + '<br>';
-	
+
 	txt = txt + 'Operator Initials:';
 	txt = txt + '<input type=text id="operatorName">';
 	txt = txt + '<br>';
@@ -923,14 +923,14 @@ enterFaultDetails = function(){
 	 */
 	tablefinishedPartNumbers();
 	tablePCBPartNumbers();
-	
+
 	operatorName = document.getElementById("operatorName");
 	workOrder = document.getElementById("workOrder");
 	quantity = document.getElementById("quantity");
 //	finishedPartNumber = document.getElementById("finishedPartNumber");
 //	pcbNumber = document.getElementById("pcbNumber");
 	operatorName.focus();
-	
+
 	operatorName.addEventListener("keyup", function(event){
 		if (event.key === "Enter") {
 		    workOrder.focus();
@@ -953,11 +953,11 @@ enterFaultDetails = function(){
 //	});
 //	pcbNumber.addEventListener("keyup", function(event){
 //		if (event.key === "Enter") {
-//			
+//
 //			jobDetailsEntered();
 //		}
 //	});
-	
+
 }
 
 loadIncomplete = function (){
@@ -970,7 +970,7 @@ recieveIncomplete = function (r){
 	txt = txt + '<table id="incompleteFaultTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		//if (i == 0){'<th></th>'}else{ 
+		//if (i == 0){'<th></th>'}else{
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
 		//}
 	}
@@ -982,19 +982,19 @@ recieveIncomplete = function (r){
 			txt = txt + '<td>'+ r[key].finished_part_number + '</td>';
 		}
 		txt = txt + '</tr>';
-	}	
+	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
 	document.getElementById("content").innerHTML=txt;
-	
+
 	var table = document.getElementById("incompleteFaultTable");
     var rows = table.getElementsByTagName("tr");
     for (i = 0; i < rows.length; i++) {
         var currentRow = table.rows[i];
-        var createClickHandler = 
-            function(row) 
+        var createClickHandler =
+            function(row)
             {
-                return function() { 
+                return function() {
                                         var cell = row.getElementsByTagName("td")[0];
                                         var id =  parseInt(cell.innerHTML, 16);
 																				//document.getElementById("finishedPartLocatorInput").value= id;
@@ -1004,21 +1004,21 @@ recieveIncomplete = function (r){
 
         currentRow.onclick = createClickHandler(currentRow);
     }
-	
+
 }
 
 
 loadIdSearch = function (){
-	
+
 	var txt = '';
 	txt = txt + '';
 	txt = txt + 'Enter Id:';
 	txt = txt + '<input type=text id="faultId">';
 	txt = txt + '<br>';
 	txt = txt + '<input type="button" value="Enter" onclick="idSearch()">';
-	
+
 	document.getElementById("content").innerHTML=txt;
-	
+
 }
 
 
@@ -1064,7 +1064,7 @@ idSearchRec = function (data){
 	txt = txt + '<div  id="sub_content">';
 	txt = txt + '<input type="button" value="Cancel" onclick="loadIncomplete()">';
 	txt = txt + '<input type="button" value="Complete this fault record" onclick="completeFault()">';
-	txt = txt + '</div>';	
+	txt = txt + '</div>';
 	document.getElementById("content").innerHTML=txt;
 }
 
@@ -1073,7 +1073,7 @@ completeFault = function (){
 	txt = txt + '';
 	txt = txt + '<b>investigation findings:</b>';
 	//txt = txt + '<br>';
-	txt = txt + '<select id="investigation_findings" >'; 
+	txt = txt + '<select id="investigation_findings" >';
 	txt = txt + '<option disabled selected value> -- select investigation findings -- </option>';
 	for (i in investigationFindings){
 		txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
@@ -1086,7 +1086,7 @@ completeFault = function (){
 	txt = txt + '<br>';
 	txt = txt + '<b>Fault Catagory: </b>';
 	//txt = txt + '<br>';
-	txt = txt + '<select id="fault_catagory" >'; 
+	txt = txt + '<select id="fault_catagory" >';
 	txt = txt + '<option disabled selected value> -- select a fault catagory -- </option>';
 	for (i in faultCatagories){
 		txt = txt + '<option value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'</option>';
@@ -1097,7 +1097,7 @@ completeFault = function (){
 		txt = txt + '<input type="radio" name="failType" value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'<br>';
 	}
 	*/
-	txt = txt + '<br>';	
+	txt = txt + '<br>';
 	var fields = Object.keys(componentPartNumbers[0]);
 	console.log(componentPartNumbers);
 	txt = txt + '<b>Faulty component:</b>';
@@ -1109,7 +1109,7 @@ completeFault = function (){
 	txt = txt + '<table id="componentPartLocationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
-		if (i == 0){}else{ 
+		if (i == 0){}else{
 		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
 		}
 	}
@@ -1121,10 +1121,10 @@ completeFault = function (){
 			txt = txt + '<td>'+ componentPartNumbers[key].part_description + '</td>';
 		}
 		txt = txt + '</tr>';
-	}	
+	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
-	
+
 	txt = txt + '';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by cell">repaired by cell';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
@@ -1133,18 +1133,18 @@ completeFault = function (){
 	txt = txt + '<input type="button" value="Submit" onclick="submitCompletedFault()">';
 
 	txt = txt + '';
-	
+
 	txt = txt + '';
 	txt = txt + '';
 	document.getElementById("sub_content").innerHTML=txt;
-	
+
 	var table = document.getElementById("componentPartLocationsTable");
   var rows = table.getElementsByTagName("tr");
   for (i = 0; i < rows.length; i++) {
 		var currentRow = table.rows[i];
-		var createClickHandler = 
+		var createClickHandler =
 		function(row) {
-			return function() { 
+			return function() {
 				var cell = row.getElementsByTagName("td")[0];
         var id = cell.innerHTML;
 				document.getElementById("componentPartLocatorInput").value= id;
@@ -1164,11 +1164,11 @@ submitCompletedFault = function (){
 	faultData.fail_catagory = document.getElementById('fault_catagory').value;
 	faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
 	faultData.faulty_location_reference = document.getElementById('locationRef').value;
-	var ele = document.getElementsByName('repscrap'); 
+	var ele = document.getElementsByName('repscrap');
      for(i = 0; i < ele.length; i++) {
 			if(ele[i].checked)
-			faultData.repaired_scrapped = ele[i].value; 
-            } 
+			faultData.repaired_scrapped = ele[i].value;
+            }
 	//alert('workorder: '+ workOrder + ' pbc: '+pcbNumber+' finshed: '+finishedPartNumber+' fault description: '+faultDesc);
 	var req = JSON.stringify(faultData);
 	var xhr = null;
@@ -1196,14 +1196,14 @@ submitCompletedFault = function (){
 reenterData = function(source)
 {
 	newData = prompt("Please re-enter " + source +" information")
-	// if length is not 8 .. ok to scan again 
+	// if length is not 8 .. ok to scan again
 	document.getElementById(source).innerHTML=''+newData;
 	//document.getElementById("tempStorage").innerHTML= VER.newSerialNo + ' ' + source ;
 	}
 
 /******************************************************************************************************************************
  *
- *  Charts 
+ *  Charts
  *
  ******************************************************************************************************************************
  */
@@ -1239,9 +1239,9 @@ reenterData = function(source)
 
 		];
 loadChartsPage = function(){
-	
+
 	var	txt = '';
-	
+
 	/*
 	txt = txt + '<div id="sidenav" class="topnav">'
 	txt = txt + '<div onclick="loadLineChart()">All Faults</div>'
@@ -1252,11 +1252,11 @@ loadChartsPage = function(){
 	//txt = txt + '<div onclick="loadChartsPage()">Charts</div>'
 	txt = txt + '</div>'
 	*/
-	
-	
+
+
 	txt = txt + '<div id="chartOptions" >'
 	txt = txt + '<div id="chartOptionsType"style="float: left">'
-	txt = txt + '<select id="chartType" >'; 
+	txt = txt + '<select id="chartType" >';
 	txt = txt + '<option disabled selected value> -- Select a chart type -- </option>';
 	txt = txt + '<option value="all">All Faults</option>';
 	txt = txt + '<option value="smt">SMT</option>';
@@ -1267,33 +1267,34 @@ loadChartsPage = function(){
 	txt = txt + '<div id="chartOptionsYear"style="float: left">'
 	txt = txt + '</div>'
 	txt = txt + '<button onclick="loadChart()">load data</button>'
+//  txt = txt + '<button value="Submit to Fail Analysis" onclick="submitToFA()"></button>';
 	txt = txt + '</div>'
 	txt = txt + '<div id="chartcanvas">'
 	//txt = txt + '<canvas id="myChart" width="80" height="30"></canvas>';
 	txt = txt + '</div>'
 	document.getElementById("content").innerHTML=txt;
-	
+
 	getData('fault','getUniqueList','year(timestamp) as years','','yearData')
 	//loadChartData();
 }
 
 loadChart = function(){
-	
+
 	chartType = document.getElementById("chartType").value
 	chartLoad = {}
 	chartLoad.year = document.getElementById("years").value
 	chartLoad.weekStart = document.getElementById("weekStart").value
 	chartLoad.weekEnd = document.getElementById("weekEnd").value
-	
+
 	if (chartType == 'all'){
 		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataLine');
 	}else{
 		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataBar');
 	}
-	
-	} 
- 
- 
+
+	}
+
+
 
 loadChartData =function() {
 	getData('fault','faultsByWeek','','all', 'weeklyChartData');
@@ -1317,7 +1318,7 @@ loadBarChart = function(catagory){
 		*/
 loadBarChart = function(thisChartData){
 
-		
+
 	var fields = Object.keys(thisChartData[0]);
 	fields.shift(); // shifts week_number field from front of array
 	console.log (fields);
@@ -1343,7 +1344,7 @@ loadBarChart = function(thisChartData){
 	 setConfig.data.datasets.push ({
 			label: fields[f],
 			borderColor: faultBorderColours[f],
-			backgroundColor: faultBgColours[f],				
+			backgroundColor: faultBgColours[f],
 			fill: false,
 			data: [],
 		});
@@ -1353,14 +1354,14 @@ loadBarChart = function(thisChartData){
 		for (var j in fields){
 			setConfig.data.datasets[j].data.push (thisChartData[i][fields[j]])
 		}
-		
+
 	}
 	//for (i = 0; i < tr.length; i++) {}
-	
+
 	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
 	var ctx = document.getElementById('myChart').getContext('2d');
 	var myLineChart = new Chart(ctx, setConfig);
-	
+
 	/*
 	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
 	var ctx = document.getElementById('myChart').getContext('2d');
@@ -1406,7 +1407,7 @@ var myChart = new Chart(ctx, {
     }
 });
 	*/
-	
+
 }
 
 loadLineChart = function(thisChartData){
@@ -1437,7 +1438,7 @@ loadLineChart = function(thisChartData){
 		 setConfig.data.datasets.push ({
 				label: faultcats[j],
 				borderColor: faultBorderColours[j],
-				backgroundColor: faultBgColours[j],				
+				backgroundColor: faultBgColours[j],
 				fill: false,
 				data: [],
 			});
@@ -1449,22 +1450,22 @@ loadLineChart = function(thisChartData){
 		setConfig.data.datasets[2].data.push (thisChartData[i].program_test_faults)
 		setConfig.data.datasets[3].data.push (thisChartData[i].undefined_faults)
 	}
-	
-	
+
+
 	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
 	//var ctx = document.getElementById('myChart').getContext('2d');
 	var ctx = document.getElementById('myChart');
 	var myLineChart = new Chart(ctx, setConfig);
-		
+
 	ctx.onclick = function (evt) {
-		
+
 
 		var activePoints = myLineChart.getElementsAtEvent(evt);
 
     if (activePoints !== undefined) {
 		//	for (i in activePoints)
 		//	alert(myLineChart.data.datasets[i].data[activePoints[i]._datasetIndex]);
-			
+
 			/*
         var dataset = myLineChart.data.datasets[activePoint._datasetIndex];
         var title = myLineChart.data.labels[activePoint._index];
@@ -1489,7 +1490,7 @@ loadLineChart = function(thisChartData){
 			datasets: [{
 				label: 'SMT faults',
 				borderColor: 'rgba(255, 99, 132, 1)',
-				backgroundColor: 'rgba(255, 99, 132, 0.5)',        
+				backgroundColor: 'rgba(255, 99, 132, 0.5)',
 				fill: false,
 				data: [7, 3, 10, 4, 11, 7, 6],
 				yAxisID: 'y-axis-1',
