@@ -1,7 +1,7 @@
 DEFAULT_PORT	= 8080;
 SERVER_PORT 	= DEFAULT_PORT;
 var parse_next = false;
-process.argv.forEach(function (val, index, array) 
+process.argv.forEach(function (val, index, array)
 {
 	if(parse_next == 'port')
 	{
@@ -37,7 +37,9 @@ router.use(function(req,res,next){
 router.get("/",function(req,res){
 	res.sendFile(path+"index.html");
 });
-
+router.get("/temp",function(req,res){
+	res.sendFile(path+"temp.html");
+});
 router.get("/fault",function(req,res){
 	res.sendFile(path+"fault.html");
 });
@@ -49,10 +51,10 @@ router.route('/location').post(function (req, res) {
 	for (i in thingy){
 		console.log(thingy[i]);
 	}
-	
-	
+
+
 	res.setHeader('Content-Type','application/json');
-	res.send(thingy);	
+	res.send(thingy);
 });
 
 router.route('/enterFault').post(function (req, res) {
@@ -62,7 +64,7 @@ router.route('/enterFault').post(function (req, res) {
 	+thingy.table+
 	' (timestamp, operator_initials, work_order, work_order_quantity, finished_part_number, pcb_part_number, reported_fault, investigation_findings, additional_comments, repaired_scrapped, fail_catagory, faulty_part_number, faulty_location_reference, completed)'+
 	' VALUES (CURRENT_TIMESTAMP(), "'+thingy.operatorName+'", "'+thingy.workOrder+'",'+thingy.quantity+',"'+thingy.finishedPartNumber+'","'+thingy.pcbNumber+'","'+thingy.faultDesc+'","'+thingy.investigation_findings+'","'+thingy.additional_comments+'","'+thingy.repaired_scrapped+'","'+thingy.fail_catagory+'","'+thingy.faulty_part_number+'","'+thingy.faulty_location_reference+'",CURRENT_TIMESTAMP())';
-	
+
 
 	faultPool.getConnection(function (err, connection) {
 		if (err){
@@ -92,20 +94,20 @@ router.route('/enterFault').post(function (req, res) {
 				//	res.status(200).send(returnAsCsv(json));
 					break;
 			}
-			
+
 		});
 		console.log('done');
 	});
-	
-	
-	
+
+
+
 	for (i in thingy){
 		console.log(thingy[i]);
 	}
-	
-	
+
+
 //	res.setHeader('Content-Type','application/json');
-//	res.send(thingy);	
+//	res.send(thingy);
 });
 
 
@@ -126,7 +128,7 @@ router.route('/completeExistingFault').post(function (req, res) {
 	'", completed = CURRENT_TIMESTAMP()'+
 	' WHERE'+
 	' idfault = '+thingy.idfault+';'
-	
+
 
 	faultPool.getConnection(function (err, connection) {
 		if (err){
@@ -157,20 +159,20 @@ router.route('/completeExistingFault').post(function (req, res) {
 				//	res.status(200).send(returnAsCsv(json));
 					break;
 			}
-			
+
 		});
 		console.log('done');
 	});
-	
-	
-	
+
+
+
 	for (i in thingy){
 		console.log(thingy[i]);
 	}
-	
-	
+
+
 //	res.setHeader('Content-Type','application/json');
-//	res.send(thingy);	
+//	res.send(thingy);
 });
 
 
@@ -194,7 +196,7 @@ router.route('/enterFaultIncomplete').post(function (req, res) {
 	thingy.finishedPartNumber+'","'+
 	thingy.pcbNumber+'","'+
 	thingy.faultDesc+'")'
-	
+
 
 	faultPool.getConnection(function (err, connection) {
 		if (err){
@@ -224,20 +226,20 @@ router.route('/enterFaultIncomplete').post(function (req, res) {
 				//	res.status(200).send(returnAsCsv(json));
 					break;
 			}
-			
+
 		});
 		console.log('done');
 	});
-	
-	
-	
+
+
+
 	for (i in thingy){
 		console.log(thingy[i]);
 	}
-	
-	
+
+
 //	res.setHeader('Content-Type','application/json');
-//	res.send(thingy);	
+//	res.send(thingy);
 });
 
 /*
@@ -267,7 +269,7 @@ var faultPool        = mysql.createPool({
 });
 
 app.get('/faultQuery', function(req, res){
-	
+
 	var myObject = JSON.parse(req.query.q)
 	//myTable = myObject.table;
 	//myField = myObject.field;
@@ -298,7 +300,7 @@ app.get('/faultQuery', function(req, res){
 					res.status(200).send(returnAsCsv(json));
 					break;
 			}
-			
+
 		});
 		console.log('done');
 	});
@@ -324,7 +326,7 @@ app.get('/dbRead', function(req, res){
 //			res.status(200).send(result.rows);
 //			res.status(200).send(result);
 			var json = result
-			var fields = Object.keys(json[0]) 
+			var fields = Object.keys(json[0])
 			var replacer = function(key, value) { return value === null ? '' : value}
 			var csv = json.map(function(row){
 				return fields.map(function(fieldName){
@@ -339,15 +341,15 @@ app.get('/dbRead', function(req, res){
 
 
 app.get('/mysqlReadBetweenDates', function(req, res){
-	
+
 	var myObject = JSON.parse(req.query.q)
 	myStartDate = myObject.startDate;
 	myEndDate = myObject.endDate;
 	myFormat = 'yyyy-mm-dd';
 	console.log('query the database between these dates '+myStartDate+' and '+myEndDate+'');
 //	res.setHeader('Content-Type','application/json');
-//	res.send(myObject);	
-	
+//	res.send(myObject);
+
 	//con.connect(function(err){
 	pool.getConnection(function (err, connection) {
 		if (err){
@@ -381,7 +383,7 @@ app.get('/mysqlReadBetweenDates', function(req, res){
 });
 
 app.get('/mysqlQuery', function(req, res){
-	
+
 	var myObject = JSON.parse(req.query.q)
 	//myTable = myObject.table;
 	//myField = myObject.field;
@@ -413,7 +415,7 @@ app.get('/mysqlQuery', function(req, res){
 					res.status(200).send(returnAsCsv(json));
 					break;
 			}
-			
+
 		});
 		console.log('done');
 	});
@@ -429,6 +431,11 @@ sqlStringBuilder = function(data){
 		break;
 		case 'genSelTFV':
 			sqlString = 'SELECT * FROM '+data.table+' WHERE '+data.field+' = "'+data.value+'"'
+			console.log('sql string is '+sqlString)
+			return sqlString;
+		break;
+		case 'genSel':
+			sqlString = 'SELECT '+data.field+' FROM '+data.table+' WHERE '+data.value;
 			console.log('sql string is '+sqlString)
 			return sqlString;
 		break;
@@ -457,7 +464,7 @@ sqlStringBuilder = function(data){
 			console.log('sql string is '+sqlString)
 			return sqlString;
 		break;
-		
+
 		case 'faultsByWeek':
 			switch(data.value) {
 				case 'all':
@@ -470,7 +477,7 @@ sqlStringBuilder = function(data){
 					'where '+
 					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
 					'and '+
-					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+	
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+
 					'group by WEEK(timestamp,1)';
 					console.log('sql string is '+sqlString)
 					return sqlString;
@@ -578,15 +585,15 @@ sqlStringBuilder = function(data){
 					'where '+
 					"year(timestamp) BETWEEN '"+data.field.year+"' AND '"+data.field.year+"' "+
 					'and '+
-					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+					
+					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+
 					'group by  '+
 					'WEEK(timestamp,1)';
 					console.log('sql string is '+sqlString)
 					return sqlString;
 				break
-			/*   
+			/*
 			 *	needs database rework does not take into account no fails and there seems to be split works orders for testing
-			 *   
+			 *
 				case 'FTP':
 					sqlString =
 					'SELECT'+
@@ -603,8 +610,8 @@ sqlStringBuilder = function(data){
 					return sqlString;
 				break;
 				*/
-					
-					
+
+
 /*
 
 
@@ -612,7 +619,7 @@ sqlStringBuilder = function(data){
   sum(case when investigation_findings = 'After visual inspection & Test, fault cannot be determined' then 1 else 0 end) as undetermined,
   sum(case when investigation_findings = 'Tested in full and functions correctly' then 1 else 0 end) as retest_good,
   sum(case when investigation_findings = 'Re-programmed and passed test' then 1 else 0 end) as reprogram_good,
-  sum(case when investigation_findings = 'Flux Issue' then 1 else 0 end) as flux_issue, 
+  sum(case when investigation_findings = 'Flux Issue' then 1 else 0 end) as flux_issue,
   sum(case when investigation_findings = 'Problem with tester' then 1 else 0 end) as tester_issue,
   sum(case when investigation_findings = 'Problem with plastics' then 1 else 0 end) as plastics_issue,
   sum(case when investigation_findings = 'Glued product. Cannot Investigate.' then 1 else 0 end) as sealed_cannot_investigate,
@@ -631,13 +638,13 @@ sqlStringBuilder = function(data){
   sum(case when investigation_findings = 'N/A' then 1 else 0 end) as N_A
 from fault
 where fail_catagory = 'CONV'
-group by 
+group by
 WEEK(timestamp,1);
 
-*/					
-					
-					
-					
+*/
+
+
+
 					console.log('sql string is '+sqlString)
 					return sqlString;
 				break;
@@ -668,7 +675,7 @@ app.get('/test', function(req, res){
     res.send(JSON.stringify({ 'key': 'value' }));
 });
 app.get('/hey', function (req, res){    //http://localhost:8080/hey?var1=1
-	var param = req.query.var1;  
+	var param = req.query.var1;
 	res.setHeader('Content-Type','text/html');
 	res.send(param);
 });
@@ -678,7 +685,7 @@ app.get('/ajax', function(req, res){
 	console.log(myObject.var1);
 	console.log('just query '+req.query.q);
 	res.setHeader('Content-Type','application/json');
-	res.send(myObject);	
+	res.send(myObject);
 });
 
 app.use(bodyParser.json());
@@ -689,6 +696,6 @@ var server 	= http.createServer(app);
 // Tell express to serve up /public as standard when accessing webroot
 app.use(express.static(__dirname + "/public"));
 app.use("/",router);
-// Tell express to listen for connections 
+// Tell express to listen for connections
 app.listen(SERVER_PORT);
 console.log('Server listening on ' + SERVER_PORT + ', serving files from ./public ');
