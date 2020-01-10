@@ -1,6 +1,6 @@
 <!doctype html>
 <html>
-	
+
 <head>
 	<meta charset="utf-8">
 	<title>Home</title>
@@ -18,22 +18,25 @@
 			<div class = "title">
 				Fault Logger
 			</div>
-			
+
 
 			<div id="topnav" class="topnav">
 				<div onclick="enterFaultDetails()">Enter fault</div>
 				<div onclick="loadIncomplete()">Incomplete Records</div>
 				<!--<div onclick="loadIdSearch()">Select Id</div> -->
 				<div onclick="loadChartsPage()">Charts</div>
+				<div onclick="loadDataViewer()">DataViewer</div>
 			</div>
 		</div>
-	
+
 		<div id="content" class="content">
 		</div>
-   
+
 	</div>
 <script src="/Chart.bundle.min.js"></script>
 <script src="/faultlogger.js"></script>
+<script src="/faultCharts.js"></script>
+<script src="/faultDataViewer.js"></script>
 <script src="/mousetrap.min.js"></script>
 <script src="/mtbs.js"></script>
 
