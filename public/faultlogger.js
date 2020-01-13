@@ -188,6 +188,7 @@ recieveDataPCBPartNumbers = function(r){
 	txt = txt + '';
 	txt = txt + 'PCB part number:';
 	txt = txt + '<input type="text" id="PCBPartLocatorInput" onkeyup="PCBPartlocationSearch()" placeholder="enter PCB part" title="Type in a part number">';
+  txt = txt + '<div id="PCBPartNumber">part no here</div>';
 	txt = txt + '<div class=scrollybox>';
 	txt = txt + '<table id="PCBPartLocationsTable">';
 	txt = txt + '<tr class="header">';
@@ -232,6 +233,7 @@ tablePCBPartNumbers = function(){
 	var txt = '';
 	txt = txt + '';
 	txt = txt + 'PCB part number:';
+  txt = txt + '<div id="PCBPartNumber">part no here</div>';
 	txt = txt + '<input type="text" id="PCBPartLocatorInput" onkeyup="PCBPartlocationSearch()" placeholder="enter PCB part" title="Type in a part number">';
 	txt = txt + '<div class=scrollybox>';
 	txt = txt + '<table id="PCBPartLocationsTable">';
@@ -263,7 +265,7 @@ tablePCBPartNumbers = function(){
 			return function() {
 				var cell = row.getElementsByTagName("td")[0];
         var id = cell.innerHTML;
-				document.getElementById("PCBPartLocatorInput").value= id;
+				document.getElementById("PCBPartNumber").innerHTML= id;
         //alert("id:" + id);
       };
     };
@@ -380,7 +382,9 @@ tablefinishedPartNumbers = function(){
 	var txt = '';
 	txt = txt + '';
 	txt = txt + 'Finished part number:';
-	txt = txt + '<input type="text" id="finishedPartLocatorInput" onkeyup="finishedPartlocationSearch()" placeholder="enter finished part" title="Type in a part number">';
+  txt = txt + '<div id="FinishedPartNumber">part no here</div>';
+	txt = txt + '<input type="text" id="finishedPartLocatorInput" onkeyup="finishedPartlocationSearch()" placeholder="search box" title="Type in a part number">';
+
 	txt = txt + '<div class=scrollybox>';
 	txt = txt + '<table id="finishedPartLocationsTable">';
 	txt = txt + '<tr class="header">';
@@ -414,7 +418,7 @@ tablefinishedPartNumbers = function(){
                 return function() {
                                         var cell = row.getElementsByTagName("td")[0];
                                         var id = cell.innerHTML;
-																				document.getElementById("finishedPartLocatorInput").value= id;
+																				document.getElementById("FinishedPartNumber").innerHTML= id;
                                         //alert("id:" + id);
                                  };
             };
@@ -568,6 +572,7 @@ furtherReport = function(){
 	console.log(componentPartNumbers);
 	txt = txt + '<b>Faulty component:</b>';
 	txt = txt + '<input type="text" id="componentPartLocatorInput" onkeyup="componentPartlocationSearch()" placeholder="search component part" title="Type in a part number">';
+  txt = txt + '<div id="componentPartNumber"></div>';
 	txt = txt + '<b>Part location reference:</b>';
 	txt = txt + '<input type=text id="locationRef">';
 	txt = txt + '<br>';
@@ -832,12 +837,34 @@ submittedtoFA = function(faultId){
 }
 
 jobDetailsEntered = function(){
-	//get wo pcbno finished part no
-	faultData.operatorName = document.getElementById("operatorName").value;
-	faultData.workOrder = document.getElementById("workOrder").value;
+	// add checks here to see if initial data is valid
+
+//check we have data ok
+if(document.getElementById("operatorName").value == ''){
+  alert ('operator name is empty')
+  return;
+}
+if(document.getElementById("workOrder").value == ''){
+  alert ('please enter work order number')
+  return;
+}
+if(document.getElementById("quantity").value == ''){
+  alert ('no quanitiy has been entered')
+  return;
+}
+if(document.getElementById("FinishedPartNumber").innerHTML == 'part no here'){
+  alert ('no finished part has been selected please click selection from the box')
+  return;
+}
+if(document.getElementById("PCBPartNumber").innerHTML == 'part no here'){
+  alert ('no PCB part has been selected please click selection from the box')
+  return;
+}
+  faultData.operatorName = document.getElementById("operatorName").value;
+  faultData.workOrder = document.getElementById("workOrder").value;
 	faultData.quantity = document.getElementById("quantity").value;
-	faultData.finishedPartNumber = document.getElementById("finishedPartLocatorInput").value;
-	faultData.pcbNumber = document.getElementById("PCBPartLocatorInput").value;
+	faultData.finishedPartNumber = document.getElementById("FinishedPartNumber").innerHTML;
+	faultData.pcbNumber = document.getElementById("PCBPartNumber").innerHTML;
 	addNewFault();
 }
 
@@ -1200,6 +1227,10 @@ submitCompletedFault = function (){
 reenterData = function(source)
 {
 	newData = prompt("Please re-enter " + source +" information")
+  if (newData == '' || newData == null){
+    alert("nope that didn't work... please try again")
+    return;
+  }
 	// if length is not 8 .. ok to scan again
 	document.getElementById(source).innerHTML=''+newData;
 	//document.getElementById("tempStorage").innerHTML= VER.newSerialNo + ' ' + source ;
