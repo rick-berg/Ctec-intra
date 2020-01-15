@@ -13,7 +13,7 @@ FTPData = {};
 yearWeekData = {};
 
 //componentPartNumbers =
-getData('componentpartnumbers','getAll','*','', 'component');
+getData('componentpartnumbers','getField','part_number,part_description','', 'component');
 //getData('fault','getUniqueList','year(timestamp) as years , week(timestamp, 1) as weeks','','console')
 //getData('fault','getUniqueList','year(timestamp) as years','','yearData')
 
@@ -24,9 +24,9 @@ faultData = {};
  initFaultFields = function(){
 
 	//getDataPCBPartNumbers();
-	getData('pcbpartnumbers','getAll','*','', 'PCBPartNumbers');
+	getData('pcbpartnumbers','getField','part_number,part_description','', 'PCBPartNumbers');
 	//getDataFinishedPartNumbers();
-	getData('finishedpartnumbers','getAll','*','', 'finishedPartNumbers');
+	getData('finishedpartnumbers','getField','part_number,part_description','', 'finishedPartNumbers');
 	//getDataInvestigationFindings();
 	getData('findings','getAll','*','', 'investigationFindings');
 	//getDataFaultCats();
@@ -34,6 +34,88 @@ faultData = {};
 };
 
 
+
+
+// Restricts input for the given textbox to the given inputFilter.
+function setInputFilter(textbox, inputFilter) {
+  ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {
+    textbox.addEventListener(event, function() {
+      if (inputFilter(this.value)) {
+        this.oldValue = this.value;
+        this.oldSelectionStart = this.selectionStart;
+        this.oldSelectionEnd = this.selectionEnd;
+      } else if (this.hasOwnProperty("oldValue")) {
+        this.value = this.oldValue;
+        this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+      } else {
+        this.value = "";
+      }
+    });
+  });
+}
+
+
+
+
+
+tableMaker = function(tableData, divLocation, tablename, searchname, clickedelementname){
+  var fields = Object.keys(tableData[0]);
+  var txt = '';
+  txt = txt + '<input type="text" id="'+searchname+'" onkeyup="tableSearch(\''+tablename+'\', \''+searchname+'\')" placeholder="search box" title="Type in a part number">';
+  txt = txt + '<div id='+clickedelementname+'>clicked data goes here</div>';
+  txt = txt + '<div class=scrollybox>';
+  txt = txt + '<table id='+tablename+'>';
+  txt = txt + '<tr class="header">';
+  for (var i in fields) {
+    txt = txt + '<th style="width:50%;">' + fields[i] + '</th>';
+  }
+  txt = txt + '</tr>';
+  for (var key in tableData) {
+    txt = txt + '<tr>';
+    if (tableData.hasOwnProperty(key)) {
+      for (var k in fields){
+        txt = txt + '<td>'+ tableData[key][fields[k]] + '</td>';
+      }
+    }
+    txt = txt + '</tr>';
+  }
+  txt = txt + '</table>';
+  txt = txt + '</div>';
+  document.getElementById(divLocation).innerHTML= txt;
+// this makes the rows clickable
+  var table = document.getElementById(tablename);
+  var rows = table.getElementsByTagName("tr");
+  for (i = 0; i < rows.length; i++) {
+    var currentRow = table.rows[i];
+    var createClickHandler = function(row) {
+      return function() {
+        var cell = row.getElementsByTagName("td")[0];
+        var id = cell.innerHTML;
+        document.getElementById(clickedelementname).innerHTML= id;
+        //alert("id:" + id);
+      };
+    };
+    currentRow.onclick = createClickHandler(currentRow);
+  }
+};
+function tableSearch(tableToBeSearched, searchboxname) {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById(searchboxname);
+  filter = input.value.toUpperCase();
+  table = document.getElementById(tableToBeSearched);
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+};
 
 
 /******************************************************************************************************************************
@@ -153,367 +235,6 @@ function getData(table, sqlFunction, field, value, swFunc){
 	xmlhttp.open("GET",str,true);
 	xmlhttp.send();
 };
-
-function getDataPCBPartNumbers(){
-	faultData = {};
-	faultData.table = 'pcbpartnumbers';
-	faultData.sqlFunction = "getAll";
-	//faultData.reciever = '';
-	faultData.responseAs = 'JSON';
-	//var recieveFunc = faultData.reciever;
-	var req = JSON.stringify(faultData);
-	var xmlhttp = null;
-
-	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-		xmlhttp=new XMLHttpRequest();
-	} else {// code for IE6, IE5
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-	xmlhttp.onreadystatechange=function(){
-		if (xmlhttp.readyState==4 && xmlhttp.status==200){
-			recieveDataPCBPartNumbers(xmlhttp.responseText);
-		}
-	};
-	var str = "/faultQuery?q="+req;
-	xmlhttp.open("GET",str,true);
-	xmlhttp.send();
-};
-
-
-recieveDataPCBPartNumbers = function(r){
-	var result = JSON.parse(r);
-	var fields = Object.keys(result[0]);
-	console.log(result);
-	var txt = '';
-	txt = txt + '';
-	txt = txt + 'PCB part number:';
-	txt = txt + '<input type="text" id="PCBPartLocatorInput" onkeyup="PCBPartlocationSearch()" placeholder="enter PCB part" title="Type in a part number">';
-  txt = txt + '<div id="PCBPartNumber">part no here</div>';
-	txt = txt + '<div class=scrollybox>';
-	txt = txt + '<table id="PCBPartLocationsTable">';
-	txt = txt + '<tr class="header">';
-	for (var i in fields) {
-		if (i == 0){}else{
-		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
-		}
-	}
-	txt = txt + '</tr>';
-	for (var key in result) {
-		txt = txt + '<tr>';
-		if (r.hasOwnProperty(key)) {
-			txt = txt + '<td>'+ result[key].part_number + '</td>';
-			txt = txt + '<td>'+ result[key].part_description + '</td>';
-		}
-		txt = txt + '</tr>';
-	}
-	txt = txt + '</table>';
-	txt = txt + '</div>';
-
-	document.getElementById("PCBNumberDiv").innerHTML= txt;
-
-	var table = document.getElementById("PCBPartLocationsTable");
-  var rows = table.getElementsByTagName("tr");
-  for (i = 0; i < rows.length; i++) {
-		var currentRow = table.rows[i];
-		var createClickHandler = function(row){
-			return function() {
-				var cell = row.getElementsByTagName("td")[0];
-        var id = cell.innerHTML;
-				document.getElementById("PCBPartLocatorInput").value= id;
-        //alert("id:" + id);
-      };
-    };
-		currentRow.onclick = createClickHandler(currentRow);
-  }
-};
-
-tablePCBPartNumbers = function(){
-
-	var fields = Object.keys(PCBPartNumbers[0]);
-	var txt = '';
-	txt = txt + '';
-	txt = txt + 'PCB part number:';
-  txt = txt + '<div id="PCBPartNumber">part no here</div>';
-	txt = txt + '<input type="text" id="PCBPartLocatorInput" onkeyup="PCBPartlocationSearch()" placeholder="enter PCB part" title="Type in a part number">';
-	txt = txt + '<div class=scrollybox>';
-	txt = txt + '<table id="PCBPartLocationsTable">';
-	txt = txt + '<tr class="header">';
-	for (var i in fields) {
-		if (i == 0){}else{
-		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
-		}
-	}
-	txt = txt + '</tr>';
-	for (var key in PCBPartNumbers) {
-		txt = txt + '<tr>';
-		if (PCBPartNumbers.hasOwnProperty(key)) {
-			txt = txt + '<td>'+ PCBPartNumbers[key].part_number + '</td>';
-			txt = txt + '<td>'+ PCBPartNumbers[key].part_description + '</td>';
-		}
-		txt = txt + '</tr>';
-	}
-	txt = txt + '</table>';
-	txt = txt + '</div>';
-
-	document.getElementById("PCBNumberDiv").innerHTML= txt;
-
-	var table = document.getElementById("PCBPartLocationsTable");
-  var rows = table.getElementsByTagName("tr");
-  for (i = 0; i < rows.length; i++) {
-		var currentRow = table.rows[i];
-		var createClickHandler = function(row){
-			return function() {
-				var cell = row.getElementsByTagName("td")[0];
-        var id = cell.innerHTML;
-				document.getElementById("PCBPartNumber").innerHTML= id;
-        //alert("id:" + id);
-      };
-    };
-		currentRow.onclick = createClickHandler(currentRow);
-  }
-};
-
-
-
-
-
-
-function PCBPartlocationSearch() {
-  var input, filter, table, tr, td, i, txtValue;
-  input = document.getElementById("PCBPartLocatorInput");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("PCBPartLocationsTable");
-  tr = table.getElementsByTagName("tr");
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
-    if (td) {
-      txtValue = td.textContent || td.innerText;
-      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
-    }
-  }
-}
-
-
-
-
-function getDataFinishedPartNumbers(){
-		faultData = {};
-	faultData.table = 'finishedpartnumbers';
-	faultData.sqlFunction = "getAll";
-	//faultData.reciever = '';
-	faultData.responseAs = 'JSON';
-	//var recieveFunc = faultData.reciever;
-	var req = JSON.stringify(faultData);
-	var xmlhttp = null;
-
-	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-		xmlhttp=new XMLHttpRequest();
-	} else {// code for IE6, IE5
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-	xmlhttp.onreadystatechange=function(){
-		if (xmlhttp.readyState==4 && xmlhttp.status==200){
-			recieveDatafinishedPartNumbers(xmlhttp.responseText);
-		}
-	};
-	var str = "/faultQuery?q="+req;
-	xmlhttp.open("GET",str,true);
-	xmlhttp.send();
-};
-recieveDatafinishedPartNumbers = function(r){
-	var result = JSON.parse(r);
-	var fields = Object.keys(result[0]);
-	console.log(result);
-	var txt = '';
-	txt = txt + '';
-	txt = txt + 'Finished part number:';
-	txt = txt + '<input type="text" id="finishedPartLocatorInput" onkeyup="finishedPartlocationSearch()" placeholder="enter finished part" title="Type in a part number">';
-	txt = txt + '<div class=scrollybox>';
-	txt = txt + '<table id="finishedPartLocationsTable">';
-	txt = txt + '<tr class="header">';
-	for (var i in fields) {
-		if (i == 0){}else{
-		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
-		}
-	}
-	txt = txt + '</tr>';
-	for (var key in result) {
-		txt = txt + '<tr>';
-		if (r.hasOwnProperty(key)) {
-			txt = txt + '<td>'+ result[key].part_number + '</td>';
-			txt = txt + '<td>'+ result[key].part_description + '</td>';
-		}
-		txt = txt + '</tr>';
-	}
-	txt = txt + '</table>';
-	txt = txt + '</div>';
-
-	document.getElementById("finishedPartNumberDiv").innerHTML= txt;
-
-
-	var table = document.getElementById("finishedPartLocationsTable");
-    var rows = table.getElementsByTagName("tr");
-    for (i = 0; i < rows.length; i++) {
-        var currentRow = table.rows[i];
-        var createClickHandler =
-            function(row)
-            {
-                return function() {
-                                        var cell = row.getElementsByTagName("td")[0];
-                                        var id = cell.innerHTML;
-																				document.getElementById("finishedPartLocatorInput").value= id;
-                                        //alert("id:" + id);
-                                 };
-            };
-
-        currentRow.onclick = createClickHandler(currentRow);
-    }
-
-
-};
-
-
-tablefinishedPartNumbers = function(){
-	var fields = Object.keys(finishedPartNumbers[0]);
-	var txt = '';
-	txt = txt + '';
-	txt = txt + 'Finished part number:';
-  txt = txt + '<div id="FinishedPartNumber">part no here</div>';
-	txt = txt + '<input type="text" id="finishedPartLocatorInput" onkeyup="finishedPartlocationSearch()" placeholder="search box" title="Type in a part number">';
-
-	txt = txt + '<div class=scrollybox>';
-	txt = txt + '<table id="finishedPartLocationsTable">';
-	txt = txt + '<tr class="header">';
-	for (var i in fields) {
-		if (i == 0){}else{
-		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
-		}
-	}
-	txt = txt + '</tr>';
-	for (var key in finishedPartNumbers) {
-		txt = txt + '<tr>';
-		if (finishedPartNumbers.hasOwnProperty(key)) {
-			txt = txt + '<td>'+ finishedPartNumbers[key].part_number + '</td>';
-			txt = txt + '<td>'+ finishedPartNumbers[key].part_description + '</td>';
-		}
-		txt = txt + '</tr>';
-	}
-	txt = txt + '</table>';
-	txt = txt + '</div>';
-
-	document.getElementById("finishedPartNumberDiv").innerHTML= txt;
-
-
-	var table = document.getElementById("finishedPartLocationsTable");
-    var rows = table.getElementsByTagName("tr");
-    for (i = 0; i < rows.length; i++) {
-        var currentRow = table.rows[i];
-        var createClickHandler =
-            function(row)
-            {
-                return function() {
-                                        var cell = row.getElementsByTagName("td")[0];
-                                        var id = cell.innerHTML;
-																				document.getElementById("FinishedPartNumber").innerHTML= id;
-                                        //alert("id:" + id);
-                                 };
-            };
-
-        currentRow.onclick = createClickHandler(currentRow);
-    }
-
-
-};
-
-
-
-
-function finishedPartlocationSearch() {
-  var input, filter, table, tr, td, i, txtValue;
-  input = document.getElementById("finishedPartLocatorInput");
-  filter = input.value.toUpperCase();
-  table = document.getElementById("finishedPartLocationsTable");
-  tr = table.getElementsByTagName("tr");
-  for (i = 0; i < tr.length; i++) {
-    td = tr[i].getElementsByTagName("td")[0];
-    if (td) {
-      txtValue = td.textContent || td.innerText;
-      if (txtValue.toUpperCase().indexOf(filter) > -1) {
-        tr[i].style.display = "";
-      } else {
-        tr[i].style.display = "none";
-      }
-    }
-  }
-}
-
-
-
-getDataInvestigationFindings = function(){
-	faultData = {};
-	faultData.table = 'findings';
-	faultData.sqlFunction = "getAll";
-	//faultData.reciever = '';
-	faultData.responseAs = 'JSON';
-	//var recieveFunc = faultData.reciever;
-	var req = JSON.stringify(faultData);
-	var xmlhttp = null;
-
-	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-		xmlhttp=new XMLHttpRequest();
-	} else {// code for IE6, IE5
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-	xmlhttp.onreadystatechange=function(){
-		if (xmlhttp.readyState==4 && xmlhttp.status==200){
-			recieveDataInvestigationFindings(xmlhttp.responseText);
-		}
-	};
-	var str = "/faultQuery?q="+req;
-	xmlhttp.open("GET",str,true);
-	xmlhttp.send();
-};
-recieveDataInvestigationFindings = function(r){
-	investigationFindings = JSON.parse(r);
-	//console.log(investigationFindings[1].investigation_findings);
-
-};
-
-
-getDataFaultCats = function(){
-	faultData = {};
-	faultData.table = 'failcatagory';
-	faultData.sqlFunction = "getAll";
-	//faultData.reciever = '';
-	faultData.responseAs = 'JSON';
-	//var recieveFunc = faultData.reciever;
-	var req = JSON.stringify(faultData);
-	var xmlhttp = null;
-
-	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
-		xmlhttp=new XMLHttpRequest();
-	} else {// code for IE6, IE5
-		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-	}
-	xmlhttp.onreadystatechange=function(){
-		if (xmlhttp.readyState==4 && xmlhttp.status==200){
-			recieveDataFaultCats(xmlhttp.responseText);
-		}
-	};
-	var str = "/faultQuery?q="+req;
-	xmlhttp.open("GET",str,true);
-	xmlhttp.send();
-};
-recieveDataFaultCats = function(r){
-	faultCatagories = JSON.parse(r);
-	console.log(faultCatagories);
-
-};
-
 
 
 /******************************************************************************************************************************
@@ -844,27 +565,27 @@ if(document.getElementById("operatorName").value == ''){
   alert ('operator name is empty')
   return;
 }
-if(document.getElementById("workOrder").value == ''){
-  alert ('please enter work order number')
+if(document.getElementById("workOrder").value == '' || document.getElementById("workOrder").value.length != 6 ){
+  alert ('please enter work order number 6 digits long')
   return;
 }
 if(document.getElementById("quantity").value == ''){
   alert ('no quanitiy has been entered')
   return;
 }
-if(document.getElementById("FinishedPartNumber").innerHTML == 'part no here'){
+if(document.getElementById("finishedresult").innerHTML == 'clicked data goes here'){
   alert ('no finished part has been selected please click selection from the box')
   return;
 }
-if(document.getElementById("PCBPartNumber").innerHTML == 'part no here'){
+if(document.getElementById("PCBresult").innerHTML == 'clicked data goes here'){
   alert ('no PCB part has been selected please click selection from the box')
   return;
 }
   faultData.operatorName = document.getElementById("operatorName").value;
   faultData.workOrder = document.getElementById("workOrder").value;
 	faultData.quantity = document.getElementById("quantity").value;
-	faultData.finishedPartNumber = document.getElementById("FinishedPartNumber").innerHTML;
-	faultData.pcbNumber = document.getElementById("PCBPartNumber").innerHTML;
+	faultData.finishedPartNumber = document.getElementById("finishedresult").innerHTML;
+	faultData.pcbNumber = document.getElementById("PCBresult").innerHTML;
 	addNewFault();
 }
 
@@ -922,26 +643,27 @@ enterFaultDetails = function(){
 	txt = txt + '<br>';
 
 	txt = txt + 'Operator Initials:';
-	txt = txt + '<input type=text id="operatorName">';
+	txt = txt + '<input type=text autocomplete="off" id="operatorName">';
 	txt = txt + '<br>';
 	txt = txt + 'Work Order:';
-	txt = txt + '<input type=text id="workOrder">';
+	txt = txt + '<input type=text autocomplete="off" id="workOrder">';
 	txt = txt + '<br>';
 	txt = txt + 'Quantity:';
-	txt = txt + '<input type=text id="quantity">';
+	txt = txt + '<input type=text autocomplete="off" id="quantity">';
 	txt = txt + '<br>';
 //	txt = txt + 'Finished part number:';
 //	txt = txt + '<input type=text id="finishedPartNumber">';
-	txt = txt + '<br><div style = "display: flex">';
+  txt = txt + '<br><div style = "display: flex">';
+  txt = txt + '<div style="flex: 0 0 50%">finished part Number:</div>';
+  txt = txt + '<div style="flex: 1">PCB Number:</div>';
+  txt = txt + '</div>';
+
+	txt = txt + '<div style = "display: flex">';
 	txt = txt + '<div style="flex: 0 0 50%" id="finishedPartNumberDiv"></div>';
-/*
-	txt = txt + '<br>';
-	txt = txt + 'PCB Number:          ';
-	txt = txt + '<input type=text id="pcbNumber">';
-	txt = txt + '<br>';
-*/
 	txt = txt + '<div style="flex: 1" id="PCBNumberDiv"></div>';
 	txt = txt + '</div><br>';
+
+
 	txt = txt + '<input type="button" value="Enter" onclick="jobDetailsEntered()">';
 	txt = txt + '<div></div>';
 	txt = txt + '<br>';
@@ -967,16 +689,25 @@ enterFaultDetails = function(){
 		    workOrder.focus();
 		}
 	});
+  setInputFilter(operatorName, function(value) {
+    return /^[a-z]{0,5}$/i.test(value); });
+
 	workOrder.addEventListener("keyup", function(event){
 		if (event.key === "Enter") {
 		    quantity.focus();
 		}
 	});
+  setInputFilter(workOrder, function(value) {
+    return /^\d{0,6}$/i.test(value); });
+
 	quantity.addEventListener("keyup", function(event){
 		if (event.key === "Enter") {
 //		    finishedPartNumber.focus();
 		}
-	});
+  });
+  setInputFilter(quantity, function(value) {
+    return /^\d{0,8}$/i.test(value); });
+
 //	finishedPartNumber.addEventListener("keyup", function(event){
 //		if (event.key === "Enter") {
 //			pcbNumber.focus();
@@ -988,6 +719,15 @@ enterFaultDetails = function(){
 //			jobDetailsEntered();
 //		}
 //	});
+
+setInputFilter(operatorName, function(value) {
+  return /^[a-z]{0,5}$/i.test(value); });
+setInputFilter(workOrder, function(value) {
+  return /^\d{0,6}$/i.test(value); });
+setInputFilter(quantity, function(value) {
+  return /^\d{0,8}$/i.test(value); });
+
+
 
 }
 
@@ -1235,6 +975,23 @@ reenterData = function(source)
 	document.getElementById(source).innerHTML=''+newData;
 	//document.getElementById("tempStorage").innerHTML= VER.newSerialNo + ' ' + source ;
 	}
+
+  function setInputFilter(textbox, inputFilter) {
+    ["input", "keydown", "keyup", "mousedown", "mouseup", "select", "contextmenu", "drop"].forEach(function(event) {
+      textbox.addEventListener(event, function() {
+        if (inputFilter(this.value)) {
+          this.oldValue = this.value;
+          this.oldSelectionStart = this.selectionStart;
+          this.oldSelectionEnd = this.selectionEnd;
+        } else if (this.hasOwnProperty("oldValue")) {
+          this.value = this.oldValue;
+          this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+        } else {
+          this.value = "";
+        }
+      });
+    });
+  }
 
 
 initFaultFields();
