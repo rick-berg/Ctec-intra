@@ -443,6 +443,10 @@ sqlStringBuilder = function(data){
 			sqlString = 'SELECT * FROM '+data.table+' WHERE '+data.field+' BETWEEN "'+data.startDate+'" AND "'+data.endDate+'"';
 			console.log('sql string is '+sqlString)
 			return sqlString;
+		case 'betweenTimesWhere':
+			sqlString = 'SELECT * FROM '+data.table+' WHERE pcb_part_number = "RPF0999110" AND '+data.field+' BETWEEN "'+data.startDate+'" AND "'+data.endDate+'" ';
+			console.log('sql string is '+sqlString)
+			return sqlString;
 		break;
 		case 'getAll':
 			sqlString = 'SELECT * FROM '+data.table+'';
