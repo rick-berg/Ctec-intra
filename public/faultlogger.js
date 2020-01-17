@@ -132,6 +132,10 @@ function getData(table, sqlFunction, field, value, swFunc){
 	faultData.field = field;
 	faultData.value = value;
 	faultData.responseAs = 'JSON';
+  if (sqlFunction == 'betweenTimesWhere'){
+    faultData.startDate = getDateString('start');
+    faultData.endDate = getDateString('end');
+  }
 	var req = JSON.stringify(faultData);
 	var xmlhttp = null;
 
@@ -203,7 +207,9 @@ function getData(table, sqlFunction, field, value, swFunc){
 					document.getElementById('chartOptionsYear').innerHTML = txt;
 	//				yearWeekData = response;
 					break;
-
+        case 'dataViewer':
+          tableMaker(response, 'results', 'mysearchTable', 'mysearchSearch', 'mysearchClicked');
+          break;
 				case 'weekData':
 					var txt = '';
 
@@ -674,8 +680,10 @@ enterFaultDetails = function(){
 	 *			put fin and pcb part recievers here
 	 *
 	 */
-	tablefinishedPartNumbers();
-	tablePCBPartNumbers();
+   tableMaker(PCBPartNumbers,'PCBNumberDiv', 'PCBtable', 'PCBSearch', 'PCBresult' );
+    tableMaker(finishedPartNumbers,'finishedPartNumberDiv', 'finishedtable', 'finishedSearch', 'finishedresult' )
+//  tablefinishedPartNumbers();
+//	tablePCBPartNumbers();
 
 	operatorName = document.getElementById("operatorName");
 	workOrder = document.getElementById("workOrder");
