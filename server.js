@@ -242,6 +242,94 @@ router.route('/enterFaultIncomplete').post(function (req, res) {
 //	res.send(thingy);
 });
 
+
+app.delete('/faultDelete/:id', function (req, res) {
+
+    let task_id = req.params.id;
+console.log('deleting record: '+task_id);
+    if (!task_id) {
+        return res.status(400).send({ error: true, message: 'Please provide text_id' });
+    }
+		faultPool.getConnection(function (err, connection) {
+			if (err){
+				console.log('server connect fail : '+err);
+				res.status(400).send(err);
+				}
+			connection.query('DELETE FROM fault WHERE idfault ='+task_id, (err, result, fields) =>{
+				console.log('sql command done');
+				if(err){
+					console.log('sql command error');
+					console.log(err);
+				}
+				connection.release();
+				console.log('sql connection released');
+				return res.send({ error: false, data: '', message: 'text has been Deleted successfully.' });
+
+			});
+			console.log('done');
+		});
+});
+/*
+
+connection.query('DELETE FROM fault WHERE id = ?', task_id, function (error, results, fields) {
+		if (error) throw error;
+		return res.send({ error: false, data: results, message: 'text has been Deleted successfully.' });
+});
+
+
+faultPool.getConnection(function (err, connection) {
+	if (err){
+		console.log('server connect fail : '+err);
+		res.status(400).send(err);
+		}
+	connection.query('DELETE FROM fault WHERE id = ?', (err, result, fields) =>{
+		console.log('sql command done');
+		if(err){
+			console.log('sql command error');
+			console.log(err);
+		}
+		connection.release();
+		console.log('sql connection released');
+		return res.send({ error: false, data: results, message: 'text has been Deleted successfully.' });
+
+	});
+	console.log('done');
+});
+
+
+
+
+
+router.route('/faultDelete').delete(function (req, res) {
+//app.delete('/faultDelete', function (req, res) {
+console.log(req.body)
+    var id = req.params.id;
+
+    if (!id) {
+        return res.status(400).send({ error: true, message: 'No ID selected' });
+    }
+    connection.query('DELETE FROM fault WHERE idfault = ?', id, function (error, results, fields) {
+        if (error) throw error;
+        return res.send({ error: false, data: results, message: 'text has been Deleted successfully.' });
+    });
+});
+*/
+/*
+app.delete('/faultDelete', function (req, res) {
+
+    var id = req.params.id;
+console.log('delete accessed')
+    //DELETE RECORD
+
+    return res.status(200);
+});
+*/
+
+
+
+
+
+
 /*
 var con = mysql.createConnection({
 	host:		'localhost',

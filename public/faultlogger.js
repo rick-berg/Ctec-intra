@@ -56,6 +56,65 @@ function setInputFilter(textbox, inputFilter) {
 
 
 
+tableMaker2 = function(tableData, divLocation, tablename, searchname, clickedelementname){
+  var fields = Object.keys(tableData[0]);
+  var txt = '';
+  txt = txt + '<input type="text" id="'+searchname+'" onkeyup="tableSearch(\''+tablename+'\', \''+searchname+'\')" placeholder="search box" title="Type in a part number">';
+  txt = txt + '<div id='+clickedelementname+'>clicked data goes here</div>';
+  txt = txt + '<div class=scrollybox>';
+  txt = txt + '<table id='+tablename+'>';
+  txt = txt + '<tr class="header">';
+  for (var i in fields) {
+    txt = txt + '<th style="width:50%;">' + fields[i] + '</th>';
+  }
+  txt = txt + '</tr>';
+  for (var key in tableData) {
+    txt = txt + '<tr>';
+    if (tableData.hasOwnProperty(key)) {
+      for (var k in fields){
+        txt = txt + '<td>'+ tableData[key][fields[k]] + '</td>';
+      }
+    }
+    txt = txt + '</tr>';
+  }
+  txt = txt + '</table>';
+  txt = txt + '</div>';
+  document.getElementById(divLocation).innerHTML= txt;
+// this makes the rows clickable
+  var table = document.getElementById(tablename);
+  var rows = table.getElementsByTagName("tr");
+  for (i = 0; i < rows.length; i++) {
+    var currentRow = table.rows[i];
+    var createClickHandler = function(row, tabl) {
+      return function() {
+        var tbl = document.getElementById("mysearchTable");
+        var trs = tabl.getElementsByTagName("tr")
+        for (j = 0; j < trs.length; j++){
+          tbl.rows[j].style.background == "green"
+        }
+        var cell = row.getElementsByTagName("td")[0];
+      //  if( row.style.background == "green" ){
+      //    row.style.background = "";
+      //  } else {
+          row.style.background = "green";
+      //  };
+
+        var id = cell.innerHTML;
+        document.getElementById(clickedelementname).innerHTML= id;
+        //alert("id:" + id);
+      };
+    };
+    currentRow.onclick = createClickHandler(currentRow, table);
+  }
+};
+
+
+
+
+
+
+
+
 
 
 tableMaker = function(tableData, divLocation, tablename, searchname, clickedelementname){
@@ -172,6 +231,7 @@ function getData(table, sqlFunction, field, value, swFunc){
 					idSearchRec(response);
 					break;
 				case 'incomplete':
+          // stop if no data
 					recieveIncomplete(response);
 					break;
 				case 'chartDataBar':
@@ -241,6 +301,56 @@ function getData(table, sqlFunction, field, value, swFunc){
 	xmlhttp.open("GET",str,true);
 	xmlhttp.send();
 };
+
+deleteRecord = function(){
+  //id = '{"id":'+document.getElementById("mysearchClicked").innerHTML+'}'
+  id = document.getElementById("mysearchClicked").innerHTML
+
+  var req = JSON.stringify(id);
+  alert(req);
+  var xmlhttp = null;
+
+  if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+    xmlhttp=new XMLHttpRequest();
+  } else {// code for IE6, IE5
+    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.onreadystatechange=function(){
+    if (xmlhttp.readyState==4 && xmlhttp.status==200){
+      alert('we got response');
+      response = JSON.parse(xmlhttp.responseText);
+    };
+  }
+    var str = "/faultDelete/"+id;
+    xmlhttp.open("DELETE",str,true);
+    xmlhttp.send();
+
+};
+
+/*
+router.delete('/faultDelete/:id', function (req, res) {
+  User.findByIdAndRemove(req.params.id, function (err, user) {
+    if (err) return res.status(500).send("There was a problem deleting the user.");
+    res.status(200).send("User: "+ user.name +" was deleted.");
+  });
+});
+
+app.delete('/faultDelete/:id', function (req, res) {
+
+    let task_id = req.params.id;
+
+    if (!task_id) {
+        return res.status(400).send({ error: true, message: 'Please provide text_id' });
+    }
+    mc.query('DELETE FROM tasks WHERE id = ?', task_id, function (error, results, fields) {
+        if (error) throw error;
+        return res.send({ error: false, data: results, message: 'text has been Deleted successfully.' });
+    });
+});
+
+
+
+*/
 
 
 /******************************************************************************************************************************
@@ -740,9 +850,16 @@ setInputFilter(quantity, function(value) {
 }
 
 loadIncomplete = function (){
+
 	getData('fault', 'getNotNull', 'idfault, finished_part_number', 'completed','incomplete')
 }
 recieveIncomplete = function (r){
+  try{
+    eval("var tempobj = "+r);
+  }
+  catch(err){
+    alert(err);
+  }
 	var fields = Object.keys(r[0]);
 	var txt = '';
 	txt = txt + '<div class=scrollybox>';

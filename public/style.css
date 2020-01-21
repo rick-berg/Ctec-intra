@@ -9,17 +9,17 @@
 body {
  margin: 0;
  background-color: #999999;
- 
+
 }
 .top{
  height: 125px;
- 
+
 }
 .title{
   padding-top: 16px;
   padding-left: 10%;
   font-size: 1.1em;
- 
+
 }
 /* Add a black background color to the top navigation */
 .topnav {
@@ -70,25 +70,25 @@ ul {
   overflow: scroll;
   margin: 0;
   padding: 0;
-  
+
   border: 2px solid #ccc;
-  
+
   font-size: 16px;
   font-family: Arial, sans-serif;
-  
+
   // Again, this is where the magic happens
   -webkit-overflow-scrolling: touch;
 }
 
 li {
   padding: 10px 20px;
-  
+
   border-bottom: 1px solid #ccc;
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:nth-child(even) {
     background: #f8f8f8;
   }
@@ -96,7 +96,7 @@ li {
 
 .scrollybox{
  /* height:calc(100vh - 250px); */
- height:250px;
+ height:450px;
  width:80%;
  border:1px solid #ccc;
  font:10px/16px Georgia, Garamond, Serif;
@@ -143,5 +143,3 @@ li {
 #locationsTable tr.header, #myTable tr:hover {
   background-color: #f1f1f1;
 }
-
-
