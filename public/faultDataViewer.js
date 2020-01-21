@@ -4,6 +4,7 @@ loadDataViewer = function () {
   txt = txt + 'search by:<div id="options"></div>'
   txt = txt + '<div id="search_options"></div>'
   txt = txt + '<div id="results">Data goes \'ere </div>'
+  txt = txt + '<div id="dev_box"></div>'
   document.getElementById("content").innerHTML=txt;
   optionsSelect();
 };
@@ -12,6 +13,9 @@ optionsSelect = function (){
   var txt = ''
   txt = txt + '<select id="search_option" onchange="searchOptions(this.value)" >';
   txt = txt + '<option disabled selected value> -- select a search option -- </option>';
+
+  txt = txt + '<option value="todays_work">todays work</option>';
+  txt = txt + '<option value="this_weeks_work">this weeks work</option>';
 
   txt = txt + '<option value="work_order">Work order</option>';
   txt = txt + '<option value="pcb_part_number">PCB part number</option>';
@@ -23,13 +27,20 @@ optionsSelect = function (){
 searchOptions = function (optionSelected){
   var txt = ''
   switch (optionSelected){
+    case 'todays_work':
+    // select all where timestamp = week(x,1)
+      txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSel\', \'*\', \'DAYOFYEAR(timestamp)=DAYOFYEAR(CURDATE())AND YEAR(timestamp)=YEAR(curdate())\', \'dataViewer\')">';
+      break;
+    case 'this_weeks_work':
+      txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSel\', \'*\', \'WEEK(timestamp,1)=WEEK(CURDATE(),1)AND YEAR(timestamp)=YEAR(curdate())\', \'dataViewer\')">';
+      break;
     case 'work_order':
       txt = txt + '<input type="text" id="work_order_search" placeholder="Enter Works order number">';
-      txt = txt + '<input type="button" value="Search All" onclick="alert(\'wo search\')">';
+      txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSelTFV\', \'work_order\', document.getElementById(\'work_order_search\').value, \'dataViewer\')">';
       break;
     case 'pcb_part_number':
       txt = txt + '<input type="text" id="PBC_part_search" placeholder="Enter PCB part number">';
-      txt = txt + '<input type="button" value="Search All" onclick="alert(\'pcb search\')">';
+      txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSelTFV\', \'pcb_part_number\', document.getElementById(\'PBC_part_search\').value, \'dataViewer\')">';
       /*
       txt = txt + '<br>select a date range to view';
     	txt = txt + '';
@@ -51,7 +62,8 @@ searchOptions = function (optionSelected){
     case 'finished_part_number':
 
       txt = txt + '<input type="text" id="finished_part_search" placeholder="Enter Finished number">';
-      txt = txt + '<input type="button" value="Search All" onclick="alert(\'fin part search\')">';
+      txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSelTFV\', \'finished_part_number\', document.getElementById(\'finished_part_search\').value, \'dataViewer\')">';
+
       //txt = txt + '<input type="button" value="Search All" onclick="getData(\'fault\', \'genSelTFV\', \'finished_part_number\', '+document.getElementById("finished_part_search").value+', \'dataViewer\')">';
       /*
       txt = txt + '<br>select a date range to view';
