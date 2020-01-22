@@ -2,8 +2,9 @@ devmode = 0
 keybinds = function ()
 {
 	Mousetrap.bind('r i c k b e r g i s t h e b e s t', function(){stopFade()});
-	Mousetrap.bind('p i d g e o n', function(){devViewerOptions()});
+	Mousetrap.bind('d e l e t e', function(){devViewerOptions()});
 	Mousetrap.bind('d r i l l', function(){drilldown()});
+	Mousetrap.bind('u n l o c k', function(){unlockFeatures()});
 	// just for testing comment or remove later
 	//Mousetrap.bind('p l a y', function(){VER.test.play()});
 	// remove these in final build
@@ -36,5 +37,13 @@ devViewerOptions = function ()
 	document.getElementById("dev_box").innerHTML = txt
 }
 
+unlockFeatures = function (){
+	var txt = ''
+	txt = txt + '<div onclick="enterFaultDetails()">Enter fault</div>'
+	txt = txt + '<div onclick="loadIncomplete()">Incomplete Records</div>'
+	txt = txt + '<div onclick="loadChartsPage()">Charts</div>'
+	txt = txt + '<div onclick="loadDataViewer()">DataViewer</div>'
 
+	document.getElementById("topnav").innerHTML = txt
+}
 //setInterval (fadeOut, 600);
