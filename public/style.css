@@ -1,18 +1,23 @@
+
+
 .top {
-  background-color: #999999;
+  background-color: #303030;
   overflow: hidden;
   text-decoration: none;
   padding-top: 16px;
   padding-left: 14px;
   font-size: 1.7em;
 }
-body {
- margin: 0;
- background-color: #999999;
 
+html, body, .container{
+    height: 100%;
+    margin: 0;
+    background-color: #777777;
 }
+
 .top{
  height: 125px;
+ color: white;
 
 }
 .title{
@@ -38,8 +43,7 @@ body {
 
 /* Change the color of links on hover */
 .topnav div:hover {
-  background-color: #ddd;
-  color: black;
+  color: red;
 }
 
 /* Add a color to the active/current link */
@@ -53,7 +57,8 @@ body {
   /*padding: 14px 16px;*/
   padding-left: 14px;
   text-decoration: none;
-  height: calc(100vh - 199px);
+  /*height: 100%;*/
+  height: calc(100vh - 125px);
 }
 .bottom {
   overflow: hidden;
@@ -101,6 +106,9 @@ li {
  border:1px solid #ccc;
  font:10px/16px Georgia, Garamond, Serif;
  overflow:auto;
+ resize: both;
+ /*-webkit-box-shadow: 5px 5px 15px 5px #000000;*/
+ /*box-shadow: 5px 5px 15px 5px #000000;*/
 }
 
 .large{
@@ -142,4 +150,56 @@ li {
 
 #locationsTable tr.header, #myTable tr:hover {
   background-color: #f1f1f1;
+}
+
+
+table.tableMaker {
+  font-family: Arial, Helvetica, sans-serif;
+  border: 0px solid #EAEAEA;
+  background-color: #C6C6C6;
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+table.tableMaker td, table.tableMaker th {
+  border: 1px solid #AAAAAA;
+  padding: 2px 2px;
+}
+table.tableMaker tbody td {
+  font-size: 12px;
+}
+table.tableMaker tr:nth-child(even) {
+  background: #D0E4F5;
+}
+
+table.tableMaker tbody th {
+  background: #104698;
+  background: -moz-linear-gradient(top, #d04c4c 0%, #c72828 66%, #C11010 100%);
+  background: -webkit-linear-gradient(top, #d04c4c 0%, #c72828 66%, #C11010 100%);
+  background: linear-gradient(to bottom, #d04c4c 0%, #c72828 66%, #C11010 100%);
+  border-bottom: 2px solid #444444;
+}
+
+table.tableMaker tbody th {
+  font-size: 16px;
+  font-weight: bold;
+  color: #FFFFFF;
+  border-left: 2px solid #D0E4F5;
+}
+table.tableMaker tbody th:first-child {
+  border-left: none;
+}
+
+table.tableMaker tfoot td {
+  font-size: 8px;
+}
+table.tableMaker tfoot .links {
+  text-align: right;
+}
+table.tableMaker tfoot .links a{
+  display: inline-block;
+  background: #1C6EA4;
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 5px;
 }

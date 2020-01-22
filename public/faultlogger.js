@@ -125,7 +125,7 @@ tableMaker = function(tableData, divLocation, tablename, searchname, clickedelem
   txt = txt + '<input type="text" id="'+searchname+'" onkeyup="tableSearch(\''+tablename+'\', \''+searchname+'\')" placeholder="search box" title="Type in a part number">';
   txt = txt + '<div id='+clickedelementname+'>clicked data goes here</div>';
   txt = txt + '<div class=scrollybox>';
-  txt = txt + '<table id='+tablename+'>';
+  txt = txt + '<table class="tableMaker" id='+tablename+'>';
   txt = txt + '<tr class="header">';
   for (var i in fields) {
     txt = txt + '<th style="width:50%;">' + fields[i] + '</th>';
@@ -142,8 +142,11 @@ tableMaker = function(tableData, divLocation, tablename, searchname, clickedelem
   }
   txt = txt + '</table>';
   txt = txt + '</div>';
-  if(copyButton)
-  txt = txt + '<button onclick="copyToClipboard(\''+divLocation+'\')">Copy text</button>';
+  if(copyButton){
+    txt = txt + '<br><br>';
+    txt = txt + '<button onclick="copyToClipboard(\''+tablename+'\')">Copy text</button>';
+  }
+
 
   document.getElementById(divLocation).innerHTML= txt;
 // this makes the rows clickable
@@ -182,20 +185,20 @@ function tableSearch(tableToBeSearched, searchboxname) {
 };
 
 function copyToClipboard(containerid) {
-	if (document.selection) { 
+	if (document.selection) {
     var range = document.body.createTextRange();
     range.moveToElementText(document.getElementById(containerid));
     range.select().createTextRange();
-    document.execCommand("copy"); 
+    document.execCommand("copy");
 	} else if (window.getSelection) {
 		var range = document.createRange();
 		range.selectNode(document.getElementById(containerid));
 		//range.selectNode(containerid);
-		window.getSelection().removeAllRanges(); 
+		window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
     document.execCommand("copy");
 		window.getSelection().removeAllRanges();
-    alert("text copied") 
+    alert("text copied")
 	}
 }
 
@@ -880,7 +883,7 @@ setInputFilter(quantity, function(value) {
 
 loadIncomplete = function (){
 
-	getData('fault', 'getNotNull', 'idfault, finished_part_number, work_order, reported_fault', 'completed','incomplete')
+	getData('fault', 'getNull', 'idfault, finished_part_number, work_order, reported_fault', 'completed','incomplete')
 }
 recieveIncomplete = function (r){
   try{
@@ -889,6 +892,13 @@ recieveIncomplete = function (r){
   catch(err){
     alert(err);
   }
+var txt = ''
+txt = txt + '<div id = "tablebox"></div>'
+txt = txt + '<div></div>'
+txt = txt + '<input type="button" value="Submit" onclick="loadIdSearch()">';
+document.getElementById('content').innerHTML = txt
+/*
+
 	var fields = Object.keys(r[0]);
 	var txt = '';
 	txt = txt + '<div class=scrollybox>';
@@ -931,20 +941,19 @@ recieveIncomplete = function (r){
 
         currentRow.onclick = createClickHandler(currentRow);
     }
+*/
+
+tableMaker(r, 'tablebox', 'incompleteTable', 'iSearch', 'iClicked', 0)
+
+
 
 }
 
 
 loadIdSearch = function (){
 
-	var txt = '';
-	txt = txt + '';
-	txt = txt + 'Enter Id:';
-	txt = txt + '<input type=text id="faultId">';
-	txt = txt + '<br>';
-	txt = txt + '<input type="button" value="Enter" onclick="idSearch()">';
-
-	document.getElementById("content").innerHTML=txt;
+	var id = document.getElementById('iClicked').innerHTML;
+  idSearch(id);
 
 }
 

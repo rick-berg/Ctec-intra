@@ -546,7 +546,7 @@ sqlStringBuilder = function(data){
 			console.log('sql string is '+sqlString)
 			return sqlString;
 		break;
-		case 'getNotNull':
+		case 'getNull':
 			sqlString = 'SELECT '+data.field+' FROM '+data.table+' WHERE '+data.value+' IS NULL'
 			console.log('sql string is '+sqlString)
 			return sqlString;
