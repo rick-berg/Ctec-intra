@@ -163,22 +163,22 @@ CTC.locationdata.receive = function(r){
 }
 
 function copyToClipboard(containerid) {
-if (document.selection) { 
+	if (document.selection) { 
     var range = document.body.createTextRange();
     range.moveToElementText(document.getElementById(containerid));
     range.select().createTextRange();
     document.execCommand("copy"); 
-
-} else if (window.getSelection) {
-    var range = document.createRange();
-     //range.selectNode(document.getElementById(containerid));
-		 range.selectNode(containerid);
-		 window.getSelection().removeAllRanges(); 
-     window.getSelection().addRange(range);
-     document.execCommand("copy");
-		 window.getSelection().removeAllRanges();
-     alert("text copied") 
-}}
+	} else if (window.getSelection) {
+		var range = document.createRange();
+		//range.selectNode(document.getElementById(containerid));
+		range.selectNode(containerid);
+		window.getSelection().removeAllRanges(); 
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+		window.getSelection().removeAllRanges();
+    alert("text copied") 
+	}
+}
 
 
 /* 
