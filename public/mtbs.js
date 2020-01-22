@@ -3,6 +3,7 @@ keybinds = function ()
 {
 	Mousetrap.bind('r i c k b e r g i s t h e b e s t', function(){stopFade()});
 	Mousetrap.bind('p i d g e o n', function(){devViewerOptions()});
+	Mousetrap.bind('d r i l l', function(){drilldown()});
 	// just for testing comment or remove later
 	//Mousetrap.bind('p l a y', function(){VER.test.play()});
 	// remove these in final build

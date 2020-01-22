@@ -96,7 +96,7 @@ li {
 
 .scrollybox{
  /* height:calc(100vh - 250px); */
- height:450px;
+ height:250px;
  width:80%;
  border:1px solid #ccc;
  font:10px/16px Georgia, Garamond, Serif;

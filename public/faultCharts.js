@@ -184,9 +184,10 @@ loadBarChart = function(thisChartData){
         console.log('weekno = '+label+'')
         console.log('dataset name = '+datalabel+'')
         console.log('chart type = '+chartCatagory+'')
-        if (chartCatagory == 'conv') {chartCatagory = 'CONV';}
-        if (chartCatagory == 'smt') {chartCatagory = 'SMT';}
-        if (chartCatagory == 'progTest') {chartCatagory = 'PROG/TEST';}
+				if (chartCatagory == 'All Faults') {chartCatagory = "";}
+        if (chartCatagory == 'conv') {chartCatagory = "fail_catagory = 'CONV' AND ";}
+        if (chartCatagory == 'smt') {chartCatagory = "fail_catagory = 'SMT' AND ";}
+        if (chartCatagory == 'progTest') {chartCatagory = "fail_catagory = 'PROG/TEST' AND ";}
         if (datalabel == 'undetermined') datalabel = 'After visual inspection & Test, fault cannot be determined';
         if (datalabel == 'retest_good') datalabel = 'Tested in full and functions correctly';
         if (datalabel == 'reprogram_good') datalabel = 'Re-programmed and passed test';
@@ -212,10 +213,20 @@ loadBarChart = function(thisChartData){
         //console.log('value = '+value+'')
         //console.log('dataset index = '+clickedElementDSindex+'')
         //console.log(activePoint)
-        fields = 'pcb_part_number, COUNT(*)'
+				var selector = 'table'
+				if (selector == 'table'){
+					fields = 'work_order, pcb_part_number, COUNT(*)'
+        whereStuff = ""+chartCatagory+"week(timestamp, 1) = '"+label+"' AND year(timestamp) = '"+yearData+"' "+
+                    "AND investigation_findings = '"+datalabel+"' group by work_order;"
+        getData('fault', 'genSel', fields ,whereStuff,'barDrillTable');
+				} else {
+					fields = 'pcb_part_number, COUNT(*)'
         whereStuff = "fail_catagory = '"+chartCatagory+"' AND week(timestamp, 1) = '"+label+"' AND year(timestamp) = '"+yearData+"' "+
                     "AND investigation_findings = '"+datalabel+"' group by pcb_part_number;"
         getData('fault', 'genSel', fields ,whereStuff,'barDrill');
+				}
+				
+				
      }
   };
 
@@ -380,12 +391,18 @@ loadLineChart = function(thisChartData){
         //get value by index
         var value = myLineChart.data.datasets[clickedElementDSindex].data[clickedElementindex];
         var datalabel = myLineChart.data.datasets[clickedElementDSindex].label;
-
+				var yearData = document.getElementById('years').value
+				label = label.slice(4);
         console.log('label = '+label+'')
+				
         //console.log('value = '+value+'')
         //console.log('dataset index = '+clickedElementDSindex+'')
+				datalabel = datalabel.substring(0, datalabel.length - 7);
         console.log('dataset name = '+datalabel+'')
-
+				fields = 'work_order, pcb_part_number, COUNT(*)'
+				whereStuff = "week(timestamp, 1) = '"+label+"' AND year(timestamp) = '"+yearData+"' "+
+                    "AND fail_catagory = '"+datalabel+"' group by work_order;"
+				getData('fault', 'genSel', fields ,whereStuff,'barDrillTable');
         //console.log(activePoint)
         /* other stuff that requires slice's label and value */
      }

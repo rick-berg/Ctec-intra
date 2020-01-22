@@ -79,7 +79,9 @@ tableMaker2 = function(tableData, divLocation, tablename, searchname, clickedele
   }
   txt = txt + '</table>';
   txt = txt + '</div>';
+  txt = txt + '<button onclick="copyToClipboard(\''+divLocation+'\')">Copy text</button>';
   document.getElementById(divLocation).innerHTML= txt;
+  //copyToClipboard(containerid)
 // this makes the rows clickable
   var table = document.getElementById(tablename);
   var rows = table.getElementsByTagName("tr");
@@ -117,7 +119,7 @@ tableMaker2 = function(tableData, divLocation, tablename, searchname, clickedele
 
 
 
-tableMaker = function(tableData, divLocation, tablename, searchname, clickedelementname){
+tableMaker = function(tableData, divLocation, tablename, searchname, clickedelementname, copyButton){
   var fields = Object.keys(tableData[0]);
   var txt = '';
   txt = txt + '<input type="text" id="'+searchname+'" onkeyup="tableSearch(\''+tablename+'\', \''+searchname+'\')" placeholder="search box" title="Type in a part number">';
@@ -140,6 +142,9 @@ tableMaker = function(tableData, divLocation, tablename, searchname, clickedelem
   }
   txt = txt + '</table>';
   txt = txt + '</div>';
+  if(copyButton)
+  txt = txt + '<button onclick="copyToClipboard(\''+divLocation+'\')">Copy text</button>';
+
   document.getElementById(divLocation).innerHTML= txt;
 // this makes the rows clickable
   var table = document.getElementById(tablename);
@@ -176,7 +181,28 @@ function tableSearch(tableToBeSearched, searchboxname) {
   }
 };
 
+function copyToClipboard(containerid) {
+	if (document.selection) { 
+    var range = document.body.createTextRange();
+    range.moveToElementText(document.getElementById(containerid));
+    range.select().createTextRange();
+    document.execCommand("copy"); 
+	} else if (window.getSelection) {
+		var range = document.createRange();
+		range.selectNode(document.getElementById(containerid));
+		//range.selectNode(containerid);
+		window.getSelection().removeAllRanges(); 
+    window.getSelection().addRange(range);
+    document.execCommand("copy");
+		window.getSelection().removeAllRanges();
+    alert("text copied") 
+	}
+}
 
+function drilldown(){
+ var workOrderVal = document.getElementById('drillClick').innerHTML;
+ getData('fault', 'genSelTFV', 'work_order', workOrderVal,'barDrillTable');
+}
 /******************************************************************************************************************************
  *
  *  Data exchange
@@ -268,7 +294,7 @@ function getData(table, sqlFunction, field, value, swFunc){
 	//				yearWeekData = response;
 					break;
         case 'dataViewer':
-          tableMaker(response, 'results', 'mysearchTable', 'mysearchSearch', 'mysearchClicked');
+          tableMaker(response, 'results', 'mysearchTable', 'mysearchSearch', 'mysearchClicked',1);
           break;
 				case 'weekData':
 					var txt = '';
@@ -292,6 +318,9 @@ function getData(table, sqlFunction, field, value, swFunc){
         case 'barDrill':
         //loadBarChart(response);
         loadBarChartDrilled(response);
+          break;
+         case 'barDrillTable':
+        tableMaker (response, 'chartcanvas', 'drilledTable', 'drillSearch', 'drillClick',1);
           break;
 			}
 
@@ -790,8 +819,8 @@ enterFaultDetails = function(){
 	 *			put fin and pcb part recievers here
 	 *
 	 */
-   tableMaker(PCBPartNumbers,'PCBNumberDiv', 'PCBtable', 'PCBSearch', 'PCBresult' );
-    tableMaker(finishedPartNumbers,'finishedPartNumberDiv', 'finishedtable', 'finishedSearch', 'finishedresult' )
+   tableMaker(PCBPartNumbers,'PCBNumberDiv', 'PCBtable', 'PCBSearch', 'PCBresult',0 );
+    tableMaker(finishedPartNumbers,'finishedPartNumberDiv', 'finishedtable', 'finishedSearch', 'finishedresult',0 )
 //  tablefinishedPartNumbers();
 //	tablePCBPartNumbers();
 
@@ -851,11 +880,11 @@ setInputFilter(quantity, function(value) {
 
 loadIncomplete = function (){
 
-	getData('fault', 'getNotNull', 'idfault, finished_part_number', 'completed','incomplete')
+	getData('fault', 'getNotNull', 'idfault, finished_part_number, work_order, reported_fault', 'completed','incomplete')
 }
 recieveIncomplete = function (r){
   try{
-    eval("var tempobj = "+r);
+    //eval("var tempobj = "+r);
   }
   catch(err){
     alert(err);
@@ -876,6 +905,8 @@ recieveIncomplete = function (r){
 		if (r.hasOwnProperty(key)) {
 			txt = txt + '<td>'+ r[key].idfault.toString(16) + '</td>';
 			txt = txt + '<td>'+ r[key].finished_part_number + '</td>';
+   txt = txt + '<td>'+ r[key].work_order + '</td>';
+   txt = txt + '<td>'+ r[key].reported_fault + '</td>';
 		}
 		txt = txt + '</tr>';
 	}
