@@ -128,14 +128,14 @@ tableMaker = function(tableData, divLocation, tablename, searchname, clickedelem
   txt = txt + '<table class="tableMaker" id='+tablename+'>';
   txt = txt + '<tr class="header">';
   for (var i in fields) {
-    txt = txt + '<th style="width:50%;">' + fields[i] + '</th>';
+    txt = txt + '<th>' + fields[i] + '</th>';
   }
   txt = txt + '</tr>';
   for (var key in tableData) {
     txt = txt + '<tr>';
     if (tableData.hasOwnProperty(key)) {
       for (var k in fields){
-        txt = txt + '<td>'+ tableData[key][fields[k]] + '</td>';
+        txt = txt + '<td style="width:100%;">'+ tableData[key][fields[k]] + '</td>';
       }
     }
     txt = txt + '</tr>';
@@ -396,9 +396,19 @@ app.delete('/faultDelete/:id', function (req, res) {
 
 furtherReport = function(){
 
-	faultData.faultDesc = document.getElementById("faultDesc").value;
-	var txt = 'Fault Description: '+faultData.faultDesc+'';
-	document.getElementById("fault_description").innerHTML=txt;
+  faultData.faultDesc = document.getElementById("faultDesc").value;
+
+  var txt = ''
+  txt = txt + '<table class = "tableMaker">';
+	txt = txt + '<tr>';
+	txt = txt + '<th>Fault Description</th>';
+	txt = txt + '</tr>';
+	txt = txt + '<tr>';
+	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.faultDesc+'</div></td>';
+	txt = txt + '</tr>';
+	txt = txt + '</table>';
+  document.getElementById("fault_description").innerHTML=txt;
+
 	/*
 	alert('add more input stuff ere');
 	packet = {};
@@ -410,6 +420,62 @@ furtherReport = function(){
 
 	txt = '';
 	txt = txt + '';
+
+  txt = txt + '<table class = "tableMaker">';
+  txt = txt + '<tr>';
+  txt = txt + '<th>investigation findings</th>';
+  txt = txt + '<td>'
+  txt = txt + '<select id="investigation_findings" >';
+  txt = txt + '<option disabled selected value> -- select investigation findings -- </option>';
+  for (i in investigationFindings){
+    txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
+  }
+  txt = txt + '</select>';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+
+  txt = txt + '<tr>';
+  txt = txt + '<th>Additional Comments</th>';
+  txt = txt + '<td>'
+  txt = txt + '<textarea id="additional_comments" cols="40" rows="2"></textarea>';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+
+  txt = txt + '<tr>';
+  txt = txt + '<th>Fault Catagory</th>';
+  txt = txt + '<td>'
+  txt = txt + '<select id="fault_catagory" >';
+	txt = txt + '<option disabled selected value> -- select a fault catagory -- </option>';
+	for (i in faultCatagories){
+		txt = txt + '<option value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'</option>';
+	}
+	txt = txt + '</select>';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+  txt = txt + '</table>';
+  txt = txt + '<br>';
+
+  var fields = Object.keys(componentPartNumbers[0]);
+  console.log(componentPartNumbers);
+
+  txt = txt + '<table class = "tableMaker">';
+  txt = txt + '<tr>';
+  txt = txt + '<th>Faulty component</th>';
+  txt = txt + '<th>Part location reference</th>';
+  txt = txt + '</tr>';
+  txt = txt + '<tr>';
+  txt = txt + '<td>'
+  txt = txt + '<input type="text" id="componentPartLocatorInput" onkeyup="componentPartlocationSearch()" placeholder="search component part" title="Type in a part number">';
+  txt = txt + '</td>';
+  txt = txt + '<td>'
+  txt = txt + '<input type=text id="locationRef">';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+  txt = txt + '</table>';
+
+
+
+/*
 	txt = txt + '<b>investigation findings:</b>';
 	//txt = txt + '<br>';
 	txt = txt + '<select id="investigation_findings" >';
@@ -418,7 +484,7 @@ furtherReport = function(){
 		txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
 	}
 	txt = txt + '</select>';
-	txt = txt + '<br>';
+  txt = txt + '<br>';
 	txt = txt + '<b>additional comments:</b>';
 	//txt = txt + '<br>';
 	txt = txt + '<textarea id="additional_comments" cols="40" rows="2"></textarea>';
@@ -431,22 +497,24 @@ furtherReport = function(){
 		txt = txt + '<option value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'</option>';
 	}
 	txt = txt + '</select>';
+  */
 	/*
 	for (i in faultCatagories){
 		txt = txt + '<input type="radio" name="failType" value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'<br>';
 	}
-	*/
-	txt = txt + '<br>';
-	var fields = Object.keys(componentPartNumbers[0]);
-	console.log(componentPartNumbers);
+
+
+	//txt = txt + '<br>';
+
 	txt = txt + '<b>Faulty component:</b>';
 	txt = txt + '<input type="text" id="componentPartLocatorInput" onkeyup="componentPartlocationSearch()" placeholder="search component part" title="Type in a part number">';
   txt = txt + '<div id="componentPartNumber"></div>';
 	txt = txt + '<b>Part location reference:</b>';
 	txt = txt + '<input type=text id="locationRef">';
 	txt = txt + '<br>';
+  */
 	txt = txt + '<div class=scrollybox style="height:250px">';
-	txt = txt + '<table id="componentPartLocationsTable">';
+	txt = txt + '<table class = "tableMaker" id="componentPartLocationsTable">';
 	txt = txt + '<tr class="header">';
 	for (var i in fields) {
 		if (i == 0){}else{
@@ -741,7 +809,7 @@ addNewFault = function(){
 	// create html string to display above data and collect further input
 	var txt = '';
 	txt = txt + '<div id="fault_header">';
-	txt = txt + '<table style= "width:50%">';
+	txt = txt + '<table class = "tableMaker">';
 	txt = txt + '<tr>';
 	txt = txt + '<th>Operator Name</th>';
 	txt = txt + '<th>Work Order</th>';
@@ -968,13 +1036,14 @@ idSearchRec = function (data){
 	console.log(faultData);
 	var txt = '';
 	txt = txt + '<div id="fault_header">';
-	txt = txt + '<table style= "width:50%">';
+	txt = txt + '<table class= "tableMaker">';
 	txt = txt + '<tr>';
 	txt = txt + '<th>Operator Name</th>';
 	txt = txt + '<th>Work Order</th>';
 	txt = txt + '<th>Quantity</th>';
 	txt = txt + '<th>PCB part number</th>';
 	txt = txt + '<th>Finished part number</th>';
+  txt = txt + '<th>Reported fault</th>';
 	txt = txt + '</tr>';
 	txt = txt + '<tr>';
 	/*
@@ -989,14 +1058,10 @@ idSearchRec = function (data){
 	txt = txt + '<td><div id = "work_order_quantity" onclick="reenterData(\'work_order_quantity\')">'+faultData.work_order_quantity+'</div></td>';
 	txt = txt + '<td><div id = "finished_part_number" onclick="reenterData(\'finished_part_number\')">'+faultData.finished_part_number+'</div></td>';
 	txt = txt + '<td><div id = "pcb_part_number" onclick="reenterData(\'pcb_part_number\')">'+faultData.pcb_part_number+'</div></td>';
+  txt = txt + '<td><div id = "reported_fault" onclick="reenterData(\'reported_fault\')">'+faultData.reported_fault+'</div></td>';
 	txt = txt + '</tr>';
 	txt = txt + '</table>';
-	txt = txt + '</div>';
-	txt = txt + '<div id="reported_fault" onclick="reenterData(\'reported_fault\')">';
-	txt = txt + 'details of fault';
-	txt = txt + '<br>';
-	txt = txt + ''+faultData.reported_fault+'';
-	txt = txt + '</div>';
+
 	txt = txt + '<div  id="sub_content">';
 	txt = txt + '<input type="button" value="Cancel" onclick="loadIncomplete()">';
 	txt = txt + '<input type="button" value="Complete this fault record" onclick="completeFault()">';

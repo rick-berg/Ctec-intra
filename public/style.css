@@ -4,8 +4,8 @@
   background-color: #303030;
   overflow: hidden;
   text-decoration: none;
-  padding-top: 16px;
-  padding-left: 14px;
+  padding-top: 6px;
+  padding-left: 6px;
   font-size: 1.7em;
 }
 
@@ -13,22 +13,28 @@ html, body, .container{
     height: 100%;
     margin: 0;
     background-color: #777777;
+
+}
+.container{
+  border-top: 5px;
+  border-color: red;
 }
 
 .top{
- height: 125px;
  color: white;
-
 }
+
 .title{
   padding-top: 16px;
   padding-left: 10%;
   font-size: 1.1em;
 
+
 }
 /* Add a black background color to the top navigation */
 .topnav {
   overflow: hidden;
+
 }
 
 /* Style the links inside the navigation bar */
@@ -55,7 +61,8 @@ html, body, .container{
 #content {
   overflow: hidden;
   /*padding: 14px 16px;*/
-  padding-left: 14px;
+  padding-left: 10px;
+  padding-top: 10px;
   text-decoration: none;
   /*height: 100%;*/
   height: calc(100vh - 125px);
@@ -152,54 +159,58 @@ li {
   background-color: #f1f1f1;
 }
 
-
 table.tableMaker {
-  font-family: Arial, Helvetica, sans-serif;
-  border: 0px solid #EAEAEA;
-  background-color: #C6C6C6;
-  width: 100%;
-  text-align: left;
+  background-color: #EEEEEE;
+
+  text-align: center;
   border-collapse: collapse;
 }
 table.tableMaker td, table.tableMaker th {
   border: 1px solid #AAAAAA;
-  padding: 2px 2px;
+  padding: 3px 2px;
 }
 table.tableMaker tbody td {
-  font-size: 12px;
+  font-size: 13px;
 }
 table.tableMaker tr:nth-child(even) {
   background: #D0E4F5;
 }
 
-table.tableMaker tbody th {
-  background: #104698;
-  background: -moz-linear-gradient(top, #d04c4c 0%, #c72828 66%, #C11010 100%);
-  background: -webkit-linear-gradient(top, #d04c4c 0%, #c72828 66%, #C11010 100%);
-  background: linear-gradient(to bottom, #d04c4c 0%, #c72828 66%, #C11010 100%);
-  border-bottom: 2px solid #444444;
+table.tableMaker  th {
+  background: #3F3F3F;
+  font-size: 17px;
+  font-weight: normal;
+  color: #FFFFFF;
+  text-align: left;
 }
 
-table.tableMaker tbody th {
-  font-size: 16px;
+
+table.faultdatatable {
+  border: 1px solid #000000;
+  width: 100%;
+  text-align: center;
+  border-collapse: collapse;
+}
+table.faultdatatable td, table.faultdatatable th {
+  border: 1px solid #000000;
+  padding: 5px 4px;
+}
+table.faultdatatable tbody td {
+  font-size: 13px;
+}
+table.faultdatatable thead {
+  background: #CFCFCF;
+  background: -moz-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+  background: -webkit-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+  background: linear-gradient(to bottom, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+  border-bottom: 3px solid #000000;
+}
+table.faultdatatable thead th {
+  font-size: 15px;
   font-weight: bold;
-  color: #FFFFFF;
-  border-left: 2px solid #D0E4F5;
+  color: #000000;
+  text-align: left;
 }
-table.tableMaker tbody th:first-child {
-  border-left: none;
-}
-
-table.tableMaker tfoot td {
-  font-size: 8px;
-}
-table.tableMaker tfoot .links {
-  text-align: right;
-}
-table.tableMaker tfoot .links a{
-  display: inline-block;
-  background: #1C6EA4;
-  color: #FFFFFF;
-  padding: 2px 8px;
-  border-radius: 5px;
+table.faultdatatable tfoot td {
+  font-size: 14px;
 }
