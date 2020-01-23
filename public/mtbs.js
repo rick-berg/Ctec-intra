@@ -5,6 +5,7 @@ keybinds = function ()
 	Mousetrap.bind('d e l e t e', function(){devViewerOptions()});
 	Mousetrap.bind('d r i l l', function(){drilldown()});
 	Mousetrap.bind('u n l o c k', function(){unlockFeatures()});
+	Mousetrap.bind('r e w o r k', function(){unlockSMTFeatures()});
 	// just for testing comment or remove later
 	//Mousetrap.bind('p l a y', function(){VER.test.play()});
 	// remove these in final build
@@ -36,7 +37,12 @@ devViewerOptions = function ()
 //DELETE FROM products WHERE product_id=1
 	document.getElementById("dev_box").innerHTML = txt
 }
-
+unlockSMTFeatures = function (){
+	var txt = ''
+	txt = txt + '<div onclick="enterFaultDetails()">Enter fault</div>'
+	txt = txt + '<div onclick="loadIncomplete()">Incomplete Records</div>'
+	document.getElementById("topnav").innerHTML = txt
+}
 unlockFeatures = function (){
 	var txt = ''
 	txt = txt + '<div onclick="enterFaultDetails()">Enter fault</div>'
