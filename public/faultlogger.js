@@ -1,6 +1,6 @@
 
 investigationFindings = {};
-faultCatagories = {};
+faultcategories = {};
 finishedPartNumbers = {};
 PCBPartNumbers = {};
 componentPartNumbers = {};
@@ -30,7 +30,7 @@ faultData = {};
 	//getDataInvestigationFindings();
 	getData('findings','getAll','*','', 'investigationFindings');
 	//getDataFaultCats();
-	getData('failcatagory','getAll','*','', 'faultCatagories');
+	getData('failcatagory','getAll','*','', 'faultcategories');
 };
 
 
@@ -135,7 +135,7 @@ tableMaker = function(tableData, divLocation, tablename, searchname, clickedelem
     txt = txt + '<tr>';
     if (tableData.hasOwnProperty(key)) {
       for (var k in fields){
-        txt = txt + '<td style="width:100%;">'+ tableData[key][fields[k]] + '</td>';
+        txt = txt + '<td>'+ tableData[key][fields[k]] + '</td>';
       }
     }
     txt = txt + '</tr>';
@@ -238,8 +238,8 @@ function getData(table, sqlFunction, field, value, swFunc){
 			response = JSON.parse(xmlhttp.responseText);
 			//console.log(response);
 			switch(swFunc) {
-				case 'faultCatagories':
-					faultCatagories = response;
+				case 'faultcategories':
+					faultcategories = response;
 					break;
 				case 'investigationFindings':
 					investigationFindings = response;
@@ -396,6 +396,12 @@ app.delete('/faultDelete/:id', function (req, res) {
 
 furtherReport = function(){
 
+  faultData.operatorName = document.getElementById("operatorName").value;
+  faultData.workOrder = document.getElementById("workorder").value;
+  faultData.quantity = document.getElementById("quantity").value;
+  faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
+  faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
+
   faultData.faultDesc = document.getElementById("faultDesc").value;
 
   var txt = ''
@@ -409,14 +415,7 @@ furtherReport = function(){
 	txt = txt + '</table>';
   document.getElementById("fault_description").innerHTML=txt;
 
-	/*
-	alert('add more input stuff ere');
-	packet = {};
-	packet.table = "failcatagory";
-	packet.sqlFunction = "getAll";
-	packet.reciever = 'partLocations';
-	packet.responseAs = 'JSON';
-	*/
+
 
 	txt = '';
 	txt = txt + '';
@@ -426,7 +425,7 @@ furtherReport = function(){
   txt = txt + '<th>investigation findings</th>';
   txt = txt + '<td>'
   txt = txt + '<select id="investigation_findings" >';
-  txt = txt + '<option disabled selected value> -- select investigation findings -- </option>';
+  txt = txt + '<option value= "" disabled selected > -- select investigation findings -- </option>';
   for (i in investigationFindings){
     txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
   }
@@ -442,12 +441,12 @@ furtherReport = function(){
   txt = txt + '</tr>';
 
   txt = txt + '<tr>';
-  txt = txt + '<th>Fault Catagory</th>';
+  txt = txt + '<th>Fault category</th>';
   txt = txt + '<td>'
-  txt = txt + '<select id="fault_catagory" >';
-	txt = txt + '<option disabled selected value> -- select a fault catagory -- </option>';
-	for (i in faultCatagories){
-		txt = txt + '<option value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'</option>';
+  txt = txt + '<select id="fault_category" >';
+	txt = txt + '<option value="" disabled selected > -- select a fault category -- </option>';
+	for (i in faultcategories){
+		txt = txt + '<option value="'+faultcategories[i].catagory+'">'+faultcategories[i].catagory+'</option>';
 	}
 	txt = txt + '</select>';
   txt = txt + '</td>';
@@ -493,14 +492,14 @@ furtherReport = function(){
 	//txt = txt + '<br>';
 	txt = txt + '<select id="fault_catagory" >';
 	txt = txt + '<option disabled selected value> -- select a fault catagory -- </option>';
-	for (i in faultCatagories){
-		txt = txt + '<option value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'</option>';
+	for (i in faultcategories){
+		txt = txt + '<option value="'+faultcategories[i].catagory+'">'+faultcategories[i].catagory+'</option>';
 	}
 	txt = txt + '</select>';
   */
 	/*
-	for (i in faultCatagories){
-		txt = txt + '<input type="radio" name="failType" value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'<br>';
+	for (i in faultcategories){
+		txt = txt + '<input type="radio" name="failType" value="'+faultcategories[i].catagory+'">'+faultcategories[i].catagory+'<br>';
 	}
 
 
@@ -610,17 +609,39 @@ function componentPartlocationSearch() {
 
 
 submitFault = function(){
-	faultData.table = "fault";
+  faultData.table = "fault";
+
+  faultData.operatorName = document.getElementById("operatorName").value;
+  faultData.workOrder = document.getElementById("workorder").value;
+  faultData.quantity = document.getElementById("quantity").value;
+  faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
+  faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
+
 	faultData.investigation_findings = document.getElementById('investigation_findings').value;
+  if (faultData.investigation_findings == '')
+  alert('default investigation_findings category')
+
 	faultData.additional_comments = document.getElementById('additional_comments').value;
-	faultData.fail_catagory = document.getElementById('fault_catagory').value;
-	faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
-	faultData.faulty_location_reference = document.getElementById('locationRef').value;
-	var ele = document.getElementsByName('repscrap');
-     for(i = 0; i < ele.length; i++) {
-			if(ele[i].checked)
-			faultData.repaired_scrapped = ele[i].value;
-            }
+  //this is optional no checking
+
+	faultData.fail_category = document.getElementById('fault_category').value;
+  if (faultData.fail_cataory == '')
+  alert('default fail category')
+
+  faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
+  // check last ones .... this isnt setup the same but probably should be
+
+  faultData.faulty_location_reference = document.getElementById('locationRef').value;
+  //this is optional no checking
+
+  var ele = document.getElementsByName('repscrap');
+  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false)
+  alert('Please select an option for repair / scrap')
+    for(i = 0; i < ele.length; i++) {
+			if(ele[i].checked){
+        faultData.repaired_scrapped = ele[i].value;
+      }
+    }
 	//alert('workorder: '+ workOrder + ' pbc: '+pcbNumber+' finshed: '+finishedPartNumber+' fault description: '+faultDesc);
 	var req = JSON.stringify(faultData);
 	var xhr = null;
@@ -737,6 +758,13 @@ submitToFA = function(){
 
 submitToFA = function(){
 	faultData.table = "fault";
+//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
+  faultData.operatorName = document.getElementById("operatorName").value;
+  faultData.workOrder = document.getElementById("workOrder").value;
+  faultData.quantity = document.getElementById("quantity").value;
+  faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
+  faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
+
 	faultData.faultDesc = document.getElementById("faultDesc").value;
 	//alert('workorder: '+ workOrder + ' pbc: '+pcbNumber+' finshed: '+finishedPartNumber+' fault description: '+faultDesc);
 	var req = JSON.stringify(faultData);
@@ -809,7 +837,9 @@ addNewFault = function(){
 	// create html string to display above data and collect further input
 	var txt = '';
 	txt = txt + '<div id="fault_header">';
+
 	txt = txt + '<table class = "tableMaker">';
+
 	txt = txt + '<tr>';
 	txt = txt + '<th>Operator Name</th>';
 	txt = txt + '<th>Work Order</th>';
@@ -817,6 +847,7 @@ addNewFault = function(){
 	txt = txt + '<th>PCB part number</th>';
 	txt = txt + '<th>Finished part number</th>';
 	txt = txt + '</tr>';
+
 	txt = txt + '<tr>';
 	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.operatorName+'</div></td>';
 	txt = txt + '<td><div id = "workorder"  onclick="reenterData(\'workorder\')" >'+faultData.workOrder+'</div></td>';
@@ -824,13 +855,18 @@ addNewFault = function(){
 	txt = txt + '<td><div id = "finishedPartNumber" onclick="reenterData(\'finishedPartNumber\')">'+faultData.finishedPartNumber+'</div></td>';
 	txt = txt + '<td><div id = "pcbNumber" onclick="reenterData(\'pcbNumber\')">'+faultData.pcbNumber+'</div></td>';
 	txt = txt + '</tr>';
+
+
 	txt = txt + '</table>';
+
 	txt = txt + '</div>';
+
 	txt = txt + '<div id="fault_description">';
 	txt = txt + 'details of fault';
 	txt = txt + '<br>';
 	txt = txt + '<textarea id="faultDesc" cols="40" rows="2"></textarea>';
 	txt = txt + '</div>';
+
 	txt = txt + '<div  id="sub_content">';
 
 	txt = txt + '<div id="buttons_tofa_fr">';
@@ -855,20 +891,21 @@ addNewFault = function(){
 enterFaultDetails = function(){
 
 	var txt = '';
-	txt = txt + '<h2>Enter details to log fault</h2>';
+	txt = txt + '<div class = "large">Enter details to log fault</div>';
 	txt = txt + '<br>';
 
 	txt = txt + 'Operator Initials:';
 	txt = txt + '<input type=text autocomplete="off" id="operatorName">';
 	txt = txt + '<br>';
+
 	txt = txt + 'Work Order:';
 	txt = txt + '<input type=text autocomplete="off" id="workOrder">';
 	txt = txt + '<br>';
+
 	txt = txt + 'Quantity:';
 	txt = txt + '<input type=text autocomplete="off" id="quantity">';
 	txt = txt + '<br>';
-//	txt = txt + 'Finished part number:';
-//	txt = txt + '<input type=text id="finishedPartNumber">';
+
   txt = txt + '<br><div style = "display: flex">';
   txt = txt + '<div style="flex: 0 0 50%">finished part Number:</div>';
   txt = txt + '<div style="flex: 1">PCB Number:</div>';
@@ -890,8 +927,8 @@ enterFaultDetails = function(){
 	 *			put fin and pcb part recievers here
 	 *
 	 */
-   tableMaker(PCBPartNumbers,'PCBNumberDiv', 'PCBtable', 'PCBSearch', 'PCBresult',0 );
-    tableMaker(finishedPartNumbers,'finishedPartNumberDiv', 'finishedtable', 'finishedSearch', 'finishedresult',0 )
+  tableMaker(PCBPartNumbers,'PCBNumberDiv', 'PCBtable', 'PCBSearch', 'PCBresult',0 );
+  tableMaker(finishedPartNumbers,'finishedPartNumberDiv', 'finishedtable', 'finishedSearch', 'finishedresult',0 )
 //  tablefinishedPartNumbers();
 //	tablePCBPartNumbers();
 
@@ -1075,7 +1112,7 @@ completeFault = function (){
 	txt = txt + '<b>investigation findings:</b>';
 	//txt = txt + '<br>';
 	txt = txt + '<select id="investigation_findings" >';
-	txt = txt + '<option disabled selected value> -- select investigation findings -- </option>';
+	txt = txt + '<option value= "" disabled selected > -- select investigation findings -- </option>';
 	for (i in investigationFindings){
 		txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
 	}
@@ -1085,19 +1122,15 @@ completeFault = function (){
 	//txt = txt + '<br>';
 	txt = txt + '<textarea id="additional_comments" cols="40" rows="2"></textarea>';
 	txt = txt + '<br>';
-	txt = txt + '<b>Fault Catagory: </b>';
+	txt = txt + '<b>Fault category: </b>';
 	//txt = txt + '<br>';
-	txt = txt + '<select id="fault_catagory" >';
-	txt = txt + '<option disabled selected value> -- select a fault catagory -- </option>';
-	for (i in faultCatagories){
-		txt = txt + '<option value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'</option>';
+	txt = txt + '<select id="fault_category" >';
+	txt = txt + '<option disabled selected value> -- select a fault category -- </option>';
+	for (i in faultcategories){
+		txt = txt + '<option value="'+faultcategories[i].catagory+'">'+faultcategories[i].catagory+'</option>';
 	}
 	txt = txt + '</select>';
-	/*
-	for (i in faultCatagories){
-		txt = txt + '<input type="radio" name="failType" value="'+faultCatagories[i].catagory+'">'+faultCatagories[i].catagory+'<br>';
-	}
-	*/
+
 	txt = txt + '<br>';
 	var fields = Object.keys(componentPartNumbers[0]);
 	console.log(componentPartNumbers);
@@ -1162,7 +1195,7 @@ submitCompletedFault = function (){
 	faultData.responseAs = 'JSON';
 	faultData.investigation_findings = document.getElementById('investigation_findings').value;
 	faultData.additional_comments = document.getElementById('additional_comments').value;
-	faultData.fail_catagory = document.getElementById('fault_catagory').value;
+	faultData.fail_category = document.getElementById('fault_category').value;
 	faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
 	faultData.faulty_location_reference = document.getElementById('locationRef').value;
 	var ele = document.getElementsByName('repscrap');

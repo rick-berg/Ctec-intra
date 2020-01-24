@@ -119,11 +119,7 @@ li {
 }
 
 .large{
-    display: block;
-    margin-block-start: 1em;
-    margin-block-end: 0em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
+    margin-top: 5px;
     font-size: 1.4em;
 }
 
@@ -161,6 +157,7 @@ li {
 
 table.tableMaker {
   background-color: #EEEEEE;
+  /*width: 100%;*/
 
   text-align: center;
   border-collapse: collapse;

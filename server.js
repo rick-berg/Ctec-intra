@@ -63,7 +63,7 @@ router.route('/enterFault').post(function (req, res) {
 	sqlstring = 'INSERT INTO '
 	+thingy.table+
 	' (timestamp, operator_initials, work_order, work_order_quantity, finished_part_number, pcb_part_number, reported_fault, investigation_findings, additional_comments, repaired_scrapped, fail_catagory, faulty_part_number, faulty_location_reference, completed)'+
-	' VALUES (CURRENT_TIMESTAMP(), "'+thingy.operatorName+'", "'+thingy.workOrder+'",'+thingy.quantity+',"'+thingy.finishedPartNumber+'","'+thingy.pcbNumber+'","'+thingy.faultDesc+'","'+thingy.investigation_findings+'","'+thingy.additional_comments+'","'+thingy.repaired_scrapped+'","'+thingy.fail_catagory+'","'+thingy.faulty_part_number+'","'+thingy.faulty_location_reference+'",CURRENT_TIMESTAMP())';
+	' VALUES (CURRENT_TIMESTAMP(), "'+thingy.operatorName+'", "'+thingy.workOrder+'",'+thingy.quantity+',"'+thingy.finishedPartNumber+'","'+thingy.pcbNumber+'","'+thingy.faultDesc+'","'+thingy.investigation_findings+'","'+thingy.additional_comments+'","'+thingy.repaired_scrapped+'","'+thingy.fail_category+'","'+thingy.faulty_part_number+'","'+thingy.faulty_location_reference+'",CURRENT_TIMESTAMP())';
 
 
 	faultPool.getConnection(function (err, connection) {
@@ -121,7 +121,7 @@ router.route('/completeExistingFault').post(function (req, res) {
 	'investigation_findings = "'+thingy.investigation_findings+
 	'", additional_comments = "'+thingy.additional_comments+
 	'", repaired_scrapped = "'+thingy.repaired_scrapped+
-	'", fail_catagory = "'+thingy.fail_catagory+
+	'", fail_catagory = "'+thingy.fail_category+
 	'", faulty_part_number = "'+thingy.faulty_part_number+
 	'", faulty_location_reference = "'+thingy.faulty_location_reference+
 //	'", completed = "completed"'+
