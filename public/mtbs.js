@@ -6,6 +6,7 @@ keybinds = function ()
 	Mousetrap.bind('d r i l l', function(){drilldown()});
 	Mousetrap.bind('u n l o c k', function(){unlockFeatures()});
 	Mousetrap.bind('r e w o r k', function(){unlockSMTFeatures()});
+	Mousetrap.bind('a d d p a r t s', function(){newPartPlease()});
 	// just for testing comment or remove later
 	//Mousetrap.bind('p l a y', function(){VER.test.play()});
 	// remove these in final build
@@ -49,7 +50,9 @@ unlockFeatures = function (){
 	txt = txt + '<div onclick="loadIncomplete()">Incomplete Records</div>'
 	txt = txt + '<div onclick="loadChartsPage()">Charts</div>'
 	txt = txt + '<div onclick="loadDataViewer()">DataViewer</div>'
-
 	document.getElementById("topnav").innerHTML = txt
 }
-//setInterval (fadeOut, 600);
+
+newPartPlease = function (){
+	loadPartEntry();
+}
