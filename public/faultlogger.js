@@ -12,29 +12,16 @@ progTestChartData = {};
 FTPData = {};
 yearWeekData = {};
 
-//componentPartNumbers =
 getData('componentpartnumbers','getField','part_number,part_description','', 'component');
-//getData('fault','getUniqueList','year(timestamp) as years , week(timestamp, 1) as weeks','','console')
-//getData('fault','getUniqueList','year(timestamp) as years','','yearData')
 
 faultData = {};
 
-
-
- initFaultFields = function(){
-
-	//getDataPCBPartNumbers();
+initFaultFields = function(){
 	getData('pcbpartnumbers','getField','part_number,part_description','', 'PCBPartNumbers');
-	//getDataFinishedPartNumbers();
 	getData('finishedpartnumbers','getField','part_number,part_description','', 'finishedPartNumbers');
-	//getDataInvestigationFindings();
 	getData('findings','getAll','*','', 'investigationFindings');
-	//getDataFaultCats();
 	getData('failcatagory','getAll','*','', 'faultcategories');
 };
-
-
-
 
 // Restricts input for the given textbox to the given inputFilter.
 function setInputFilter(textbox, inputFilter) {
@@ -135,7 +122,12 @@ tableMaker = function(tableData, divLocation, tablename, searchname, clickedelem
     txt = txt + '<tr>';
     if (tableData.hasOwnProperty(key)) {
       for (var k in fields){
-        txt = txt + '<td>'+ tableData[key][fields[k]] + '</td>';
+				if (fields[k] == 'idfault'){
+					txt = txt + '<td>'+ tableData[key][fields[k]].toString(16) + '</td>';
+				}else{
+					txt = txt + '<td>'+ tableData[key][fields[k]] + '</td>';
+				}
+
       }
     }
     txt = txt + '</tr>';
@@ -334,12 +326,90 @@ function getData(table, sqlFunction, field, value, swFunc){
 	xmlhttp.send();
 };
 
+
+loadPartEntry = function (){
+	var txt = '';
+	txt = txt + '';
+	txt = txt + '<div class = "large">Enter part details to add to part lists</div>';
+	txt = txt + '<select id="part_type_selector" >';
+	txt = txt + '<option value= "" disabled selected > -- Select Part type to add -- </option>';
+	txt = txt + '<option value="componentpartnumbers">Component part</option>';
+	txt = txt + '<option value="finishedpartnumbers">PCB part</option>';
+	txt = txt + '<option value="pcbpartnumbers">Finished part</option>';
+	txt = txt + '</select>';
+	txt = txt + '<br>';
+  txt = txt + 'Part number:';
+ 	txt = txt + '<input type=text autocomplete="off" id="partNumber">';
+ 	txt = txt + '<br>';
+  txt = txt + 'Part description:';
+ 	txt = txt + '<input type=text autocomplete="off" id="partDescription">';
+ 	txt = txt + '<br>';
+	txt = txt + '<input type="button" value="AddPart" onclick="addNewPart()">';
+
+ 	document.getElementById("content").innerHTML=txt;
+
+	var addedPartNo = document.getElementById("partNumber")
+	var addedPartDesc = document.getElementById("partDescription")
+	var addedPartTyp = document.getElementById("part_type_selector")
+
+	setInputFilter(addedPartNo, function(value) {
+    return /^([A-z]{0,3}[0-9]{0,7})$/i.test(value);
+  });
+
+}
+
+addNewPart = function (){
+
+	// get data & do some sanitizing checks
+	newPartData = {}
+	newPartData.part_number = document.getElementById("partNumber").value
+	if(newPartData.part_number == ''){
+    alert ('part number is blank')
+    return;
+  } else if (newPartData.part_number.length != 10){
+		alert ('part number is not the correct length')
+		return;
+	}
+	newPartData.part_description = document.getElementById("partDescription").value
+	if(newPartData.part_description == ''){
+		alert ('part description is blank')
+		return;
+	}
+	newPartData.table = document.getElementById("part_type_selector").value
+	if(newPartData.table == ''){
+		alert ('Select a part type')
+		return;
+	}
+console.log(newPartData);
+	// send data
+	var req = JSON.stringify(newPartData);
+	var xhr = null;
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange=function(){
+    if (xhr.readyState==4 && xhr.status==200){
+      jResponse = JSON.parse(xhr.responseText);
+			submittedFault(jResponse.insertId);
+		}
+	}
+
+		xhr.open("POST", "/addNewPart", true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		xhr.send(req);
+
+	// get response reporting ok
+
+
+}
+
+
+
+
 deleteRecord = function(){
   //id = '{"id":'+document.getElementById("mysearchClicked").innerHTML+'}'
   id = document.getElementById("mysearchClicked").innerHTML
 
-  var req = JSON.stringify(id);
-  alert(req);
+  var req = JSON.stringify(parseInt(id, 16));
+  alert('attempting to delete record '+id);
   var xmlhttp = null;
 
   if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
@@ -349,11 +419,11 @@ deleteRecord = function(){
   }
   xmlhttp.onreadystatechange=function(){
     if (xmlhttp.readyState==4 && xmlhttp.status==200){
-      alert('we got response');
+      alert('record id '+id+' deleted successfully');
       response = JSON.parse(xmlhttp.responseText);
     };
   }
-    var str = "/faultDelete/"+id;
+    var str = "/faultDelete/"+req;
     xmlhttp.open("DELETE",str,true);
     xmlhttp.send();
 
@@ -387,40 +457,264 @@ app.delete('/faultDelete/:id', function (req, res) {
 
 /******************************************************************************************************************************
  *
- *  Data collection
+ *  Program Flow
  *
  ******************************************************************************************************************************
  */
 
+ // this is the first function called to start recording a fault
+ // called from the menu
+ // and when there are no more faults to record (the button pressed at end of recording a fault)
+enterFaultDetails = function(){
+
+  // build HTML string
+  // input fields for
+  // Operator Initials
+  // work order number
+  // work order quantity
+  // finished part number
+  // Pcb part number
+  var txt = '';
+ 	txt = txt + '<div class = "large">Enter details to log fault</div>';
+ 	txt = txt + '<br>';
+  txt = txt + 'Operator Initials:';
+ 	txt = txt + '<input type=text autocomplete="off" id="operatorName">';
+ 	txt = txt + '<br>';
+  txt = txt + 'Work Order:';
+ 	txt = txt + '<input type=text autocomplete="off" id="workOrder">';
+ 	txt = txt + '<br>';
+ 	txt = txt + 'Quantity:';
+ 	txt = txt + '<input type=text autocomplete="off" id="quantity">';
+ 	txt = txt + '<br>';
+  txt = txt + '<br><div style = "display: flex">';
+  txt = txt + '<div style="flex: 0 0 50%">finished part Number:</div>';
+  txt = txt + '<div style="flex: 1">PCB Number:</div>';
+  txt = txt + '</div>';
+ 	txt = txt + '<div style = "display: flex">';
+ 	txt = txt + '<div style="flex: 0 0 50%" id="finishedPartNumberDiv"></div>';
+ 	txt = txt + '<div style="flex: 1" id="PCBNumberDiv"></div>';
+ 	txt = txt + '</div><br>';
+ 	txt = txt + '<input type="button" value="Enter" onclick="jobDetailsEntered()">';
+ 	txt = txt + '<div></div>';
+ 	txt = txt + '<br>';
+ 	txt = txt + '';
+ 	document.getElementById("content").innerHTML=txt;
+
+// use table maker function to create tables for selecting PCB and finished parts
+  tableMaker(PCBPartNumbers,'PCBNumberDiv', 'PCBtable', 'PCBSearch', 'PCBresult',0 );
+  tableMaker(finishedPartNumbers,'finishedPartNumberDiv', 'finishedtable', 'finishedSearch', 'finishedresult',0 )
+
+// get references to DOM elements
+ 	operatorName = document.getElementById("operatorName");
+ 	workOrder = document.getElementById("workOrder");
+ 	quantity = document.getElementById("quantity");
+// start cursor in opearator name textbox
+ 	operatorName.focus();
+
+// even listner and input filter setup for operator name
+ 	operatorName.addEventListener("keyup", function(event){
+ 		if (event.key === "Enter") {
+      workOrder.focus();
+    }
+ 	});
+  setInputFilter(operatorName, function(value) {
+    return /^[a-z]{0,5}$/i.test(value);
+  });
+
+// even listner and input filter setup for work order
+  workOrder.addEventListener("keyup", function(event){
+    if (event.key === "Enter") {
+ 		   quantity.focus();
+ 		}
+ 	});
+  setInputFilter(workOrder, function(value) {
+    return /^\d{0,6}$/i.test(value);
+  });
+
+// even listner and input filter setup for operator name
+  quantity.addEventListener("keyup", function(event){
+    if (event.key === "Enter") {
+ //		    finishedPartNumber.focus();
+ 		}
+  });
+  setInputFilter(quantity, function(value) {
+    return /^\d{0,8}$/i.test(value);
+  });
+}
+
+jobDetailsEntered = function(){
+ //check we have data that is good
+ // no blank operator names
+  if(document.getElementById("operatorName").value == ''){
+    alert ('operator name is empty')
+    return;
+  }
+ // work order is 6 digits and not blank
+  if(document.getElementById("workOrder").value == '' || document.getElementById("workOrder").value.length != 6 ){
+    alert ('please enter work order number 6 digits long')
+    return;
+  }
+ // work order quanintiy is not blank
+  if(document.getElementById("quantity").value == ''){
+    alert ('no quanitiy has been entered')
+    return;
+  }
+ // check to see a finished part number has been selected
+  if(document.getElementById("finishedresult").innerHTML == 'clicked data goes here'){
+    alert ('no finished part has been selected please click selection from the box')
+    return;
+  }
+// check to see if a PCB part number has been selected
+  if(document.getElementById("PCBresult").innerHTML == 'clicked data goes here'){
+    alert ('no PCB part has been selected please click selection from the box')
+    return;
+  }
+  // set faultdata properties to values input
+  faultData.operatorName = document.getElementById("operatorName").value;
+  faultData.workOrder = document.getElementById("workOrder").value;
+  faultData.quantity = document.getElementById("quantity").value;
+  faultData.finishedPartNumber = document.getElementById("finishedresult").innerHTML;
+  faultData.pcbNumber = document.getElementById("PCBresult").innerHTML;
+  addNewFault();
+}
+
+addNewFault = function(){
+	// create HTML string to display data collected from jobDetailsEntered function and collect further input(fault description)
+	var txt = '';
+	txt = txt + '<div id="fault_header">';
+
+	txt = txt + '<table class = "tableMaker">';
+	txt = txt + '<tr>';
+	txt = txt + '<th>Operator Name</th>';
+	txt = txt + '<th>Work Order</th>';
+	txt = txt + '<th>Quantity</th>';
+	txt = txt + '<th>PCB part number</th>';
+	txt = txt + '<th>Finished part number</th>';
+	txt = txt + '</tr>';
+  txt = txt + '<tr>';
+	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.operatorName+'</div></td>';
+	txt = txt + '<td><div id = "workorder"  onclick="reenterData(\'workorder\')" >'+faultData.workOrder+'</div></td>';
+	txt = txt + '<td><div id = "quantity" onclick="reenterData(\'quantity\')">'+faultData.quantity+'</div></td>';
+	txt = txt + '<td><div id = "finishedPartNumber" onclick="reenterData(\'finishedPartNumber\')">'+faultData.finishedPartNumber+'</div></td>';
+	txt = txt + '<td><div id = "pcbNumber" onclick="reenterData(\'pcbNumber\')">'+faultData.pcbNumber+'</div></td>';
+	txt = txt + '</tr>';
+  txt = txt + '</table>';
+
+	txt = txt + '</div>';
+
+	txt = txt + '<div id="fault_description">';
+	txt = txt + 'details of fault';
+	txt = txt + '<br>';
+	txt = txt + '<textarea id="faultDesc" cols="40" rows="2"></textarea>';
+	txt = txt + '</div>';
+
+	txt = txt + '<div  id="sub_content">';
+
+	txt = txt + '<div id="buttons_tofa_fr">';
+	txt = txt + '<input type="button" value="Submit to Fail Analysis" onclick="submitToFA()">';
+	txt = txt + '<input type="button" value="Continue fault report" onclick="furtherReport()">';
+	txt = txt + '</div>';
+	txt = txt + '</div>';
+	txt = txt + '<br>';
+	document.getElementById("content").innerHTML=txt;
+
+// get reference to DOM element for fault description and focus
+	faultDesc = document.getElementById("faultDesc");
+	faultDesc.focus();
+
+// event listner for enter pressed ... removed as no function at the mo
+	faultDesc.addEventListener("keyup", function(event){
+		if (event.key === "Enter") {
+    }
+	});
+}
+
+
+submitToFA = function(){
+// clear out faultdata
+  faultData = {};
+	faultData.table = "fault";
+//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
+  faultData.operatorName = document.getElementById("operatorName").innerHTML;
+  faultData.workOrder = document.getElementById("workorder").innerHTML;
+  faultData.quantity = document.getElementById("quantity").innerHTML;
+  faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
+  faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
+// this is new ... added in addNewFault function
+	faultData.faultDesc = document.getElementById("faultDesc").value;
+	if (faultData.faultDesc == ''){
+		alert ('Please give a fault description')
+		return
+	}
+	faultData.responseAs = "JSON"; // needed for now
+// prep faultData as JSON string ready to POST
+	var req = JSON.stringify(faultData);
+	var xhr = null;
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange=function(){
+		if (xhr.readyState==4 && xhr.status==200){
+// parse response and send to reciever function submittedtoFA
+			jResponse = JSON.parse(xhr.responseText);
+			submittedtoFA(jResponse.insertId);
+		}
+	}
+// post the faultData JSON string to enterFaultIncomplete route on backend
+	xhr.open("POST", "/enterFaultIncomplete", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.send(req);
+}
+
+submittedtoFA = function(faultId){
+// string conversion for fault ID
+	hexVal = faultId.toString(16)
+// build HTML to display the submitted faults Hex id
+	var txt = '';
+	txt = txt + 'your fault id is : ';
+	txt = txt + hexVal;
+	txt = txt + '<br>';
+	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
+	txt = txt + '<input type="button" value="No more faults" onclick="enterFaultDetails()">';
+
+	document.getElementById("sub_content").innerHTML= txt;
+}
 
 
 furtherReport = function(){
-
+// clear out faultdata
+  faultData = {};
+  faultData.table = "fault";
+//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
   faultData.operatorName = document.getElementById("operatorName").value;
   faultData.workOrder = document.getElementById("workorder").value;
   faultData.quantity = document.getElementById("quantity").value;
   faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
   faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
-
+// this is new ... added in addNewFault function
   faultData.faultDesc = document.getElementById("faultDesc").value;
+	if (faultData.faultDesc == ''){
+		alert ('Please give a fault description')
+		return
+	}
 
+// build HTML string to display fault description
   var txt = ''
   txt = txt + '<table class = "tableMaker">';
 	txt = txt + '<tr>';
 	txt = txt + '<th>Fault Description</th>';
 	txt = txt + '</tr>';
 	txt = txt + '<tr>';
-	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.faultDesc+'</div></td>';
+	txt = txt + '<td><div id = "faultDesc" onclick="reenterData(\'faultDesc\')" >'+faultData.faultDesc+'</div></td>';
 	txt = txt + '</tr>';
 	txt = txt + '</table>';
   document.getElementById("fault_description").innerHTML=txt;
 
+// build HTML string for rest of report
 
 
 	txt = '';
-	txt = txt + '';
-
   txt = txt + '<table class = "tableMaker">';
+
+// selectable dropdown of investigation findings
   txt = txt + '<tr>';
   txt = txt + '<th>investigation findings</th>';
   txt = txt + '<td>'
@@ -432,7 +726,7 @@ furtherReport = function(){
   txt = txt + '</select>';
   txt = txt + '</td>';
   txt = txt + '</tr>';
-
+// text area for collecting additional comments
   txt = txt + '<tr>';
   txt = txt + '<th>Additional Comments</th>';
   txt = txt + '<td>'
@@ -440,6 +734,7 @@ furtherReport = function(){
   txt = txt + '</td>';
   txt = txt + '</tr>';
 
+// selectable dropdown of fault categories
   txt = txt + '<tr>';
   txt = txt + '<th>Fault category</th>';
   txt = txt + '<td>'
@@ -451,9 +746,11 @@ furtherReport = function(){
 	txt = txt + '</select>';
   txt = txt + '</td>';
   txt = txt + '</tr>';
+
   txt = txt + '</table>';
   txt = txt + '<br>';
 
+//table for selecting component parts and box for designators
   var fields = Object.keys(componentPartNumbers[0]);
   console.log(componentPartNumbers);
 
@@ -472,46 +769,6 @@ furtherReport = function(){
   txt = txt + '</tr>';
   txt = txt + '</table>';
 
-
-
-/*
-	txt = txt + '<b>investigation findings:</b>';
-	//txt = txt + '<br>';
-	txt = txt + '<select id="investigation_findings" >';
-	txt = txt + '<option disabled selected value> -- select investigation findings -- </option>';
-	for (i in investigationFindings){
-		txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
-	}
-	txt = txt + '</select>';
-  txt = txt + '<br>';
-	txt = txt + '<b>additional comments:</b>';
-	//txt = txt + '<br>';
-	txt = txt + '<textarea id="additional_comments" cols="40" rows="2"></textarea>';
-	txt = txt + '<br>';
-	txt = txt + '<b>Fault Catagory: </b>';
-	//txt = txt + '<br>';
-	txt = txt + '<select id="fault_catagory" >';
-	txt = txt + '<option disabled selected value> -- select a fault catagory -- </option>';
-	for (i in faultcategories){
-		txt = txt + '<option value="'+faultcategories[i].catagory+'">'+faultcategories[i].catagory+'</option>';
-	}
-	txt = txt + '</select>';
-  */
-	/*
-	for (i in faultcategories){
-		txt = txt + '<input type="radio" name="failType" value="'+faultcategories[i].catagory+'">'+faultcategories[i].catagory+'<br>';
-	}
-
-
-	//txt = txt + '<br>';
-
-	txt = txt + '<b>Faulty component:</b>';
-	txt = txt + '<input type="text" id="componentPartLocatorInput" onkeyup="componentPartlocationSearch()" placeholder="search component part" title="Type in a part number">';
-  txt = txt + '<div id="componentPartNumber"></div>';
-	txt = txt + '<b>Part location reference:</b>';
-	txt = txt + '<input type=text id="locationRef">';
-	txt = txt + '<br>';
-  */
 	txt = txt + '<div class=scrollybox style="height:250px">';
 	txt = txt + '<table class = "tableMaker" id="componentPartLocationsTable">';
 	txt = txt + '<tr class="header">';
@@ -531,20 +788,14 @@ furtherReport = function(){
 	}
 	txt = txt + '</table>';
 	txt = txt + '</div>';
-
-	txt = txt + '';
+// radio buttons for selecting outcome
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by cell">repaired by cell';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
 	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
-	txt = txt + '';
+// button to submit
 	txt = txt + '<input type="button" value="Submit" onclick="submitFault()">';
-
-	txt = txt + '';
-
-	txt = txt + '';
-	txt = txt + '';
 	document.getElementById("sub_content").innerHTML=txt;
-
+// make the part table clickable
 	var table = document.getElementById("componentPartLocationsTable");
     var rows = table.getElementsByTagName("tr");
     for (i = 0; i < rows.length; i++) {
@@ -564,7 +815,8 @@ furtherReport = function(){
     }
 }
 
-
+// search function for the part number table
+// change this out for a tablemaker function table you lazy fucker !!!
 function componentPartlocationSearch() {
   var input, filter, table, tr, td, i, txtValue;
   input = document.getElementById("componentPartLocatorInput");
@@ -584,91 +836,83 @@ function componentPartlocationSearch() {
   }
 }
 
-
-
-
-
-/*
- function displayRadioValue() {
-            var ele = document.getElementsByName('repscrap');
-
-            for(i = 0; i < ele.length; i++) {
-                if(ele[i].checked)
-                document.getElementById("result").innerHTML
-                        = "Gender: "+ele[i].value;
-            }
-        }
-
-
-
-*/
-
-
-
-
-
-
 submitFault = function(){
+// clear out faultdata
+  faultData = {};
   faultData.table = "fault";
-
-  faultData.operatorName = document.getElementById("operatorName").value;
-  faultData.workOrder = document.getElementById("workorder").value;
-  faultData.quantity = document.getElementById("quantity").value;
+//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
+  faultData.operatorName = document.getElementById("operatorName").innerHTML;
+  faultData.workOrder = document.getElementById("workorder").innerHTML;
+  faultData.quantity = document.getElementById("quantity").innerHTML;
   faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
   faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
+  faultData.faultDesc = document.getElementById("faultDesc").value;
+	faultData.responseAs = "JSON";
+//collect new data
 
 	faultData.investigation_findings = document.getElementById('investigation_findings').value;
-  if (faultData.investigation_findings == '')
-  alert('default investigation_findings category')
+// checks if left default
+  if (faultData.investigation_findings == ''){
+		alert('No Investigation Findings categories have been selected')
+		return;
+	}
+
 
 	faultData.additional_comments = document.getElementById('additional_comments').value;
-  //this is optional no checking
+//this is optional no checking
 
-	faultData.fail_category = document.getElementById('fault_category').value;
-  if (faultData.fail_cataory == '')
-  alert('default fail category')
+	faultData.fail_catagory = document.getElementById('fault_category').value;
+// checks if left default
+  if (faultData.fail_cataory == ''){
+		alert('default fail category')
+		return;
+	}
+
 
   faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
-  // check last ones .... this isnt setup the same but probably should be
+// check previous ones .... this isnt setup the same but probably should be
+// use tablemaker if possible !!
 
   faultData.faulty_location_reference = document.getElementById('locationRef').value;
-  //this is optional no checking
+//this is optional no checking
 
   var ele = document.getElementsByName('repscrap');
-  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false)
-  alert('Please select an option for repair / scrap')
+  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false){
+		alert('Please select an option for repair / scrap')
+		return;
+	}
+
     for(i = 0; i < ele.length; i++) {
 			if(ele[i].checked){
         faultData.repaired_scrapped = ele[i].value;
       }
     }
-	//alert('workorder: '+ workOrder + ' pbc: '+pcbNumber+' finshed: '+finishedPartNumber+' fault description: '+faultDesc);
+
+// prep faultData as JSON string ready to POST
 	var req = JSON.stringify(faultData);
 	var xhr = null;
 	var xhr = new XMLHttpRequest();
+// parse response and send returned fault id to reciever
 	xhr.onreadystatechange=function(){
-		//alert('state change');
-		if (xhr.readyState==4 && xhr.status==200){
-			//document.getElementById("content").innerHTML=xmlhttp.responseText;
-			//CTC.locationdata.receive(xhr.responseText);
-			jResponse = JSON.parse(xhr.responseText);
-			//alert(xhr.responseText);
+    if (xhr.readyState==4 && xhr.status==200){
+      jResponse = JSON.parse(xhr.responseText);
 			submittedFault(jResponse.insertId);
 		}
 	}
-	//alert(str);
+// post the faultData JSON string to enterFaultIncomplete route on backend
 	xhr.open("POST", "/enterFault", true);
 	xhr.setRequestHeader('Content-Type', 'application/json');
-	//console.log(CTC.locationdata.data);
-	//var xhrdata = JSON.stringify(faultData)
-	//console.log(xhrdata);
 	xhr.send(req);
 }
 
+
 submittedFault = function(faultId){
+//build HTML string
+//to display returned fault ID
+//add buttons to continue
 	var txt = '';
 	txt = txt + 'your fault id is :';
-	txt = txt + faultId;
+	txt = txt + faultId.toString(16);
 	txt = txt + '<br>';
 	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
 	txt = txt + '<input type="button" value="Repeat same fault" onclick="addRepeatFault()">';
@@ -699,297 +943,11 @@ addRepeatFault = function(){
 	//console.log(xhrdata);
 	xhr.send(req);
 }
-/*
-
-
-CTC.locationdata.send = function (request){
-	var req = JSON.stringify(CTC.locationdata.data);
-	var xhr = null;
-	var xhr = new XMLHttpRequest();
-	xhr.onreadystatechange=function(){
-		if (xhr.readyState==4 && xhr.status==200){
-			//document.getElementById("content").innerHTML=xmlhttp.responseText;
-			CTC.locationdata.receive(xhr.responseText);
-		}
-	}
-	//alert(str);
-	xhr.open("POST", "/location", true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	//console.log(CTC.locationdata.data);
-	var xhrdata = JSON.stringify(CTC.locationdata.data)
-	//console.log(xhrdata);
-	xhr.send(xhrdata);
-}
-
-CTC.locationdata.receive = function(r){
-	try{
-		eval("var tempobj = "+r);
-	}
-	catch(err){
-		alert(err);
-	}
-	console.log(tempobj);
-}
-
-*/
-/*
-submitToFA = function(){
-	faultData.table = "fault";
-	faultData.faultDesc = document.getElementById("faultDesc").value;
-	//alert('workorder: '+ workOrder + ' pbc: '+pcbNumber+' finshed: '+finishedPartNumber+' fault description: '+faultDesc);
-	var req = JSON.stringify(faultData);
-	var xhr = null;
-	var xhr = new XMLHttpRequest();
-	xhr.onreadystatechange=function(){
-		if (xhr.readyState==4 && xhr.status==200){
-			//document.getElementById("content").innerHTML=xmlhttp.responseText;
-			//CTC.locationdata.receive(xhr.responseText);
-			alert(xhr.responseText);		}
-	}
-	//alert(str);
-	xhr.open("POST", "/enterFaultIncomplete", true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	//console.log(CTC.locationdata.data);
-	var xhrdata = JSON.stringify(faultData)
-	//console.log(xhrdata);
-	xhr.send(xhrdata);
-}
-*/
-
-submitToFA = function(){
-	faultData.table = "fault";
-//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
-  faultData.operatorName = document.getElementById("operatorName").value;
-  faultData.workOrder = document.getElementById("workOrder").value;
-  faultData.quantity = document.getElementById("quantity").value;
-  faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
-  faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
-
-	faultData.faultDesc = document.getElementById("faultDesc").value;
-	//alert('workorder: '+ workOrder + ' pbc: '+pcbNumber+' finshed: '+finishedPartNumber+' fault description: '+faultDesc);
-	var req = JSON.stringify(faultData);
-	var xhr = null;
-	var xhr = new XMLHttpRequest();
-	xhr.onreadystatechange=function(){
-		//alert('state change');
-		if (xhr.readyState==4 && xhr.status==200){
-			//document.getElementById("content").innerHTML=xmlhttp.responseText;
-			//CTC.locationdata.receive(xhr.responseText);
-			jResponse = JSON.parse(xhr.responseText);
-			//alert(xhr.responseText);
-			submittedtoFA(jResponse.insertId);
-		}
-	}
-	//alert(str);
-	xhr.open("POST", "/enterFaultIncomplete", true);
-	xhr.setRequestHeader('Content-Type', 'application/json');
-	//console.log(CTC.locationdata.data);
-	//var xhrdata = JSON.stringify(faultData)
-	//console.log(xhrdata);
-	xhr.send(req);
-}
-
-submittedtoFA = function(faultId){
-	hexVal = faultId.toString(16)
-	var txt = '';
-	txt = txt + 'your fault id is : ';
-	txt = txt + hexVal;
-	txt = txt + '<br>';
-	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
-	txt = txt + '<input type="button" value="No more faults" onclick="enterFaultDetails()">';
-
-	document.getElementById("sub_content").innerHTML= txt;
-}
-
-jobDetailsEntered = function(){
-	// add checks here to see if initial data is valid
-
-//check we have data ok
-if(document.getElementById("operatorName").value == ''){
-  alert ('operator name is empty')
-  return;
-}
-if(document.getElementById("workOrder").value == '' || document.getElementById("workOrder").value.length != 6 ){
-  alert ('please enter work order number 6 digits long')
-  return;
-}
-if(document.getElementById("quantity").value == ''){
-  alert ('no quanitiy has been entered')
-  return;
-}
-if(document.getElementById("finishedresult").innerHTML == 'clicked data goes here'){
-  alert ('no finished part has been selected please click selection from the box')
-  return;
-}
-if(document.getElementById("PCBresult").innerHTML == 'clicked data goes here'){
-  alert ('no PCB part has been selected please click selection from the box')
-  return;
-}
-  faultData.operatorName = document.getElementById("operatorName").value;
-  faultData.workOrder = document.getElementById("workOrder").value;
-	faultData.quantity = document.getElementById("quantity").value;
-	faultData.finishedPartNumber = document.getElementById("finishedresult").innerHTML;
-	faultData.pcbNumber = document.getElementById("PCBresult").innerHTML;
-	addNewFault();
-}
-
-addNewFault = function(){
-	// create html string to display above data and collect further input
-	var txt = '';
-	txt = txt + '<div id="fault_header">';
-
-	txt = txt + '<table class = "tableMaker">';
-
-	txt = txt + '<tr>';
-	txt = txt + '<th>Operator Name</th>';
-	txt = txt + '<th>Work Order</th>';
-	txt = txt + '<th>Quantity</th>';
-	txt = txt + '<th>PCB part number</th>';
-	txt = txt + '<th>Finished part number</th>';
-	txt = txt + '</tr>';
-
-	txt = txt + '<tr>';
-	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.operatorName+'</div></td>';
-	txt = txt + '<td><div id = "workorder"  onclick="reenterData(\'workorder\')" >'+faultData.workOrder+'</div></td>';
-	txt = txt + '<td><div id = "quantity" onclick="reenterData(\'quantity\')">'+faultData.quantity+'</div></td>';
-	txt = txt + '<td><div id = "finishedPartNumber" onclick="reenterData(\'finishedPartNumber\')">'+faultData.finishedPartNumber+'</div></td>';
-	txt = txt + '<td><div id = "pcbNumber" onclick="reenterData(\'pcbNumber\')">'+faultData.pcbNumber+'</div></td>';
-	txt = txt + '</tr>';
-
-
-	txt = txt + '</table>';
-
-	txt = txt + '</div>';
-
-	txt = txt + '<div id="fault_description">';
-	txt = txt + 'details of fault';
-	txt = txt + '<br>';
-	txt = txt + '<textarea id="faultDesc" cols="40" rows="2"></textarea>';
-	txt = txt + '</div>';
-
-	txt = txt + '<div  id="sub_content">';
-
-	txt = txt + '<div id="buttons_tofa_fr">';
-	txt = txt + '<input type="button" value="Submit to Fail Analysis" onclick="submitToFA()">';
-	txt = txt + '<input type="button" value="Continue fault report" onclick="furtherReport()">';
-	txt = txt + '</div>';
-	txt = txt + '</div>';
-	txt = txt + '<br>';
-	document.getElementById("content").innerHTML=txt;
-
-	faultDesc = document.getElementById("faultDesc");
-	faultDesc.focus();
-
-	faultDesc.addEventListener("keyup", function(event){
-		if (event.key === "Enter") {
-        //pcbNumber.focus();
-			//	alert(faultDesc.value);
-    }
-	});
-}
-
-enterFaultDetails = function(){
-
-	var txt = '';
-	txt = txt + '<div class = "large">Enter details to log fault</div>';
-	txt = txt + '<br>';
-
-	txt = txt + 'Operator Initials:';
-	txt = txt + '<input type=text autocomplete="off" id="operatorName">';
-	txt = txt + '<br>';
-
-	txt = txt + 'Work Order:';
-	txt = txt + '<input type=text autocomplete="off" id="workOrder">';
-	txt = txt + '<br>';
-
-	txt = txt + 'Quantity:';
-	txt = txt + '<input type=text autocomplete="off" id="quantity">';
-	txt = txt + '<br>';
-
-  txt = txt + '<br><div style = "display: flex">';
-  txt = txt + '<div style="flex: 0 0 50%">finished part Number:</div>';
-  txt = txt + '<div style="flex: 1">PCB Number:</div>';
-  txt = txt + '</div>';
-
-	txt = txt + '<div style = "display: flex">';
-	txt = txt + '<div style="flex: 0 0 50%" id="finishedPartNumberDiv"></div>';
-	txt = txt + '<div style="flex: 1" id="PCBNumberDiv"></div>';
-	txt = txt + '</div><br>';
-
-
-	txt = txt + '<input type="button" value="Enter" onclick="jobDetailsEntered()">';
-	txt = txt + '<div></div>';
-	txt = txt + '<br>';
-	txt = txt + '';
-	document.getElementById("content").innerHTML=txt;
-	/*
-	 *
-	 *			put fin and pcb part recievers here
-	 *
-	 */
-  tableMaker(PCBPartNumbers,'PCBNumberDiv', 'PCBtable', 'PCBSearch', 'PCBresult',0 );
-  tableMaker(finishedPartNumbers,'finishedPartNumberDiv', 'finishedtable', 'finishedSearch', 'finishedresult',0 )
-//  tablefinishedPartNumbers();
-//	tablePCBPartNumbers();
-
-	operatorName = document.getElementById("operatorName");
-	workOrder = document.getElementById("workOrder");
-	quantity = document.getElementById("quantity");
-//	finishedPartNumber = document.getElementById("finishedPartNumber");
-//	pcbNumber = document.getElementById("pcbNumber");
-	operatorName.focus();
-
-	operatorName.addEventListener("keyup", function(event){
-		if (event.key === "Enter") {
-		    workOrder.focus();
-		}
-	});
-  setInputFilter(operatorName, function(value) {
-    return /^[a-z]{0,5}$/i.test(value); });
-
-	workOrder.addEventListener("keyup", function(event){
-		if (event.key === "Enter") {
-		    quantity.focus();
-		}
-	});
-  setInputFilter(workOrder, function(value) {
-    return /^\d{0,6}$/i.test(value); });
-
-	quantity.addEventListener("keyup", function(event){
-		if (event.key === "Enter") {
-//		    finishedPartNumber.focus();
-		}
-  });
-  setInputFilter(quantity, function(value) {
-    return /^\d{0,8}$/i.test(value); });
-
-//	finishedPartNumber.addEventListener("keyup", function(event){
-//		if (event.key === "Enter") {
-//			pcbNumber.focus();
-//		}
-//	});
-//	pcbNumber.addEventListener("keyup", function(event){
-//		if (event.key === "Enter") {
-//
-//			jobDetailsEntered();
-//		}
-//	});
-
-setInputFilter(operatorName, function(value) {
-  return /^[a-z]{0,5}$/i.test(value); });
-setInputFilter(workOrder, function(value) {
-  return /^\d{0,6}$/i.test(value); });
-setInputFilter(quantity, function(value) {
-  return /^\d{0,8}$/i.test(value); });
-
-
-
-}
 
 loadIncomplete = function (){
-
 	getData('fault', 'getNull', 'idfault, finished_part_number, work_order, reported_fault', 'completed','incomplete')
 }
+
 recieveIncomplete = function (r){
   try{
     //eval("var tempobj = "+r);
@@ -997,71 +955,19 @@ recieveIncomplete = function (r){
   catch(err){
     alert(err);
   }
-var txt = ''
-txt = txt + '<div id = "tablebox"></div>'
-txt = txt + '<div></div>'
-txt = txt + '<input type="button" value="Submit" onclick="loadIdSearch()">';
-document.getElementById('content').innerHTML = txt
-/*
+  var txt = ''
+  txt = txt + '<div id = "tablebox"></div>'
+  txt = txt + '<div></div>'
+  txt = txt + '<input type="button" value="Submit" onclick="loadIdSearch()">';
+  document.getElementById('content').innerHTML = txt
 
-	var fields = Object.keys(r[0]);
-	var txt = '';
-	txt = txt + '<div class=scrollybox>';
-	txt = txt + '<table id="incompleteFaultTable">';
-	txt = txt + '<tr class="header">';
-	for (var i in fields) {
-		//if (i == 0){'<th></th>'}else{
-		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
-		//}
-	}
-	txt = txt + '</tr>';
-	for (var key in r) {
-		txt = txt + '<tr>';
-		if (r.hasOwnProperty(key)) {
-			txt = txt + '<td>'+ r[key].idfault.toString(16) + '</td>';
-			txt = txt + '<td>'+ r[key].finished_part_number + '</td>';
-   txt = txt + '<td>'+ r[key].work_order + '</td>';
-   txt = txt + '<td>'+ r[key].reported_fault + '</td>';
-		}
-		txt = txt + '</tr>';
-	}
-	txt = txt + '</table>';
-	txt = txt + '</div>';
-	document.getElementById("content").innerHTML=txt;
-
-	var table = document.getElementById("incompleteFaultTable");
-    var rows = table.getElementsByTagName("tr");
-    for (i = 0; i < rows.length; i++) {
-        var currentRow = table.rows[i];
-        var createClickHandler =
-            function(row)
-            {
-                return function() {
-                                        var cell = row.getElementsByTagName("td")[0];
-                                        var id =  parseInt(cell.innerHTML, 16);
-																				//document.getElementById("finishedPartLocatorInput").value= id;
-                                        idSearch(id);
-                                 };
-            };
-
-        currentRow.onclick = createClickHandler(currentRow);
-    }
-*/
-
-tableMaker(r, 'tablebox', 'incompleteTable', 'iSearch', 'iClicked', 0)
-
-
-
+  tableMaker(r, 'tablebox', 'incompleteTable', 'iSearch', 'iClicked', 0)
 }
-
 
 loadIdSearch = function (){
-
 	var id = document.getElementById('iClicked').innerHTML;
   idSearch(id);
-
 }
-
 
 idSearch = function (id){
 	//id = document.getElementById('faultId').value;
@@ -1083,13 +989,7 @@ idSearchRec = function (data){
   txt = txt + '<th>Reported fault</th>';
 	txt = txt + '</tr>';
 	txt = txt + '<tr>';
-	/*
-	txt = txt + '<td><div id = "operatorName" onclick="reenterData(\'operatorName\')" >'+faultData.operatorName+'</div></td>';
-	txt = txt + '<td><div id = "workorder"  onclick="reenterData(\'workorder\')" >'+faultData.workOrder+'</div></td>';
-	txt = txt + '<td><div id = "quantity" onclick="reenterData(\'quantity\')">'+faultData.quantity+'</div></td>';
-	txt = txt + '<td><div id = "finishedPartNumber" onclick="reenterData(\'finishedPartNumber\')">'+faultData.finishedPartNumber+'</div></td>';
-	txt = txt + '<td><div id = "pcbNumber" onclick="reenterData(\'pcbNumber\')">'+faultData.pcbNumber+'</div></td>';
-	*/
+
 	txt = txt + '<td><div id = "operator_initials" onclick="reenterData(\'operator_initials\')">'+faultData.operator_initials+'</div></td>';
 	txt = txt + '<td><div id = "work_order" onclick="reenterData(\'work_order\')">'+faultData.work_order+'</div></td>';
 	txt = txt + '<td><div id = "work_order_quantity" onclick="reenterData(\'work_order_quantity\')">'+faultData.work_order_quantity+'</div></td>';
@@ -1110,7 +1010,6 @@ completeFault = function (){
 	var	txt = '';
 	txt = txt + '';
 	txt = txt + '<b>investigation findings:</b>';
-	//txt = txt + '<br>';
 	txt = txt + '<select id="investigation_findings" >';
 	txt = txt + '<option value= "" disabled selected > -- select investigation findings -- </option>';
 	for (i in investigationFindings){
@@ -1119,11 +1018,9 @@ completeFault = function (){
 	txt = txt + '</select>';
 	txt = txt + '<br>';
 	txt = txt + '<b>additional comments:</b>';
-	//txt = txt + '<br>';
 	txt = txt + '<textarea id="additional_comments" cols="40" rows="2"></textarea>';
 	txt = txt + '<br>';
 	txt = txt + '<b>Fault category: </b>';
-	//txt = txt + '<br>';
 	txt = txt + '<select id="fault_category" >';
 	txt = txt + '<option disabled selected value> -- select a fault category -- </option>';
 	for (i in faultcategories){
@@ -1195,7 +1092,7 @@ submitCompletedFault = function (){
 	faultData.responseAs = 'JSON';
 	faultData.investigation_findings = document.getElementById('investigation_findings').value;
 	faultData.additional_comments = document.getElementById('additional_comments').value;
-	faultData.fail_category = document.getElementById('fault_category').value;
+	faultData.fail_catagory = document.getElementById('fault_category').value;
 	faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
 	faultData.faulty_location_reference = document.getElementById('locationRef').value;
 	var ele = document.getElementsByName('repscrap');

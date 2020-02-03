@@ -242,6 +242,66 @@ router.route('/enterFaultIncomplete').post(function (req, res) {
 //	res.send(thingy);
 });
 
+router.route('/addNewPart').post(function (req, res) {
+	var thingy = req.body;
+//	var myObject = JSON.parse(req.query.q)
+	console.log(thingy);
+//	sqlstring = sqlStringBuilder(thingy);
+	sqlstring = 'INSERT INTO '+thingy.table+
+	' (part_number, '+
+	'part_description) '+
+	'VALUES ("'
+	+thingy.part_number+'", "'+
+	thingy.part_description+'")'
+
+
+	faultPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			//res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+			//	res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(thingy.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.set('Content-Type', 'application/JSON')
+					//res.send(JSON.stringify({ worked: true }))
+					res.status(200);
+					res.send(json);
+					//res.send('it worked');
+					break;
+				case 'CSV':
+				//	res.status(200).send(returnAsCsv(json));
+					break;
+			}
+
+		});
+		console.log('done');
+	});
+
+
+
+	for (i in thingy){
+		console.log(thingy[i]);
+	}
+
+
+//	res.setHeader('Content-Type','application/json');
+//	res.send(thingy);
+});
+
+
+
+
 
 app.delete('/faultDelete/:id', function (req, res) {
 
@@ -255,7 +315,7 @@ console.log('deleting record: '+task_id);
 				console.log('server connect fail : '+err);
 				res.status(400).send(err);
 				}
-			connection.query('DELETE FROM fault WHERE idfault ='+task_id, (err, result, fields) =>{
+			connection.query('DELETE FROM fault WHERE idfault = "'+task_id+'"', (err, result, fields) =>{
 				console.log('sql command done');
 				if(err){
 					console.log('sql command error');
