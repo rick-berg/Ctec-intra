@@ -62,8 +62,35 @@ router.route('/enterFault').post(function (req, res) {
 	console.log(thingy);
 	sqlstring = 'INSERT INTO '
 	+thingy.table+
-	' (timestamp, operator_initials, work_order, work_order_quantity, finished_part_number, pcb_part_number, reported_fault, investigation_findings, additional_comments, repaired_scrapped, fail_catagory, faulty_part_number, faulty_location_reference, completed)'+
-	' VALUES (CURRENT_TIMESTAMP(), "'+thingy.operatorName+'", "'+thingy.workOrder+'",'+thingy.quantity+',"'+thingy.finishedPartNumber+'","'+thingy.pcbNumber+'","'+thingy.faultDesc+'","'+thingy.investigation_findings+'","'+thingy.additional_comments+'","'+thingy.repaired_scrapped+'","'+thingy.fail_category+'","'+thingy.faulty_part_number+'","'+thingy.faulty_location_reference+'",CURRENT_TIMESTAMP())';
+	' (timestamp, '+
+	'operator_initials, '+
+	'work_order, '+
+	'work_order_quantity, '+
+	'finished_part_number, '+
+	'pcb_part_number, '+
+	'reported_fault, '+
+	'investigation_findings, '+
+	'additional_comments, '+
+	'repaired_scrapped, '+
+	'fail_catagory, '+
+	'faulty_part_number, '+
+	'faulty_location_reference, '+
+	'completed)'+
+	' VALUES ('+
+	'CURRENT_TIMESTAMP(), '+
+	'"'+thingy.operatorName+'", '+
+	'"'+thingy.workOrder+'", '+
+	''+thingy.quantity+', '+
+	'"'+thingy.finishedPartNumber+'", '+
+	'"'+thingy.pcbNumber+'", '+
+	'"'+thingy.faultDesc+'", '+
+	'"'+thingy.investigation_findings+'", '+
+	'"'+thingy.additional_comments+'", '+
+	'"'+thingy.repaired_scrapped+'", '+
+	'"'+thingy.fail_category+'", '+
+	'"'+thingy.faulty_part_number+'", '+
+	'"'+thingy.faulty_location_reference+'", '+
+	'CURRENT_TIMESTAMP())';
 
 
 	faultPool.getConnection(function (err, connection) {
@@ -109,6 +136,105 @@ router.route('/enterFault').post(function (req, res) {
 //	res.setHeader('Content-Type','application/json');
 //	res.send(thingy);
 });
+
+
+
+
+router.route('/enterFaultSame').post(function (req, res) {
+	var thingy = req.body;
+	console.log(thingy);
+	sqlstring = 'INSERT INTO '
+	+thingy.table+
+	' (timestamp, '+
+	'operator_initials, '+
+	'work_order, '+
+	'work_order_quantity, '+
+	'finished_part_number, '+
+	'pcb_part_number, '+
+	'reported_fault, '+
+	'investigation_findings, '+
+	'additional_comments, '+
+	'repaired_scrapped, '+
+	'fail_catagory, '+
+	'faulty_part_number, '+
+	'faulty_location_reference, '+
+	'completed, '+
+	'serial_number)'+
+	' VALUES ('+
+	'CURRENT_TIMESTAMP(), '+
+	'"'+thingy.operatorName+'", '+
+	'"'+thingy.workOrder+'", '+
+	''+thingy.quantity+', '+
+	'"'+thingy.finishedPartNumber+'", '+
+	'"'+thingy.pcbNumber+'", '+
+	'"'+thingy.faultDesc+'", '+
+	'"'+thingy.investigation_findings+'", '+
+	'"'+thingy.additional_comments+'", '+
+	'"'+thingy.repaired_scrapped+'", '+
+	'"'+thingy.fail_category+'", '+
+	'"'+thingy.faulty_part_number+'", '+
+	'"'+thingy.faulty_location_reference+'", '+
+	'CURRENT_TIMESTAMP(), '+
+	''+thingy.faultid+')';
+
+
+	faultPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			//res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+			//	res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(thingy.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.set('Content-Type', 'application/JSON')
+					//res.send(JSON.stringify({ worked: true }))
+					res.status(200);
+					res.send(json);
+					//res.send('it worked');
+					break;
+				case 'CSV':
+				//	res.status(200).send(returnAsCsv(json));
+					break;
+			}
+
+		});
+		console.log('done');
+	});
+
+
+
+	for (i in thingy){
+		console.log(thingy[i]);
+	}
+
+
+//	res.setHeader('Content-Type','application/json');
+//	res.send(thingy);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -174,6 +300,66 @@ router.route('/completeExistingFault').post(function (req, res) {
 //	res.setHeader('Content-Type','application/json');
 //	res.send(thingy);
 });
+
+router.route('/enterSameBoardFaultIncomplete').post(function (req, res) {
+	var thingy = req.body;
+//	var myObject = JSON.parse(req.query.q)
+	console.log(thingy);
+//	sqlstring = sqlStringBuilder(thingy);
+	sqlstring = 'INSERT INTO '+thingy.table+
+	' (timestamp, '+
+	'operator_initials, '+
+	'work_order, '+
+	'work_order_quantity, '+
+	'finished_part_number, '+
+	'pcb_part_number, '+
+	'reported_fault, '+
+	'serial_number) '+
+	'VALUES (CURRENT_TIMESTAMP(), "'
+	+thingy.operatorName+'", "'+
+	thingy.workOrder+'",'+
+	thingy.quantity+',"'+
+	thingy.finishedPartNumber+'","'+
+	thingy.pcbNumber+'","'+
+	thingy.faultDesc+'","'+
+	thingy.faultid+'")'
+	faultPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			//res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+			//	res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(thingy.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.set('Content-Type', 'application/JSON')
+					//res.send(JSON.stringify({ worked: true }))
+					res.status(200);
+					res.send(json);
+					//res.send('it worked');
+					break;
+				case 'CSV':
+				//	res.status(200).send(returnAsCsv(json));
+					break;
+			}
+		});
+		console.log('done');
+	});
+	for (i in thingy){
+		console.log(thingy[i]);
+	}
+});
+
+
 
 
 router.route('/enterFaultIncomplete').post(function (req, res) {
