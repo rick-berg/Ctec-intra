@@ -198,6 +198,373 @@ function drilldown(){
  var workOrderVal = document.getElementById('drillClick').innerHTML;
  getData('fault', 'genSelTFV', 'work_order', workOrderVal,'barDrillTable');
 }
+
+
+loadSearchID = function (){
+	//id = document.getElementById('faultId').value;
+	//getData('fault', 'genSelTFV', 'idfault', id,'searchid');
+	var txt = '';
+	txt = txt + '<input type="text" id="idinput" placeholder="Search for Fault ID" title="Type in a fault ID">';
+	txt = txt + '<input type="button" value="search" onclick="searchID()">';
+	txt = txt + '';
+	document.getElementById('content').innerHTML = txt;
+
+}
+
+searchID = function (){
+	myid = document.getElementById('idinput').value;
+	//CONVERT TO DEC FOR DB
+	myid = parseInt(myid, 16);
+	// this get data needs to show data for ID's or previous ID's of searched value
+	getData('fault', 'genSel', '*', 'idfault = "'+myid+'" OR serial_number = "'+myid+'" ','searchid');
+}
+
+
+recID = function (data){
+	faultData = data[0];
+	// show data
+	// button to add new fault to this ID
+
+	var txt = '';
+	txt = txt + '<div id="fault_header">';
+	txt = txt + '<table class= "tableMaker">';
+	txt = txt + '<tr>';
+	txt = txt + '<th>ID</th>';
+	txt = txt + '<th>Operator Name</th>';
+	txt = txt + '<th>Work Order</th>';
+	txt = txt + '<th>Quantity</th>';
+	txt = txt + '<th>PCB part number</th>';
+	txt = txt + '<th>Finished part number</th>';
+	txt = txt + '<th>Reported fault</th>';
+	txt = txt + '</tr>';
+	txt = txt + '<tr>';
+
+	txt = txt + '<td><div id = "fault_id" >'+faultData.idfault.toString(16);+'</div></td>';
+	txt = txt + '<td><div id = "operator_initials" >'+faultData.operator_initials+'</div></td>';
+	txt = txt + '<td><div id = "work_order" >'+faultData.work_order+'</div></td>';
+	txt = txt + '<td><div id = "work_order_quantity" >'+faultData.work_order_quantity+'</div></td>';
+	txt = txt + '<td><div id = "finished_part_number" >'+faultData.finished_part_number+'</div></td>';
+	txt = txt + '<td><div id = "pcb_part_number" >'+faultData.pcb_part_number+'</div></td>';
+	txt = txt + '<td><div id = "reported_fault" >'+faultData.reported_fault+'</div></td>';
+	txt = txt + '</tr>';
+	txt = txt + '</table>';
+
+	txt = txt + '<div  id="sub_content">';
+	txt = txt + '<input type="button" value="Cancel" onclick="loadSearchID()">';
+	txt = txt + '<input type="button" value="addNewFault" onclick="sameBoardNewFault()">';
+	txt = txt + '</div>';
+	document.getElementById("content").innerHTML=txt;
+}
+sameBoardNewFault = function () {
+
+	var txt = '';
+	txt = txt + '<div id="fault_description">';
+	txt = txt + 'details of fault';
+	txt = txt + '<br>';
+	txt = txt + '<textarea id="faultDesc" cols="40" rows="2"></textarea>';
+	txt = txt + '</div>';
+	txt = txt + '<div id="buttons_tofa_fr">';
+	txt = txt + '<input type="button" value="Submit to Fail Analysis" onclick="sameBoardSubmitToFA()">';
+	txt = txt + '<input type="button" value="Continue fault report" onclick="sameBoardFurtherReport()">';
+	txt = txt + '</div>';
+	txt = txt + '<br>';
+	document.getElementById("sub_content").innerHTML=txt;
+}
+
+
+sameBoardSubmitToFA = function(){
+// clear out faultdata
+  faultData = {};
+	faultData.table = "fault";
+//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
+
+	faultData.faultid = parseInt(document.getElementById("fault_id").innerHTML, 16);
+  faultData.operatorName = document.getElementById("operator_initials").innerHTML;
+  faultData.workOrder = document.getElementById("work_order").innerHTML;
+  faultData.quantity = document.getElementById("work_order_quantity").innerHTML;
+  faultData.finishedPartNumber = document.getElementById("finished_part_number").innerHTML;
+  faultData.pcbNumber = document.getElementById("pcb_part_number").innerHTML;
+// this is new ... added in addNewFault function
+	faultData.faultDesc = document.getElementById("faultDesc").value;
+	if (faultData.faultDesc == ''){
+		alert ('Please give a fault description')
+		return
+	}
+	faultData.responseAs = "JSON"; // needed for now
+// prep faultData as JSON string ready to POST
+	var req = JSON.stringify(faultData);
+	var xhr = null;
+	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange=function(){
+		if (xhr.readyState==4 && xhr.status==200){
+// parse response and send to reciever function submittedtoFA
+			jResponse = JSON.parse(xhr.responseText);
+			sameBoardSubmittedtoFA(jResponse.insertId);
+		}
+	}
+// post the faultData JSON string to enterFaultIncomplete route on backend
+	xhr.open("POST", "/enterSameBoardFaultIncomplete", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.send(req);
+}
+
+sameBoardSubmittedtoFA = function(faultId){
+// string conversion for fault ID
+	hexVal = faultId.toString(16)
+// build HTML to display the submitted faults Hex id
+	var txt = '';
+	txt = txt + 'your fault id is : ';
+	txt = txt + hexVal;
+
+	document.getElementById("content").innerHTML= txt;
+}
+
+
+sameBoardFurtherReport = function(){
+// clear out faultdata
+  faultData = {};
+  faultData.table = "fault";
+	faultData.faultid = parseInt(document.getElementById("fault_id").innerHTML, 16);
+//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
+  faultData.operatorName = document.getElementById("operator_initials").value;
+  faultData.workOrder = document.getElementById("work_order").value;
+  faultData.quantity = document.getElementById("work_order_quantity").value;
+  faultData.finishedPartNumber = document.getElementById("finished_part_number").innerHTML;
+  faultData.pcbNumber = document.getElementById("pcb_part_number").innerHTML;
+// this is new ... added in addNewFault function
+  faultData.faultDesc = document.getElementById("faultDesc").value;
+	if (faultData.faultDesc == ''){
+		alert ('Please give a fault description')
+		return
+	}
+
+// build HTML string to display fault description
+  var txt = ''
+  txt = txt + '<table class = "tableMaker">';
+	txt = txt + '<tr>';
+	txt = txt + '<th>Fault Description</th>';
+	txt = txt + '</tr>';
+	txt = txt + '<tr>';
+	txt = txt + '<td><div id = "faultDesc" onclick="reenterData(\'faultDesc\')" >'+faultData.faultDesc+'</div></td>';
+	txt = txt + '</tr>';
+	txt = txt + '</table>';
+  document.getElementById("fault_description").innerHTML=txt;
+
+// build HTML string for rest of report
+
+
+	txt = '';
+  txt = txt + '<table class = "tableMaker">';
+
+// selectable dropdown of investigation findings
+  txt = txt + '<tr>';
+  txt = txt + '<th>investigation findings</th>';
+  txt = txt + '<td>'
+  txt = txt + '<select id="investigation_findings" >';
+  txt = txt + '<option value= "" disabled selected > -- select investigation findings -- </option>';
+  for (i in investigationFindings){
+    txt = txt + '<option value="'+investigationFindings[i].investigation_findings+'">'+investigationFindings[i].investigation_findings+'</option>';
+  }
+  txt = txt + '</select>';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+// text area for collecting additional comments
+  txt = txt + '<tr>';
+  txt = txt + '<th>Additional Comments</th>';
+  txt = txt + '<td>'
+  txt = txt + '<textarea id="additional_comments" cols="40" rows="2"></textarea>';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+
+// selectable dropdown of fault categories
+  txt = txt + '<tr>';
+  txt = txt + '<th>Fault category</th>';
+  txt = txt + '<td>'
+  txt = txt + '<select id="fault_category" >';
+	txt = txt + '<option value="" disabled selected > -- select a fault category -- </option>';
+	for (i in faultcategories){
+		txt = txt + '<option value="'+faultcategories[i].catagory+'">'+faultcategories[i].catagory+'</option>';
+	}
+	txt = txt + '</select>';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+
+  txt = txt + '</table>';
+  txt = txt + '<br>';
+
+//table for selecting component parts and box for designators
+  var fields = Object.keys(componentPartNumbers[0]);
+  console.log(componentPartNumbers);
+
+  txt = txt + '<table class = "tableMaker">';
+  txt = txt + '<tr>';
+  txt = txt + '<th>Faulty component</th>';
+  txt = txt + '<th>Part location reference</th>';
+  txt = txt + '</tr>';
+  txt = txt + '<tr>';
+  txt = txt + '<td>'
+  txt = txt + '<input type="text" id="componentPartLocatorInput" onkeyup="componentPartlocationSearch()" placeholder="search component part" title="Type in a part number">';
+  txt = txt + '</td>';
+  txt = txt + '<td>'
+  txt = txt + '<input type=text id="locationRef">';
+  txt = txt + '</td>';
+  txt = txt + '</tr>';
+  txt = txt + '</table>';
+
+	txt = txt + '<div class=scrollybox style="height:250px">';
+	txt = txt + '<table class = "tableMaker" id="componentPartLocationsTable">';
+	txt = txt + '<tr class="header">';
+	for (var i in fields) {
+		if (i == 0){}else{
+		txt = txt + '<th style="width:25%;">' + fields[i] + '</th>';
+		}
+	}
+	txt = txt + '</tr>';
+	for (var key in componentPartNumbers) {
+		txt = txt + '<tr>';
+		if (componentPartNumbers.hasOwnProperty(key)) {
+			txt = txt + '<td>'+ componentPartNumbers[key].part_number + '</td>';
+			txt = txt + '<td>'+ componentPartNumbers[key].part_description + '</td>';
+		}
+		txt = txt + '</tr>';
+	}
+	txt = txt + '</table>';
+	txt = txt + '</div>';
+// radio buttons for selecting outcome
+	txt = txt + '<input type="radio" name="repscrap" value="repaired by cell">repaired by cell';
+	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
+	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
+// button to submit
+	txt = txt + '<input type="button" value="Submit" onclick="sameBoardSubmitFault()">';
+	document.getElementById("sub_content").innerHTML=txt;
+// make the part table clickable
+	var table = document.getElementById("componentPartLocationsTable");
+    var rows = table.getElementsByTagName("tr");
+    for (i = 0; i < rows.length; i++) {
+        var currentRow = table.rows[i];
+        var createClickHandler =
+            function(row)
+            {
+                return function() {
+                                        var cell = row.getElementsByTagName("td")[0];
+                                        var id = cell.innerHTML;
+																				document.getElementById("componentPartLocatorInput").value= id;
+                                        //alert("id:" + id);
+                                 };
+            };
+
+        currentRow.onclick = createClickHandler(currentRow);
+    }
+}
+
+// search function for the part number table
+// change this out for a tablemaker function table you lazy fucker !!!
+function componentPartlocationSearch() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("componentPartLocatorInput");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("componentPartLocationsTable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+
+sameBoardSubmitFault = function(){
+// clear out faultdata
+  faultData = {};
+  faultData.table = "fault";
+//recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
+	faultData.faultid = parseInt(document.getElementById("fault_id").innerHTML, 16);
+  faultData.operatorName = document.getElementById("operator_initials").innerHTML;
+  faultData.workOrder = document.getElementById("work_order").innerHTML;
+  faultData.quantity = document.getElementById("work_order_quantity").innerHTML;
+  faultData.finishedPartNumber = document.getElementById("finished_part_number").innerHTML;
+  faultData.pcbNumber = document.getElementById("pcb_part_number").innerHTML;
+  faultData.faultDesc = document.getElementById("reported_fault").value;
+	faultData.responseAs = "JSON";
+//collect new data
+
+	faultData.investigation_findings = document.getElementById('investigation_findings').value;
+// checks if left default
+  if (faultData.investigation_findings == ''){
+		alert('No Investigation Findings categories have been selected')
+		return;
+	}
+
+
+	faultData.additional_comments = document.getElementById('additional_comments').value;
+//this is optional no checking
+
+	faultData.fail_catagory = document.getElementById('fault_category').value;
+// checks if left default
+  if (faultData.fail_cataory == ''){
+		alert('default fail category')
+		return;
+	}
+
+
+  faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
+// check previous ones .... this isnt setup the same but probably should be
+// use tablemaker if possible !!
+
+  faultData.faulty_location_reference = document.getElementById('locationRef').value;
+//this is optional no checking
+
+  var ele = document.getElementsByName('repscrap');
+  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false){
+		alert('Please select an option for repair / scrap')
+		return;
+	}
+
+    for(i = 0; i < ele.length; i++) {
+			if(ele[i].checked){
+        faultData.repaired_scrapped = ele[i].value;
+      }
+    }
+
+// prep faultData as JSON string ready to POST
+	var req = JSON.stringify(faultData);
+	var xhr = null;
+	var xhr = new XMLHttpRequest();
+// parse response and send returned fault id to reciever
+	xhr.onreadystatechange=function(){
+    if (xhr.readyState==4 && xhr.status==200){
+      jResponse = JSON.parse(xhr.responseText);
+			submittedFault(jResponse.insertId);
+		}
+	}
+// post the faultData JSON string to enterFaultIncomplete route on backend
+	xhr.open("POST", "/enterFaultSame", true);
+	xhr.setRequestHeader('Content-Type', 'application/json');
+	xhr.send(req);
+}
+
+
+sameBoardSubmittedFault = function(faultId){
+//build HTML string
+//to display returned fault ID
+//add buttons to continue
+	var txt = '';
+	txt = txt + 'your fault id is :';
+	txt = txt + faultId.toString(16);
+	txt = txt + '<br>';
+	txt = txt + '<input type="button" value="Add another fault" onclick="addNewFault()">';
+	txt = txt + '<input type="button" value="Repeat same fault" onclick="addRepeatFault()">';
+	txt = txt + '<input type="button" value="No more faults" onclick="enterFaultDetails()">';
+
+	document.getElementById("sub_content").innerHTML= txt;
+}
+
+
 /******************************************************************************************************************************
  *
  *  Data exchange
@@ -250,6 +617,9 @@ function getData(table, sqlFunction, field, value, swFunc){
 					break;
 				case 'idsearch':
 					idSearchRec(response);
+					break;
+				case 'searchid':
+					recID(response);
 					break;
 				case 'incomplete':
           // stop if no data
@@ -334,8 +704,8 @@ loadPartEntry = function (){
 	txt = txt + '<select id="part_type_selector" >';
 	txt = txt + '<option value= "" disabled selected > -- Select Part type to add -- </option>';
 	txt = txt + '<option value="componentpartnumbers">Component part</option>';
-	txt = txt + '<option value="finishedpartnumbers">PCB part</option>';
-	txt = txt + '<option value="pcbpartnumbers">Finished part</option>';
+	txt = txt + '<option value="finishedpartnumbers">Finished part</option>';
+	txt = txt + '<option value="pcbpartnumbers">PCB part</option>';
 	txt = txt + '</select>';
 	txt = txt + '<br>';
   txt = txt + 'Part number:';
