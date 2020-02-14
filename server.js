@@ -87,7 +87,7 @@ router.route('/enterFault').post(function (req, res) {
 	'"'+thingy.investigation_findings+'", '+
 	'"'+thingy.additional_comments+'", '+
 	'"'+thingy.repaired_scrapped+'", '+
-	'"'+thingy.fail_category+'", '+
+	'"'+thingy.fail_catagory+'", '+
 	'"'+thingy.faulty_part_number+'", '+
 	'"'+thingy.faulty_location_reference+'", '+
 	'CURRENT_TIMESTAMP())';
@@ -171,7 +171,7 @@ router.route('/enterFaultSame').post(function (req, res) {
 	'"'+thingy.investigation_findings+'", '+
 	'"'+thingy.additional_comments+'", '+
 	'"'+thingy.repaired_scrapped+'", '+
-	'"'+thingy.fail_category+'", '+
+	'"'+thingy.fail_catagory+'", '+
 	'"'+thingy.faulty_part_number+'", '+
 	'"'+thingy.faulty_location_reference+'", '+
 	'CURRENT_TIMESTAMP(), '+

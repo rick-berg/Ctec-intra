@@ -1,4 +1,3 @@
-
 investigationFindings = {};
 faultcategories = {};
 finishedPartNumbers = {};
@@ -436,7 +435,8 @@ sameBoardFurtherReport = function(){
 	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
 // button to submit
 	txt = txt + '<input type="button" value="Submit" onclick="sameBoardSubmitFault()">';
-	document.getElementById("sub_content").innerHTML=txt;
+
+	document.getElementById("buttons_tofa_fr").innerHTML=txt;
 // make the part table clickable
 	var table = document.getElementById("componentPartLocationsTable");
     var rows = table.getElementsByTagName("tr");
@@ -489,7 +489,7 @@ sameBoardSubmitFault = function(){
   faultData.quantity = document.getElementById("work_order_quantity").innerHTML;
   faultData.finishedPartNumber = document.getElementById("finished_part_number").innerHTML;
   faultData.pcbNumber = document.getElementById("pcb_part_number").innerHTML;
-  faultData.faultDesc = document.getElementById("reported_fault").value;
+  faultData.faultDesc = document.getElementById("faultDesc").innerHTML;
 	faultData.responseAs = "JSON";
 //collect new data
 
@@ -506,8 +506,8 @@ sameBoardSubmitFault = function(){
 
 	faultData.fail_catagory = document.getElementById('fault_category').value;
 // checks if left default
-  if (faultData.fail_cataory == ''){
-		alert('default fail category')
+  if (faultData.fail_catagory == ''){
+		alert('Please select a fail category')
 		return;
 	}
 
@@ -518,6 +518,13 @@ sameBoardSubmitFault = function(){
 
   faultData.faulty_location_reference = document.getElementById('locationRef').value;
 //this is optional no checking
+//alert(faultData.faulty_part_number);
+if (faultData.faulty_part_number != ''){
+	if (faultData.faulty_location_reference == ''){
+		alert('type a location reference for the selected part')
+		return;
+	}
+}
 
   var ele = document.getElementsByName('repscrap');
   if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false){
@@ -1064,7 +1071,7 @@ furtherReport = function(){
 	if (faultData.faultDesc == ''){
 		alert ('Please give a fault description')
 		return
-	}
+	} //else {alert("faultDesc = "+faultData.faultDesc);}
 
 // build HTML string to display fault description
   var txt = ''
@@ -1208,7 +1215,7 @@ function componentPartlocationSearch() {
 
 submitFault = function(){
 // clear out faultdata
-  faultData = {};
+//  faultData = {}; dont clear here
   faultData.table = "fault";
 //recollect of data incase of change from reenter function (pcb number and finpart number different id's from last)
   faultData.operatorName = document.getElementById("operatorName").innerHTML;
@@ -1216,7 +1223,7 @@ submitFault = function(){
   faultData.quantity = document.getElementById("quantity").innerHTML;
   faultData.finishedPartNumber = document.getElementById("finishedPartNumber").innerHTML;
   faultData.pcbNumber = document.getElementById("pcbNumber").innerHTML;
-  faultData.faultDesc = document.getElementById("faultDesc").value;
+  faultData.faultDesc = document.getElementById("faultDesc").innerHTML;
 	faultData.responseAs = "JSON";
 //collect new data
 
@@ -1233,18 +1240,20 @@ submitFault = function(){
 
 	faultData.fail_catagory = document.getElementById('fault_category').value;
 // checks if left default
-  if (faultData.fail_cataory == ''){
-		alert('default fail category')
+if (faultData.fail_catagory == ''){
+	alert('No fail category has been selected')
+	return;
+}
+
+faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
+faultData.faulty_location_reference = document.getElementById('locationRef').value;
+//alert(faultData.faulty_part_number);
+if (faultData.faulty_part_number != ''){
+	if (faultData.faulty_location_reference == ''){
+		alert('type a location reference for the selected part')
 		return;
 	}
-
-
-  faultData.faulty_part_number = document.getElementById('componentPartLocatorInput').value;
-// check previous ones .... this isnt setup the same but probably should be
-// use tablemaker if possible !!
-
-  faultData.faulty_location_reference = document.getElementById('locationRef').value;
-//this is optional no checking
+}
 
   var ele = document.getElementsByName('repscrap');
   if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false){
@@ -1335,7 +1344,7 @@ recieveIncomplete = function (r){
 }
 
 loadIdSearch = function (){
-	var id = document.getElementById('iClicked').innerHTML;
+	var id = parseInt(document.getElementById('iClicked').innerHTML, 16);
   idSearch(id);
 }
 
@@ -1458,6 +1467,7 @@ completeFault = function (){
 
 
 submitCompletedFault = function (){
+
 	faultData.table = "fault";
 	faultData.responseAs = 'JSON';
 	faultData.investigation_findings = document.getElementById('investigation_findings').value;
@@ -1494,8 +1504,7 @@ submitCompletedFault = function (){
 	xhr.send(req);
 }
 
-reenterData = function(source)
-{
+reenterData = function(source){
 	newData = prompt("Please re-enter " + source +" information")
   if (newData == '' || newData == null){
     alert("nope that didn't work... please try again")
