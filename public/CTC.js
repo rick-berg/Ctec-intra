@@ -84,6 +84,18 @@ CTC.data.receive = function(r,swFunc){
 		case 'PoWlist':
 			var result = JSON.parse(r);
 			var txt = '';
+			txt = txt + '<input type="text" list="powvals" id="subSelect" />';
+			txt = txt + '<datalist id="powvals">';
+			for (i in result){
+				//txt = txt + '<option value="'+result[i].workorder+'">'+result[i].workorder+'</option>';
+				txt = txt + '<option value="'+Object.values(result[i])+'">'+Object.values(result[i])+'</option>';
+			}
+			txt = txt + '</datalist>';
+			txt = txt + '<button onclick="CTC.data.builder(';
+			txt = txt + "'searchByPoWVal'";
+			txt = txt + ')">search</button>';
+			
+			/*
 			txt = txt + '<select id="subSelect" onchange="CTC.data.builder(';
 			txt = txt + "'searchByPoWVal'";
 			txt = txt + ')">'; 
@@ -93,6 +105,8 @@ CTC.data.receive = function(r,swFunc){
 				txt = txt + '<option value="'+Object.values(result[i])+'">'+Object.values(result[i])+'</option>';
 			}
 			txt = txt + '</select>';
+*/
+
 			document.getElementById("searchsub").innerHTML= txt;
 			break;
 		case 'dataBox':

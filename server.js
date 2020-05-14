@@ -26,10 +26,44 @@ var http	= require('http');
 var mysql	= require('mysql');
 const bodyParser = require('body-parser')
 
+const {Pool,Client}	= require('pg');
+
+var pg_config = {
+	user: 		'ctec',
+	password: 	'changed4',
+	host:		'192.168.50.109',
+	port:		'5432',
+	database:	'ctec',
+	max:		5, // max connections to database
+	idleTimeoutMillis:10000,
+};
+const pg_pool = new Pool(pg_config);
+
 var app 	= express();
 var router = express.Router();
 
 var path = __dirname + '/public/';
+
+app.get('/pgTest', function(req, res, next){
+	pg_pool.connect(function(err,client,done){
+	//pg.connect(pg_connectionString,function(err,client,done) {
+		if (err){
+			console.log('server connect fail : '+err);
+			res.status(400).send(err);
+		}
+		pool.query('SELECT wkowono, wkooqty, wkouser FROM "wkofile"', (err, result) =>{
+//		pool.query('SELECT NOW()', (err, result) =>{
+			done();
+			if(err){
+				console.log(err);
+				res.status(400).send(err);
+			}
+//			res.status(200).send(result.rows);
+			res.status(200).send(result.rows);
+		});
+	});
+});
+
 router.use(function(req,res,next){
 	console.log("/"+ req.method);
 	next();
@@ -41,7 +75,22 @@ router.get("/temp",function(req,res){
 	res.sendFile(path+"temp.html");
 });
 router.get("/fault",function(req,res){
+	res.sendFile(path+"index.html");
+});
+router.get("/fault_",function(req,res){
 	res.sendFile(path+"fault.html");
+});
+router.get("/reel",function(req,res){
+	res.sendFile(path+"index.html");
+});
+router.get("/reel_",function(req,res){
+	res.sendFile(path+"reelLogger.html");
+});
+router.get("/legacy",function(req,res){
+	res.sendFile(path+"index.html");
+});
+router.get("/legacy_",function(req,res){
+	res.sendFile(path+"legacy.html");
 });
 
 router.route('/location').post(function (req, res) {
@@ -247,7 +296,7 @@ router.route('/completeExistingFault').post(function (req, res) {
 	'investigation_findings = "'+thingy.investigation_findings+
 	'", additional_comments = "'+thingy.additional_comments+
 	'", repaired_scrapped = "'+thingy.repaired_scrapped+
-	'", fail_catagory = "'+thingy.fail_category+
+	'", fail_catagory = "'+thingy.fail_catagory+
 	'", faulty_part_number = "'+thingy.faulty_part_number+
 	'", faulty_location_reference = "'+thingy.faulty_location_reference+
 //	'", completed = "completed"'+
@@ -602,6 +651,14 @@ var faultPool        = mysql.createPool({
     database        : 'simplefaultdb'
 });
 
+var legacyPool        = mysql.createPool({
+    connectionLimit : 10, // default = 10
+    host            : 'localhost',
+    user            : 'smtuser',  // use root on live
+    password        : 'ctec69sql',
+    database        : 'ctec'
+});
+
 app.get('/faultQuery', function(req, res){
 
 	var myObject = JSON.parse(req.query.q)
@@ -640,6 +697,43 @@ app.get('/faultQuery', function(req, res){
 	});
 });
 
+app.get('/legacyQuery', function(req, res){
+
+	var myObject = JSON.parse(req.query.q)
+	//myTable = myObject.table;
+	//myField = myObject.field;
+	//console.log('sqlFunction = '+myObject.sqlFunction+'');
+	var sqlstring = '';
+	sqlstring = sqlStringBuilder(myObject);
+	legacyPool.getConnection(function (err, connection) {
+		if (err){
+			console.log('server connect fail : '+err);
+			res.status(400).send(err);
+			}
+		connection.query(sqlstring, (err, result, fields) =>{
+			console.log('sql command done');
+			if(err){
+				console.log('sql command error');
+				console.log(err);
+				res.status(400).send(err);
+			}
+			connection.release();
+			console.log('sql connection released');
+			var json = result;
+			switch(myObject.responseAs) {
+				case 'JSON':
+					console.log('returning JSON');
+					res.status(200).send(json);
+					break;
+				case 'CSV':
+					res.status(200).send(returnAsCsv(json));
+					break;
+			}
+
+		});
+		console.log('done');
+	});
+});
 
 
 

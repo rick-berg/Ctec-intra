@@ -432,6 +432,7 @@ sameBoardFurtherReport = function(){
 // radio buttons for selecting outcome
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by cell">repaired by cell';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
+	txt = txt + '<input type="radio" name="repscrap" value="Rework by SMT">reworked by SMT';
 	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
 // button to submit
 	txt = txt + '<input type="button" value="Submit" onclick="sameBoardSubmitFault()">';
@@ -1168,6 +1169,7 @@ furtherReport = function(){
 // radio buttons for selecting outcome
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by cell">repaired by cell';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
+	txt = txt + '<input type="radio" name="repscrap" value="Rework by SMT">reworked by SMT';
 	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
 // button to submit
 	txt = txt + '<input type="button" value="Submit" onclick="submitFault()">';
@@ -1438,6 +1440,7 @@ completeFault = function (){
 	txt = txt + '';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by cell">repaired by cell';
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
+	txt = txt + '<input type="radio" name="repscrap" value="Rework by SMT">reworked by SMT';
 	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
 	txt = txt + '';
 	txt = txt + '<input type="button" value="Submit" onclick="submitCompletedFault()">';

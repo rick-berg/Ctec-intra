@@ -1,33 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
+	
 <head>
-
+	<meta charset="utf-8">
+	<title>Home</title>
+</head>
+<link rel="stylesheet" href="/pikaday.css">
 <link rel="stylesheet" type="text/css" href="/style.css" >
 
 
+<body>
+	<div class="container">
+	<div class="top">
+		<div style="float: left">
+			<a href="//localhost:8080">
+				<img src="header-logo.png">
+			</a>
+		</div>
+		<div class = "title">
+			SMT reel tracker
+		</div>
+		<div class="topnav">
+			<div onclick="CTC.page.Home.load()">Home</div>
+			<div onclick="CTC.page.CreateWo.load()">Create WO</div>
+			<div onclick="CTC.page.KitWo.load()">Kit WO </div>
+			<div onclick="CTC.page.Changereel.load()">Change reel</div>
+			<div onclick="CTC.page.Fileinput.load()">File Input</div>
+			<div onclick="CTC.page.Partfinder.load()">Part Finder</div>
+			<div onclick="CTC.page.Dataviewer.load()">Data viewer</div>
+		</div>
+	</div>
+	
 
 
-<script src='/mousetrap.min.js'></script> <!-- include mousetrap for keycommands -->
-<script src='/mouse.js'></script>
+
+		<div id="content" class="content">
+		
+			
+		
+		</div>
+   
+	</div>
+<script src="/pikaday.js"></script>
 <script src='/CTC.js'></script>
 
-</head>
-<body>
-
-<div id='fullpage'>
-	<div id='header'>
-		<div class='headerTitle'>reel logger</div>
-		<div class='headerOption' onclick="CTC.page.reelLogger.kitJob(0)">kit job</div>
-	</div>
-	<div id='content'>
-		<div class=chunky_but onclick="CTC.modal.show()"></div>
-	</div>
-</div>
-<div id='myModal' class='modal'>
-	<div id='myModalContent'class='modal-content'>
-		<input type='text' name='modalInput'>
-</div>
-</div>
-
 </body>
+
 </html>

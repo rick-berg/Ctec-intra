@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+	
+<head>
+	<meta charset="utf-8">
+	<title>Home</title>
+</head>
+
+<link rel="stylesheet" type="text/css" href="/style.css" >
+<link rel="stylesheet" type="text/css" href="/Chart.min.css" >
+
+<body>
+	<div id = "container" class="container">
+		<div class="top">
+			<div style="float: left">
+				<a href="//localhost:8080">
+					<img src="header-logo.png">
+				</a>
+			</div>
+			<div class = "title">
+				Legacy Data Viewer
+			</div>
+			
+
+			<div id="topnav" class="topnav">
+				<div onclick="loadPUHPage()">Part Usage History</div>
+				<div onclick="loadPurchHPage()">Purchase History</div>
+				<div onclick="loadWOHPage()">Work Order History</div>
+			</div>
+		</div>
+	
+		<div id="content" class="content">
+		</div>
+   
+	</div>
+	<div id = 'temp' style = 'opacity: 0;'></div>
+<script src="/legacy.js"></script>
+
+
+</body>
+
+</html>
