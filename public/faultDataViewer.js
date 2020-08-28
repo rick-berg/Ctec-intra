@@ -1,16 +1,16 @@
 loadDataViewer = function () {
   // Create divs page layout etc.
-  var txt = ''
-  txt = txt + 'search by:<div id="options"></div>'
-  txt = txt + '<div id="search_options"></div>'
-  txt = txt + '<div id="results">Data goes \'ere </div>'
-  txt = txt + '<div id="dev_box"></div>'
+  var txt = '';
+  txt = txt + 'search by:<div id="options"></div>';
+  txt = txt + '<div id="search_options"></div>';
+  txt = txt + '<div id="results"> </div>';
+  txt = txt + '<div id="dev_box"></div>';
   document.getElementById("content").innerHTML=txt;
   optionsSelect();
 };
 
 optionsSelect = function (){
-  var txt = ''
+  var txt = '';
   txt = txt + '<select id="search_option" onchange="searchOptions(this.value)" >';
   txt = txt + '<option disabled selected value> -- select a search option -- </option>';
 
@@ -20,12 +20,14 @@ optionsSelect = function (){
   txt = txt + '<option value="work_order">Work order</option>';
   txt = txt + '<option value="pcb_part_number">PCB part number</option>';
   txt = txt + '<option value="finished_part_number">Finished part number</option>';
+  txt = txt + '<option value="faulty_part_number">Faulty part number</option>';
+  txt = txt + '<option value="scrapped">scrapped</option>';
   txt = txt + '</select>';
 
   document.getElementById("options").innerHTML=txt;
 };
 searchOptions = function (optionSelected){
-  var txt = ''
+  var txt = '';
   switch (optionSelected){
     case 'todays_work':
     // select all where timestamp = week(x,1)
@@ -41,52 +43,40 @@ searchOptions = function (optionSelected){
     case 'pcb_part_number':
       txt = txt + '<input type="text" id="PBC_part_search" placeholder="Enter PCB part number">';
       txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSelTFV\', \'pcb_part_number\', document.getElementById(\'PBC_part_search\').value, \'dataViewer\')">';
-      /*
-      txt = txt + '<br>select a date range to view';
-    	txt = txt + '';
-    	txt = txt + '<div style="display: inline-block">';
-    	txt = txt + '<label for="start">Start:</label>';
-    	txt = txt + '<br>';
-    	txt = txt + '<input type="text" id="start">';
-    	txt = txt + '</div>';
-    	txt = txt + '';
-    	txt = txt + ' <div style="display: inline-block">';
-    	txt = txt + '<label for="end">End:</label>';
-    	txt = txt + '<br>';
-    	txt = txt + '<input type="text" id="end">';
-    	txt = txt + '</div>';
-    	txt = txt + '';
-    	txt = txt + '<input type="button" value="Search Date" onclick="getData(\'fault\', \'betweenTimesWhere\', \'timestamp\', \'\', \'dataViewer\')">';
-      */
+    
       break;
     case 'finished_part_number':
 
       txt = txt + '<input type="text" id="finished_part_search" placeholder="Enter Finished number">';
       txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSelTFV\', \'finished_part_number\', document.getElementById(\'finished_part_search\').value, \'dataViewer\')">';
 
-      //txt = txt + '<input type="button" value="Search All" onclick="getData(\'fault\', \'genSelTFV\', \'finished_part_number\', '+document.getElementById("finished_part_search").value+', \'dataViewer\')">';
-      /*
-      txt = txt + '<br>select a date range to view';
-    	txt = txt + '';
-    	txt = txt + '<div style="display: inline-block">';
-    	txt = txt + '<label for="start">Start:</label>';
-    	txt = txt + '<br>';
-    	txt = txt + '<input type="text" id="start">';
-    	txt = txt + '</div>';
-    	txt = txt + '';
-    	txt = txt + ' <div style="display: inline-block">';
-    	txt = txt + '<label for="end">End:</label>';
-    	txt = txt + '<br>';
-    	txt = txt + '<input type="text" id="end">';
-    	txt = txt + '</div>';
-    	txt = txt + '';
-    	txt = txt + '<input type="button" value="Search Date" onclick="alert(\'dateSearch\')">';
-      */
+      break;
+     case 'faulty_part_number':
+      txt = txt + '<input type="text" id="faulty_part_search" placeholder="Enter Faulty number">';
+      txt = txt + '<input type="button" value="Search" onclick="getData(\'fault\', \'genSelTFV\', \'faulty_part_number\', document.getElementById(\'faulty_part_search\').value, \'dataViewer\')">';
+
+
+      txt = txt + '';
+    
+      break;
+     case 'scrapped':
+      var txt = '';
+      txt = txt + '<select id="years" onchange="getData(\'\',\'weekList\',\'\',getElementById(\'years\').value,\'weekData\')">';
+      txt = txt + '<option disabled selected value> -- Select a Year -- </option>';
+      for (i in response){
+						txt = txt + '<option value="'+response[i].years+'">'+response[i].years+'</option>';
+      }
+      txt = txt + '</select>';
+      txt = txt + '<div id = "chartOptionsWeek" style="float: left;"></div>'
+      document.getElementById('chartOptionsYear').innerHTML = txt;
+
+      txt = txt + '';
+    
       break;
   }
   document.getElementById("search_options").innerHTML=txt;
   initpika();
-}
+};
 //getData('fault', 'betweenTimes', 'timestamp', '', 'dataViewer')
 
 

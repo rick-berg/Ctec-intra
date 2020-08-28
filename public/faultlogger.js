@@ -528,7 +528,7 @@ if (faultData.faulty_part_number != ''){
 }
 
   var ele = document.getElementsByName('repscrap');
-  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false){
+  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false && ele[3].checked == false){
 		alert('Please select an option for repair / scrap')
 		return;
 	}
@@ -636,6 +636,9 @@ function getData(table, sqlFunction, field, value, swFunc){
 				case 'chartDataBar':
 					loadBarChart(response)
 					break;
+				case 'chartDataScrapped':
+					loadScrappedChart(response)
+					break;
 				case 'chartDataLine':
 					loadLineChart(response)
 					break;
@@ -666,12 +669,11 @@ function getData(table, sqlFunction, field, value, swFunc){
 					document.getElementById('chartOptionsYear').innerHTML = txt;
 	//				yearWeekData = response;
 					break;
-        case 'dataViewer':
-          tableMaker(response, 'results', 'mysearchTable', 'mysearchSearch', 'mysearchClicked',1);
-          break;
+    case 'dataViewer':
+					tableMaker(response, 'results', 'mysearchTable', 'mysearchSearch', 'mysearchClicked',1);
+     break;
 				case 'weekData':
 					var txt = '';
-
 					txt = txt + '<select id="weekStart" >';
 					txt = txt + '<option disabled selected value> -- Select a Week -- </option>';
 					for (i in response){
@@ -1258,7 +1260,7 @@ if (faultData.faulty_part_number != ''){
 }
 
   var ele = document.getElementsByName('repscrap');
-  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false){
+  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false && ele[3].checked == false){
 		alert('Please select an option for repair / scrap')
 		return;
 	}

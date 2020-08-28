@@ -60,6 +60,7 @@ loadChartsPage = function(){
 	txt = txt + '<option value="smt">SMT</option>';
 	txt = txt + '<option value="conv">CONV</option>';
 	txt = txt + '<option value="progTest">prog\/test</option>';
+	txt = txt + '<option value="scrapped">Scrapped Boards</option>';
 	txt = txt + '</select>';
 	txt = txt + '</div>'
 	txt = txt + '<div id="chartOptionsYear"style="float: left">'
@@ -86,7 +87,10 @@ loadChart = function(){
 
 	if (chartType == 'all'){
 		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataLine');
-	}else{
+	}else if (chartType == 'scrapped'){
+		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataScrapped');
+	}
+	else{
 		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataBar');
 	}
 
@@ -156,7 +160,7 @@ loadBarChart = function(thisChartData){
 	}
 	//for (i = 0; i < tr.length; i++) {}
 
-	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
+	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" backgroundColor = "#ffffff" width="80" height="30"></canvas>';
 	var ctx = document.getElementById('myChart').getContext('2d');
 	var myLineChart = new Chart(ctx, setConfig);
 
@@ -370,7 +374,7 @@ loadLineChart = function(thisChartData){
 	}
 
 
-	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" width="80" height="30"></canvas>';
+	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" backgroundColor = "#ffffff" width="80" height="30"></canvas>';
 	//var ctx = document.getElementById('myChart').getContext('2d');
 	var ctx = document.getElementById('myChart').getContext("2d");
 	var myLineChart = new Chart(ctx, setConfig);
@@ -474,3 +478,148 @@ loadLineChart = function(thisChartData){
 	});
 	*/
 }
+
+loadScrappedChart = function(thisChartData){
+	var faultcats = ['Scrapped board count']
+
+	var fields = Object.keys(thisChartData[0]);
+	var setConfig = {};
+	setConfig.type = 'line';
+	setConfig.data = {};
+	setConfig.data.labels = [];
+	setConfig.data.datasets = [];
+	setConfig.options = {
+					responsive: true,
+					hoverMode: 'index',
+					stacked: false,
+					title: {
+						display: true,
+						text: 'Scrapped board count'
+					},
+					scales: {
+						yAxes: {
+							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+							display: true,
+						},
+					}
+				}
+	for (var j in faultcats){
+		 setConfig.data.datasets.push ({
+				label: faultcats[j],
+				borderColor: faultBorderColours[j],
+				backgroundColor: faultBgColours[j],
+				fill: false,
+				data: [],
+			});
+	}
+	for (var i in thisChartData){
+		setConfig.data.labels.push (thisChartData[i].month);
+		setConfig.data.datasets[0].data.push (thisChartData[i].count)
+	}
+
+
+	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" backgroundColor = "#ffffff" width="80" height="30"></canvas>';
+	//var ctx = document.getElementById('myChart').getContext('2d');
+	var ctx = document.getElementById('myChart').getContext("2d");
+	var myLineChart = new Chart(ctx, setConfig);
+
+
+  document.getElementById("myChart").onclick = function(evt)
+  {
+      var activePoint = myLineChart.getElementAtEvent(evt);
+
+      if(activePoint.length > 0)
+      {
+        //get the internal index of slice in pie chart
+        var clickedElementindex = activePoint[0]["_index"];
+        var clickedElementDSindex = activePoint[0]._datasetIndex;
+        //get specific label by index
+        var label = myLineChart.data.labels[clickedElementindex];
+
+        //get value by index
+        var value = myLineChart.data.datasets[clickedElementDSindex].data[clickedElementindex];
+        var datalabel = myLineChart.data.datasets[clickedElementDSindex].label;
+				var yearData = document.getElementById('years').value
+				//label = label.slice(4);
+        console.log('label = '+label+'')
+				
+        //console.log('value = '+value+'')
+        //console.log('dataset index = '+clickedElementDSindex+'')
+				//datalabel = datalabel.substring(0, datalabel.length - 7);
+        console.log('dataset name = '+datalabel+'')
+				fields = '*'
+				whereStuff = " monthname(timestamp) = '"+label+"' AND year(timestamp) = '"+yearData+"' "+
+                    "AND repaired_scrapped = 'scrapped' ;"
+				getData('fault', 'genSel', fields ,whereStuff,'barDrillTable');
+        //console.log(activePoint)
+        /* other stuff that requires slice's label and value */
+     }
+  }
+
+	/*
+	var myLineChart = new Chart(ctx,{
+    type: 'line',
+    data: {
+			labels: ['Week'+weeklyChartData[0].week_number, 'Week'+weeklyChartData[1].week_number, 'Week3', 'Week4', 'Week5', 'Week6', 'Week7'],
+			datasets: [{
+				label: 'SMT faults',
+				borderColor: 'rgba(255, 99, 132, 1)',
+				backgroundColor: 'rgba(255, 99, 132, 0.5)',
+				fill: false,
+				data: [7, 3, 10, 4, 11, 7, 6],
+				yAxisID: 'y-axis-1',
+			}, {
+				label: 'CONV faults',
+				borderColor: 'rgba(54, 162, 235, 1)',
+				backgroundColor: 'rgba(54, 162, 235, 0.5)',
+				fill: false,
+				data: [3, 5, 11, 9, 1, 5, 2],
+				yAxisID: 'y-axis-1'
+			}, {
+				label: 'PROG/TEST faults',
+				borderColor: 'rgba(255, 206, 86, 1)',
+				backgroundColor: 'rgba(255, 206, 86, 0.5)',
+				fill: false,
+				data: [2, 6, 3, 8, 4, 2, 8],
+				yAxisID: 'y-axis-1'
+			}, {
+				label: 'Undefined faults',
+				borderColor: 'rgba(75, 192, 192, 1)',
+				backgroundColor: 'rgba(75, 192, 192, 0.5)',
+				fill: false,
+				data: [6, 25, 15, 7, 2, 4, 12],
+				yAxisID: 'y-axis-1'
+			}
+			],
+		},
+    options: {
+					responsive: true,
+					hoverMode: 'index',
+					stacked: false,
+					title: {
+						display: true,
+						text: 'Fault catagories per week'
+					},
+					scales: {
+						yAxes: [{
+							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+							display: true,
+							position: 'left',
+							id: 'y-axis-1',
+						}, {
+							type: 'linear', // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+							display: true,
+							position: 'right',
+							id: 'y-axis-2',
+
+							// grid line settings
+							gridLines: {
+								drawOnChartArea: false, // only want the grid lines for one axis to show up
+							},
+						}],
+					}
+				}
+	});
+	*/
+}
+
