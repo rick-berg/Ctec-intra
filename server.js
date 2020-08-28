@@ -51,7 +51,7 @@ app.get('/pgTest', function(req, res, next){
 			console.log('server connect fail : '+err);
 			res.status(400).send(err);
 		}
-		pool.query('SELECT wkowono, wkooqty, wkouser FROM "wkofile"', (err, result) =>{
+		pg_pool.query('SELECT wkowono, wkooqty, wkouser FROM "wkofile"', (err, result) =>{
 //		pool.query('SELECT NOW()', (err, result) =>{
 			done();
 			if(err){
@@ -1020,6 +1020,19 @@ sqlStringBuilder = function(data){
 					"week(timestamp, 1) BETWEEN '"+data.field.weekStart+"' AND '"+data.field.weekEnd+"'"+
 					'group by  '+
 					'WEEK(timestamp,1)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break
+				case 'scrapped':
+					sqlString =
+					'SELECT Monthname(timestamp) as month, Count(*) as count '+
+					'FROM fault '+
+					'where '+
+					"year(timestamp) = '"+data.field.year+"' "+
+					'and '+
+					'repaired_scrapped = "scrapped" '+
+					'group by  '+
+					'Month(timestamp)';
 					console.log('sql string is '+sqlString)
 					return sqlString;
 				break
