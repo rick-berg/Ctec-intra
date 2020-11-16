@@ -1036,6 +1036,20 @@ sqlStringBuilder = function(data){
 					console.log('sql string is '+sqlString)
 					return sqlString;
 				break
+			case 'repScrap':
+					sqlString =
+					'SELECT Monthname(timestamp) as month, '+
+					'sum(case when repaired_scrapped = \'Repaired by Cell\' then 1 else 0 end) as Repaired_by_Cell, '+
+					'sum(case when repaired_scrapped = \'Repaired by FA\' then 1 else 0 end) as Repaired_by_FA, '+
+					'sum(case when repaired_scrapped = \'scrapped\' then 1 else 0 end) as scrapped '+
+					'FROM fault '+
+					'where '+
+					"year(timestamp) = '"+data.field.year+"' "+
+					'group by  '+
+					'Month(timestamp)';
+					console.log('sql string is '+sqlString)
+					return sqlString;
+				break
 			/*
 			 *	needs database rework does not take into account no fails and there seems to be split works orders for testing
 			 *
