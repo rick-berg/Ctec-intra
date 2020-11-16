@@ -61,6 +61,7 @@ loadChartsPage = function(){
 	txt = txt + '<option value="conv">CONV</option>';
 	txt = txt + '<option value="progTest">prog\/test</option>';
 	txt = txt + '<option value="scrapped">Scrapped Boards</option>';
+	txt = txt + '<option value="repScrap">Repaired/Scrapped</option>';
 	txt = txt + '</select>';
 	txt = txt + '</div>'
 	txt = txt + '<div id="chartOptionsYear"style="float: left">'
@@ -85,6 +86,21 @@ loadChart = function(){
 	chartLoad.weekStart = document.getElementById("weekStart").value
 	chartLoad.weekEnd = document.getElementById("weekEnd").value
 
+	
+	switch(chartType) {
+  case 'all':
+    getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataLine');
+    break;
+  case 'scrapped':
+    getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataScrapped');
+    break;
+	case 'repScrap':
+    getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataRepScrap');
+    break;
+  default:
+    getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataBar');
+}
+/*
 	if (chartType == 'all'){
 		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataLine');
 	}else if (chartType == 'scrapped'){
@@ -93,7 +109,7 @@ loadChart = function(){
 	else{
 		getData('fault','faultsByWeek', chartLoad, chartType, 'chartDataBar');
 	}
-
+*/
 	}
 
 
@@ -188,6 +204,7 @@ loadBarChart = function(thisChartData){
         console.log('weekno = '+label+'')
         console.log('dataset name = '+datalabel+'')
         console.log('chart type = '+chartCatagory+'')
+				//todo fix this embarassing mess
 				if (chartCatagory == 'All Faults') {chartCatagory = "";}
         if (chartCatagory == 'conv') {chartCatagory = "fail_catagory = 'CONV' AND ";}
         if (chartCatagory == 'smt') {chartCatagory = "fail_catagory = 'SMT' AND ";}
@@ -333,6 +350,7 @@ var myChart = new Chart(ctx, {
 }
 
 loadLineChart = function(thisChartData){
+	console.log(thisChartData);
 	var faultcats = ['SMT faults','CONV faults','PROG/TEST faults','Undefined faults']
 
 	var fields = Object.keys(thisChartData[0]);
@@ -623,3 +641,83 @@ loadScrappedChart = function(thisChartData){
 	*/
 }
 
+
+loadRepScrapChart = function(thisChartData){
+	console.log(thisChartData);
+	var faultcats = ['Repaired by FA', 'Scrapped', 'Repaired by Cell', ]
+
+	var fields = Object.keys(thisChartData[0]);
+	var setConfig = {};
+	setConfig.type = 'bar';
+	setConfig.data = {};
+	setConfig.data.labels = [];
+	setConfig.data.datasets = [];
+	setConfig.options = {
+		scales: {
+			xAxes: [{
+				stacked: true
+			}],
+      yAxes: [{
+				stacked: true,
+        ticks: {
+					beginAtZero: true
+        }
+      }]
+    }
+  };
+	
+	for (var j in faultcats){
+		 setConfig.data.datasets.push ({
+				label: faultcats[j],
+				borderColor: faultBorderColours[j],
+				backgroundColor: faultBgColours[j],
+				fill: false,
+				data: [],
+			});
+	}
+	for (var i in thisChartData){
+		setConfig.data.labels.push (thisChartData[i].month);
+		setConfig.data.datasets[0].data.push (thisChartData[i].Repaired_by_FA)
+		setConfig.data.datasets[2].data.push (thisChartData[i].Repaired_by_Cell)
+		setConfig.data.datasets[1].data.push (thisChartData[i].scrapped)
+	}
+
+
+	document.getElementById("chartcanvas").innerHTML='<canvas id="myChart" backgroundColor = "#ffffff" width="80" height="30"></canvas>';
+	//var ctx = document.getElementById('myChart').getContext('2d');
+	var ctx = document.getElementById('myChart').getContext("2d");
+	var myLineChart = new Chart(ctx, setConfig);
+
+
+  document.getElementById("myChart").onclick = function(evt)
+  {
+      var activePoint = myLineChart.getElementAtEvent(evt);
+
+      if(activePoint.length > 0)
+      {
+        //get the internal index of slice in pie chart
+        var clickedElementindex = activePoint[0]["_index"];
+        var clickedElementDSindex = activePoint[0]._datasetIndex;
+        //get specific label by index
+        var label = myLineChart.data.labels[clickedElementindex];
+
+        //get value by index
+        var value = myLineChart.data.datasets[clickedElementDSindex].data[clickedElementindex];
+        var datalabel = myLineChart.data.datasets[clickedElementDSindex].label;
+				var yearData = document.getElementById('years').value
+				//label = label.slice(4);
+        console.log('label = '+label+'')
+				
+        //console.log('value = '+value+'')
+        //console.log('dataset index = '+clickedElementDSindex+'')
+				//datalabel = datalabel.substring(0, datalabel.length - 7);
+        console.log('dataset name = '+datalabel+'')
+				fields = '*'
+				whereStuff = " monthname(timestamp) = '"+label+"' AND year(timestamp) = '"+yearData+"' "+
+                    "AND repaired_scrapped = 'scrapped' ;"
+				getData('fault', 'genSel', fields ,whereStuff,'barDrillTable');
+        //console.log(activePoint)
+        /* other stuff that requires slice's label and value */
+     }
+  }
+}

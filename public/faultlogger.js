@@ -639,6 +639,9 @@ function getData(table, sqlFunction, field, value, swFunc){
 				case 'chartDataScrapped':
 					loadScrappedChart(response)
 					break;
+				case 'chartDataRepScrap':
+					loadRepScrapChart(response)
+					break;
 				case 'chartDataLine':
 					loadLineChart(response)
 					break;
@@ -1536,6 +1539,15 @@ reenterData = function(source){
       });
     });
   }
-
+unlockFeatures = function (){
+	var txt = ''
+	txt = txt + '<div onclick="enterFaultDetails()">Enter fault</div>'
+	txt = txt + '<div onclick="loadIncomplete()">Incomplete Records</div>'
+	txt = txt + '<div onclick="loadSearchID()">ID Search</div>'
+	txt = txt + '<div onclick="loadChartsPage()">Charts</div>'
+	txt = txt + '<div onclick="loadDataViewer()">DataViewer</div>'
+	document.getElementById("topnav").innerHTML = txt
+}
 
 initFaultFields();
+unlockFeatures();
