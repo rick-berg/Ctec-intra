@@ -1042,6 +1042,7 @@ sqlStringBuilder = function(data){
 					'sum(case when repaired_scrapped = \'Repaired by Cell\' then 1 else 0 end) as Repaired_by_Cell, '+
 					'sum(case when repaired_scrapped = \'Repaired by FA\' then 1 else 0 end) as Repaired_by_FA, '+
 					'sum(case when repaired_scrapped = \'scrapped\' then 1 else 0 end) as scrapped '+
+					'sun(case when repaired_scrapped = \'Rework by SMT\' then 1 else 0 end)as Rework_by_SMT'
 					'FROM fault '+
 					'where '+
 					"year(timestamp) = '"+data.field.year+"' "+
