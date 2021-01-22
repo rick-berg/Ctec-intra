@@ -644,7 +644,7 @@ loadScrappedChart = function(thisChartData){
 
 loadRepScrapChart = function(thisChartData){
 	console.log(thisChartData);
-	var faultcats = ['Repaired by FA', 'Scrapped', 'Repaired by Cell', ]
+	var faultcats = ['Repaired by FA', 'Scrapped', 'Repaired by Cell','Rework by SMT' ]
 
 	var fields = Object.keys(thisChartData[0]);
 	var setConfig = {};
@@ -680,6 +680,7 @@ loadRepScrapChart = function(thisChartData){
 		setConfig.data.datasets[0].data.push (thisChartData[i].Repaired_by_FA)
 		setConfig.data.datasets[2].data.push (thisChartData[i].Repaired_by_Cell)
 		setConfig.data.datasets[1].data.push (thisChartData[i].scrapped)
+		setConfig.data.datasets[3].data.push (thisChartData[i].Rework_by_SMT)
 	}
 
 

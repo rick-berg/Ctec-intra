@@ -434,6 +434,8 @@ sameBoardFurtherReport = function(){
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
 	txt = txt + '<input type="radio" name="repscrap" value="Rework by SMT">reworked by SMT';
 	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
+	txt = txt + '<input type="radio" name="repscrap" value="scrapped by Returns">scrapped by Returns<br>';
+	txt = txt + '<input type="radio" name="repscrap" value="repaired by Returns">repaired by Returns<br>';
 // button to submit
 	txt = txt + '<input type="button" value="Submit" onclick="sameBoardSubmitFault()">';
 
@@ -1176,6 +1178,8 @@ furtherReport = function(){
 	txt = txt + '<input type="radio" name="repscrap" value="repaired by FA">repaired by FA';
 	txt = txt + '<input type="radio" name="repscrap" value="Rework by SMT">reworked by SMT';
 	txt = txt + '<input type="radio" name="repscrap" value="scrapped">scrapped<br>';
+		txt = txt + '<input type="radio" name="repscrap" value="scrapped by Returns">scrapped by Returns<br>';
+	txt = txt + '<input type="radio" name="repscrap" value="repaired by Returns">repaired by Returns<br>';
 // button to submit
 	txt = txt + '<input type="button" value="Submit" onclick="submitFault()">';
 	document.getElementById("sub_content").innerHTML=txt;
@@ -1263,10 +1267,17 @@ if (faultData.faulty_part_number != ''){
 }
 
   var ele = document.getElementsByName('repscrap');
-  if (ele[0].checked == false && ele[1].checked == false && ele[2].checked == false && ele[3].checked == false){
-		alert('Please select an option for repair / scrap')
+		let allGood = false;
+		for (let i in ele){
+			if(ele[i].checked == true){
+				allGood = true
+			}
+		}
+		if (!allGood){
+			alert('Please select an option for repair / scrap')
 		return;
-	}
+		}
+ 
 
     for(i = 0; i < ele.length; i++) {
 			if(ele[i].checked){
